@@ -62,4 +62,187 @@ const handleClick = (event: MouseEvent) => {
   </button>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+@import '../../../styles/tokens/colors';
+@import '../../../styles/tokens/spacing';
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: $border-radius-md;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  white-space: nowrap;
+  user-select: none;
+
+  &:focus-visible {
+    outline: 2px solid $accent-500;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &--full-width {
+    width: 100%;
+  }
+
+  // Sizes
+  &--sm {
+    padding: $button-padding-y-sm $button-padding-x-sm;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    gap: $spacing-1;
+  }
+
+  &--md {
+    padding: $button-padding-y-md $button-padding-x-md;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    gap: $spacing-2;
+  }
+
+  &--lg {
+    padding: $button-padding-y-lg $button-padding-x-lg;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    gap: $spacing-2;
+  }
+
+  // Variants
+  &--primary {
+    background-color: $accent-500;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: $accent-600;
+    }
+
+    &:active:not(:disabled) {
+      background-color: $accent-700;
+    }
+  }
+
+  &--secondary {
+    background-color: $gray-100;
+    color: $gray-900;
+
+    &:hover:not(:disabled) {
+      background-color: darken($gray-100, 5%);
+    }
+
+    &:active:not(:disabled) {
+      background-color: darken($gray-100, 10%);
+    }
+  }
+
+  &--ghost {
+    background-color: transparent;
+    color: $accent-500;
+
+    &:hover:not(:disabled) {
+      background-color: $accent-50;
+    }
+
+    &:active:not(:disabled) {
+      background-color: $accent-100;
+    }
+  }
+
+  &--danger {
+    background-color: $error;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: darken($error, 10%);
+    }
+
+    &:active:not(:disabled) {
+      background-color: darken($error, 15%);
+    }
+  }
+
+  // Icon styles
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &--left {
+      margin-right: -$spacing-1;
+    }
+
+    &--right {
+      margin-left: -$spacing-1;
+    }
+
+    :deep(svg) {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  // Loading spinner
+  &__spinner {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &-svg {
+      width: 1em;
+      height: 1em;
+      animation: spin 1s linear infinite;
+    }
+
+    &-circle {
+      stroke-dasharray: 31.416;
+      stroke-dashoffset: 31.416;
+      animation: dash 2s ease-in-out infinite;
+    }
+  }
+
+  &__content {
+    transition: opacity 0.2s ease;
+
+    &--hidden {
+      opacity: 0;
+    }
+  }
+
+  &--loading {
+    pointer-events: none;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+</style>

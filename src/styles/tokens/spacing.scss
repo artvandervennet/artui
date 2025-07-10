@@ -1,0 +1,165 @@
+/* _spacing.scss */
+
+// Base spacing unit (typically 4px or 8px)
+$spacing-unit: 0.25rem; // 4px
+
+// Spacing scale (following a consistent multiplier pattern)
+$spacing-0: 0;
+$spacing-px: 1px;
+$spacing-0-5: calc($spacing-unit * 0.5);  // 2px
+$spacing-1: $spacing-unit;                // 4px
+$spacing-1-5: calc($spacing-unit * 1.5);  // 6px
+$spacing-2: calc($spacing-unit * 2);      // 8px
+$spacing-2-5: calc($spacing-unit * 2.5);  // 10px
+$spacing-3: calc($spacing-unit * 3);      // 12px
+$spacing-3-5: calc($spacing-unit * 3.5);  // 14px
+$spacing-4: calc($spacing-unit * 4);      // 16px
+$spacing-5: calc($spacing-unit * 5);      // 20px
+$spacing-6: calc($spacing-unit * 6);      // 24px
+$spacing-7: calc($spacing-unit * 7);      // 28px
+$spacing-8: calc($spacing-unit * 8);      // 32px
+$spacing-9: calc($spacing-unit * 9);      // 36px
+$spacing-10: calc($spacing-unit * 10);    // 40px
+$spacing-11: calc($spacing-unit * 11);    // 44px
+$spacing-12: calc($spacing-unit * 12);    // 48px
+$spacing-14: calc($spacing-unit * 14);    // 56px
+$spacing-16: calc($spacing-unit * 16);    // 64px
+$spacing-20: calc($spacing-unit * 20);    // 80px
+$spacing-24: calc($spacing-unit * 24);    // 96px
+$spacing-28: calc($spacing-unit * 28);    // 112px
+$spacing-32: calc($spacing-unit * 32);    // 128px
+$spacing-36: calc($spacing-unit * 36);    // 144px
+$spacing-40: calc($spacing-unit * 40);    // 160px
+$spacing-44: calc($spacing-unit * 44);    // 176px
+$spacing-48: calc($spacing-unit * 48);    // 192px
+$spacing-52: calc($spacing-unit * 52);    // 208px
+$spacing-56: calc($spacing-unit * 56);    // 224px
+$spacing-60: calc($spacing-unit * 60);    // 240px
+$spacing-64: calc($spacing-unit * 64);    // 256px
+$spacing-72: calc($spacing-unit * 72);    // 288px
+$spacing-80: calc($spacing-unit * 80);    // 320px
+$spacing-96: calc($spacing-unit * 96);    // 384px
+
+// Semantic spacing tokens for common use cases
+$spacing-xs: $spacing-1;    // 4px
+$spacing-sm: $spacing-2;    // 8px
+$spacing-md: $spacing-4;    // 16px
+$spacing-lg: $spacing-6;    // 24px
+$spacing-xl: $spacing-8;    // 32px
+$spacing-2xl: $spacing-12;  // 48px
+$spacing-3xl: $spacing-16;  // 64px
+$spacing-4xl: $spacing-24;  // 96px
+$spacing-5xl: $spacing-32;  // 128px
+
+// Component-specific spacing
+$button-padding-x-sm: $spacing-3;     // 12px
+$button-padding-y-sm: $spacing-1-5;   // 6px
+$button-padding-x-md: $spacing-4;     // 16px
+$button-padding-y-md: $spacing-2-5;   // 10px
+$button-padding-x-lg: $spacing-6;     // 24px
+$button-padding-y-lg: $spacing-3;     // 12px
+
+$input-padding-x: $spacing-3;         // 12px
+$input-padding-y: $spacing-2-5;       // 10px
+
+$card-padding: $spacing-6;            // 24px
+$card-margin: $spacing-4;             // 16px
+
+$modal-padding: $spacing-6;           // 24px
+$modal-margin: $spacing-4;            // 16px
+
+$section-padding-y: $spacing-16;      // 64px
+$section-padding-x: $spacing-6;       // 24px
+
+$container-padding-x: $spacing-4;     // 16px
+$container-padding-x-sm: $spacing-6;  // 24px (for small screens)
+$container-padding-x-lg: $spacing-8;  // 32px (for large screens)
+
+// Layout spacing
+$layout-gutter: $spacing-6;           // 24px
+$layout-gap: $spacing-4;              // 16px
+$layout-gap-sm: $spacing-2;           // 8px
+$layout-gap-lg: $spacing-8;           // 32px
+
+// Form spacing
+$form-field-gap: $spacing-4;          // 16px
+$form-group-gap: $spacing-6;          // 24px
+$form-section-gap: $spacing-8;        // 32px
+
+// Navigation spacing
+$nav-item-padding-x: $spacing-4;      // 16px
+$nav-item-padding-y: $spacing-2;      // 8px
+$nav-gap: $spacing-1;                 // 4px
+
+// Border radius (often related to spacing)
+$border-radius-none: 0;
+$border-radius-sm: 0.125rem;          // 2px
+$border-radius-md: 0.25rem;           // 4px
+$border-radius-lg: 0.5rem;            // 8px
+$border-radius-xl: 0.75rem;           // 12px
+$border-radius-2xl: 1rem;             // 16px
+$border-radius-3xl: 1.5rem;           // 24px
+$border-radius-full: 9999px;
+
+// Responsive spacing breakpoints
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// Responsive spacing mixins
+@mixin responsive-spacing($property, $mobile-value, $desktop-value: null) {
+  #{$property}: $mobile-value;
+
+  @if $desktop-value {
+    @media (min-width: $breakpoint-md) {
+      #{$property}: $desktop-value;
+    }
+  }
+}
+
+// Utility mixins for common spacing patterns
+@mixin center-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin stack($gap: $spacing-4) {
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+}
+
+@mixin inline($gap: $spacing-2) {
+  display: flex;
+  align-items: center;
+  gap: $gap;
+}
+
+@mixin container-padding {
+  padding-left: $container-padding-x;
+  padding-right: $container-padding-x;
+
+  @media (min-width: $breakpoint-sm) {
+    padding-left: $container-padding-x-sm;
+    padding-right: $container-padding-x-sm;
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    padding-left: $container-padding-x-lg;
+    padding-right: $container-padding-x-lg;
+  }
+}
+
+// Auto-negative margins for precise positioning
+$spacing-negative-1: -$spacing-1;
+$spacing-negative-2: -$spacing-2;
+$spacing-negative-3: -$spacing-3;
+$spacing-negative-4: -$spacing-4;
+$spacing-negative-5: -$spacing-5;
+$spacing-negative-6: -$spacing-6;
+$spacing-negative-8: -$spacing-8;
+$spacing-negative-12: -$spacing-12;
+$spacing-negative-16: -$spacing-16;
