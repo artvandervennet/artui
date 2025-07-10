@@ -63,8 +63,10 @@ const handleClick = (event: MouseEvent) => {
 </template>
 
 <style scoped lang="scss">
-@import '../../../styles/tokens/colors';
-@import '../../../styles/tokens/spacing';
+@import url('../../../styles/tokens/colors.scss');
+@import url('../../../styles/tokens/spacing.scss');
+
+@use 'sass:color';
 
 .btn {
   position: relative;
@@ -83,7 +85,7 @@ const handleClick = (event: MouseEvent) => {
   user-select: none;
 
   &:focus-visible {
-    outline: 2px solid $accent-500;
+    outline: $accent-500 solid 2px;
     outline-offset: 2px;
   }
 
@@ -137,11 +139,11 @@ const handleClick = (event: MouseEvent) => {
     color: $gray-900;
 
     &:hover:not(:disabled) {
-      background-color: darken($gray-100, 5%);
+      background-color: color.adjust($gray-100, 5%);
     }
 
     &:active:not(:disabled) {
-      background-color: darken($gray-100, 10%);
+      background-color: color.adjust($gray-100, 10%);
     }
   }
 
@@ -163,11 +165,11 @@ const handleClick = (event: MouseEvent) => {
     color: white;
 
     &:hover:not(:disabled) {
-      background-color: darken($error, 10%);
+      background-color: color.adjust($error, 10%);
     }
 
     &:active:not(:disabled) {
-      background-color: darken($error, 15%);
+      background-color: color.adjust($error, 15%);
     }
   }
 
@@ -236,10 +238,12 @@ const handleClick = (event: MouseEvent) => {
     stroke-dasharray: 1, 150;
     stroke-dashoffset: 0;
   }
+
   50% {
     stroke-dasharray: 90, 150;
     stroke-dashoffset: -35;
   }
+
   100% {
     stroke-dasharray: 90, 150;
     stroke-dashoffset: -124;
