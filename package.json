@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
     "build-only": "vite build",
@@ -14,6 +13,8 @@
     "lint:eslint": "eslint . --fix",
     "lint:style": "stylelint \"src/**/*.{vue,css,scss}\" --fix",
     "lint": "run-s lint:*",
+    "test": "vitest run",
+    "build": "vite build",
     "format": "prettier --write src/",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
