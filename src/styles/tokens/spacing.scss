@@ -1,9 +1,7 @@
-/* _spacing.scss */
-
-// Base spacing unit (typically 4px or 8px)
+// Spacing tokens - no imports needed
 $spacing-unit: 0.25rem; // 4px
 
-// Spacing scale (following a consistent multiplier pattern)
+// Spacing scale
 $spacing-0: 0;
 $spacing-px: 1px;
 $spacing-0-5: calc($spacing-unit * 0.5);  // 2px
@@ -40,7 +38,7 @@ $spacing-72: calc($spacing-unit * 72);    // 288px
 $spacing-80: calc($spacing-unit * 80);    // 320px
 $spacing-96: calc($spacing-unit * 96);    // 384px
 
-// Semantic spacing tokens for common use cases
+// Semantic spacing tokens
 $spacing-xs: $spacing-1;    // 4px
 $spacing-sm: $spacing-2;    // 8px
 $spacing-md: $spacing-4;    // 16px
@@ -72,8 +70,8 @@ $section-padding-y: $spacing-16;      // 64px
 $section-padding-x: $spacing-6;       // 24px
 
 $container-padding-x: $spacing-4;     // 16px
-$container-padding-x-sm: $spacing-6;  // 24px (for small screens)
-$container-padding-x-lg: $spacing-8;  // 32px (for large screens)
+$container-padding-x-sm: $spacing-6;  // 24px
+$container-padding-x-lg: $spacing-8;  // 32px
 
 // Layout spacing
 $layout-gutter: $spacing-6;           // 24px
@@ -91,7 +89,7 @@ $nav-item-padding-x: $spacing-4;      // 16px
 $nav-item-padding-y: $spacing-2;      // 8px
 $nav-gap: $spacing-1;                 // 4px
 
-// Border radius (often related to spacing)
+// Border radius
 $border-radius-none: 0;
 $border-radius-sm: 0.125rem;          // 2px
 $border-radius-md: 0.25rem;           // 4px
@@ -119,7 +117,7 @@ $breakpoint-2xl: 1536px;
   }
 }
 
-// Utility mixins for common spacing patterns
+// Utility mixins
 @mixin center-content {
   display: flex;
   align-items: center;
@@ -153,7 +151,7 @@ $breakpoint-2xl: 1536px;
   }
 }
 
-// Auto-negative margins for precise positioning
+// Negative margins
 $spacing-negative-1: -$spacing-1;
 $spacing-negative-2: -$spacing-2;
 $spacing-negative-3: -$spacing-3;

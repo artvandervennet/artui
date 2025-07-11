@@ -63,10 +63,9 @@ const handleClick = (event: MouseEvent) => {
 </template>
 
 <style scoped lang="scss">
-@import url('../../../styles/tokens/colors.scss');
-@import url('../../../styles/tokens/spacing.scss');
-
 @use 'sass:color';
+@use '@/styles/tokens/colors' as *;
+@use '@/styles/tokens/spacing' as *;
 
 .btn {
   position: relative;
@@ -139,11 +138,11 @@ const handleClick = (event: MouseEvent) => {
     color: $gray-900;
 
     &:hover:not(:disabled) {
-      background-color: color.adjust($gray-100, 5%);
+      background-color: color.adjust($gray-100, $lightness: -5%);
     }
 
     &:active:not(:disabled) {
-      background-color: color.adjust($gray-100, 10%);
+      background-color: color.adjust($gray-100, $lightness: -10%);
     }
   }
 
@@ -165,11 +164,11 @@ const handleClick = (event: MouseEvent) => {
     color: white;
 
     &:hover:not(:disabled) {
-      background-color: color.adjust($error, 10%);
+      background-color: color.adjust($error, $lightness: -10%);
     }
 
     &:active:not(:disabled) {
-      background-color: color.adjust($error, 15%);
+      background-color: color.adjust($error, $lightness: -15%);
     }
   }
 
@@ -181,11 +180,11 @@ const handleClick = (event: MouseEvent) => {
     flex-shrink: 0;
 
     &--left {
-      margin-right: -$spacing-1;
+      margin-right: $spacing-negative-1;
     }
 
     &--right {
-      margin-left: -$spacing-1;
+      margin-left: $spacing-negative-1;
     }
 
     :deep(svg) {

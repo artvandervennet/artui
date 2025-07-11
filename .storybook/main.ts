@@ -1,5 +1,6 @@
 import type { StorybookConfig } from '@storybook/vue3-vite'
 import { mergeConfig } from 'vite'
+import path from 'path'
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
@@ -7,8 +8,8 @@ const config: StorybookConfig = {
     '@storybook/addon-links',
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
-    '@storybook/addon-a11y', // Accessibility testing
-    '@storybook/addon-viewport', // Responsive testing
+    '@storybook/addon-a11y',
+    '@storybook/addon-viewport',
   ],
   framework: {
     name: '@storybook/vue3-vite',
@@ -19,15 +20,9 @@ const config: StorybookConfig = {
   },
   viteFinal: async (config) => {
     return mergeConfig(config, {
-      // Add your Vite config customizations here
-      css: {
-        preprocessorOptions: {
-          scss: {
-            additionalData: `
-              @import "../src/styles/tokens/colors.scss";
-              @import "../src/styles/tokens/spacing.scss";
-            `,
-          },
+      resolve: {
+        alias: {
+          '@': path.resolve(__dirname, '../src'),
         },
       },
     })
