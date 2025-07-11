@@ -14,20 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install pnpm
+      - name: Install pnpm and dependencies
         uses: pnpm/action-setup@v2
         with:
-          version: 8 # or your specific version like 8.15.6
-          run_install: false
-
-      - name: Install dependencies
-        run: pnpm install
+          version: 8
+          run_install: true
 
       - name: Run linter
         run: pnpm run lint
