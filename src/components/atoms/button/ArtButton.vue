@@ -59,6 +59,20 @@ const handleClick = (event: MouseEvent) => {
     <span v-if="$slots.iconRight" class="btn__icon btn__icon--right">
       <slot name="iconRight" />
     </span>
+
+    <span v-if="loading" class="btn__spinner">
+      <svg class="btn__spinner-svg" viewBox="0 0 25 25">
+        <circle
+          class="btn__spinner-circle"
+          cx="12.5"
+          cy="12.5"
+          r="10"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        />
+      </svg>
+    </span>
   </button>
 </template>
 

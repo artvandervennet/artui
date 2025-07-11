@@ -1,7 +1,6 @@
 import type { Preview } from '@storybook/vue3-vite'
 import '../src/styles/tokens/colors.scss'
 import '../src/styles/tokens/spacing.scss'
-import '../src/styles/globals.scss'
 
 const preview: Preview = {
   parameters: {
