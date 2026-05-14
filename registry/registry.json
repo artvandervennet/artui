@@ -1,0 +1,83 @@
+{
+  "$schema": "https://artui.dev/registry-schema.json",
+  "version": "0.0.0",
+  "generatedAt": "2026-05-14T16:09:37.293Z",
+  "components": [
+    {
+      "name": "Image",
+      "description": "An <img> wrapper that refuses to render without a meaningful alt or an explicit `decorative` flag.",
+      "status": "stable",
+      "files": [
+        "image.tsx"
+      ],
+      "registryDependencies": [
+        "lib/a11y-types.ts",
+        "lib/dev-warn.ts"
+      ],
+      "props": [
+        {
+          "name": "alt",
+          "type": "string",
+          "required": true,
+          "description": "Description of what the image communicates. Required unless `decorative` is set. Rejects placeholder strings like \"image\" or \"photo\" at compile time."
+        },
+        {
+          "name": "decorative",
+          "type": "true",
+          "required": false,
+          "description": "Marks the image as purely decorative. Renders an empty alt and role=\"presentation\". Mutually exclusive with `alt`."
+        }
+      ],
+      "accessibility": [
+        {
+          "wcag": "1.1.1",
+          "description": "Every <img> has either a meaningful text alternative or is explicitly marked decorative — the two valid choices under WCAG Non-text Content."
+        },
+        {
+          "wcag": "4.1.2",
+          "description": "Decorative images are exposed with role=\"presentation\" so assistive technology can skip them."
+        }
+      ],
+      "examples": [
+        {
+          "name": "Meaningful image",
+          "description": "Standard case — describe what the image shows.",
+          "code": "<Image src=\"/team.jpg\" alt=\"The engineering team in the Ghent office, May 2026\" />"
+        },
+        {
+          "name": "Decorative image",
+          "description": "Background photo that adds no information — opt out explicitly.",
+          "code": "<Image src=\"/hero-pattern.svg\" decorative />"
+        }
+      ],
+      "related": [
+        "Avatar",
+        "Icon"
+      ],
+      "donts": [
+        {
+          "code": "<Image src=\"/team.jpg\" alt=\"image\" />",
+          "reason": "\"image\" tells a screenreader nothing the user couldn't already infer from the element role. Use real description text, or mark the image `decorative`."
+        },
+        {
+          "code": "<Image src=\"/team.jpg\" alt=\"\" />",
+          "reason": "An empty alt without `decorative` is ambiguous — was it left empty on purpose or forgotten? Pass `decorative` to make the intent explicit."
+        }
+      ],
+      "fileContents": [
+        {
+          "path": "components/image/image.tsx",
+          "content": "'use client';\n\nimport { useEffect, useRef } from 'react';\nimport type { ImgHTMLAttributes } from 'react';\n\nimport type { AccessibleText } from '../../lib/a11y-types';\nimport { devWarn } from '../../lib/dev-warn';\n\ntype NativeImgProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'alt'>;\n\n/**\n * Decorative images contribute nothing to comprehension — a screenreader\n * should skip over them. WCAG 1.1.1 explicitly allows an empty alt for these.\n * The `decorative` discriminator forces authors to make this choice consciously.\n */\ntype DecorativeProps = NativeImgProps & {\n  decorative: true;\n  alt?: never;\n};\n\n/**\n * Meaningful images must have meaningful alt text. `AccessibleText` rejects\n * empty strings and placeholder values like \"image\" / \"photo\" / \"icon\" at\n * the type level (§1.4.2 exclude-types pattern).\n */\ntype DescriptiveProps<T extends string> = NativeImgProps & {\n  decorative?: false;\n  alt: AccessibleText<T>;\n};\n\nexport type ImageProps<T extends string = string> = DecorativeProps | DescriptiveProps<T>;\n\n/**\n * An <img> that cannot be used inaccessibly.\n *\n * - Authors must either pass `decorative` (empty alt, role=\"presentation\")\n *   or pass real `alt` text. There is no third option.\n * - Placeholder alt values are a compile error.\n * - At runtime in development, dynamic alt strings that happen to evaluate\n *   to a placeholder produce a console warning and outline the <img>.\n */\nexport function Image<T extends string>(props: ImageProps<T>): React.ReactElement {\n  const ref = useRef<HTMLImageElement>(null);\n\n  const decorative = 'decorative' in props && props.decorative === true;\n  const alt = decorative ? '' : props.alt;\n\n  useEffect(() => {\n    if (decorative) return;\n    const value = String(alt).trim().toLowerCase();\n    const placeholders = ['', 'image', 'img', 'photo', 'picture', 'icon', 'logo'];\n    if (placeholders.includes(value)) {\n      devWarn({\n        key: `Image:placeholder-alt:${ref.current?.src ?? alt}`,\n        component: 'Image',\n        wcag: '1.1.1',\n        message: `alt=\"${alt}\" is a placeholder — write text that describes what the image communicates, or pass \\`decorative\\` if it conveys nothing.`,\n        element: ref.current,\n      });\n    }\n  }, [alt, decorative]);\n\n  const rest = (decorative\n    ? (() => {\n        const { decorative: _d, ...r } = props;\n        return r;\n      })()\n    : (() => {\n        const { decorative: _d, alt: _a, ...r } = props;\n        return r;\n      })()) as NativeImgProps;\n\n  return (\n    <img\n      ref={ref}\n      alt={alt}\n      role={decorative ? 'presentation' : undefined}\n      {...rest}\n    />\n  );\n}\n"
+        },
+        {
+          "path": "lib/a11y-types.ts",
+          "content": "/**\n * Compile-time accessibility guarantees.\n *\n * These types make missing or placeholder accessibility data a TypeScript\n * error, not a silent runtime mistake. They are the §1.4.2 \"fouten onmogelijk\n * maken via TypeScript\" layer of the artui enforcement model.\n */\n\n/**\n * Strings that look like alt text but communicate nothing to a screenreader.\n * Authors using these have not actually written alt text — they have written\n * a placeholder. The Image component rejects these at compile time.\n */\nexport type PlaceholderAltText =\n  | 'image'\n  | 'Image'\n  | 'IMAGE'\n  | 'img'\n  | 'Img'\n  | 'IMG'\n  | 'photo'\n  | 'Photo'\n  | 'picture'\n  | 'Picture'\n  | 'icon'\n  | 'Icon'\n  | 'logo'\n  | 'Logo'\n  | ''\n  | ' ';\n\n/**\n * A non-empty, non-placeholder string. Used wherever an accessible name is\n * required (alt, aria-label, ...). Authors trying to pass `\"\"` or `\"image\"`\n * get a type error.\n */\nexport type AccessibleText<T extends string = string> = T extends PlaceholderAltText\n  ? never\n  : T;\n\n/**\n * Discriminated union for any interactive component that requires an\n * accessible name. Exactly one of these three sources MUST be present:\n *\n *  - visible text content (`children: string`)\n *  - `aria-label`\n *  - `aria-labelledby` (pointing at another element)\n *\n * Used by Button, IconButton, Modal close-button, and similar.\n */\nexport type AccessibleNameProps =\n  | { children: AccessibleText; 'aria-label'?: never; 'aria-labelledby'?: never }\n  | { children?: never; 'aria-label': AccessibleText; 'aria-labelledby'?: never }\n  | { children?: never; 'aria-label'?: never; 'aria-labelledby': string };\n"
+        },
+        {
+          "path": "lib/dev-warn.ts",
+          "content": "/**\n * Runtime accessibility warnings (development only).\n *\n * Catches mistakes TypeScript can't see — for example a dynamic alt string\n * that happens to evaluate to \"image\" at runtime, or an aria-labelledby\n * pointing at an element that doesn't exist. The §1.4.2 \"fouten zichtbaar\n * maken\" layer.\n *\n * In production builds, every call is a no-op and tree-shaken by the\n * bundler when NODE_ENV is statically set to 'production'.\n */\n\nconst isDev = typeof process !== 'undefined' && process.env.NODE_ENV !== 'production';\n\nconst warned = new Set<string>();\n\ninterface WarnOptions {\n  /** Stable de-duplication key so the same warning doesn't spam the console. */\n  key: string;\n  /** Component name shown in the warning header. */\n  component: string;\n  /** What the developer did wrong, in human terms. */\n  message: string;\n  /** Optional WCAG criterion this violates (e.g. \"1.1.1\"). */\n  wcag?: string;\n  /** Optional DOM node to outline so the offending element is visible on the page. */\n  element?: Element | null;\n}\n\nexport function devWarn({ key, component, message, wcag, element }: WarnOptions): void {\n  if (!isDev) return;\n  if (warned.has(key)) return;\n  warned.add(key);\n\n  const wcagSuffix = wcag ? ` [WCAG ${wcag}]` : '';\n  // biome-ignore lint/suspicious/noConsole: dev-only diagnostic\n  console.warn(`[artui] <${component}>${wcagSuffix}: ${message}`);\n\n  if (element instanceof HTMLElement) {\n    element.style.outline = '3px solid #e11d48';\n    element.style.outlineOffset = '2px';\n    element.setAttribute('data-artui-a11y-violation', key);\n  }\n}\n\n/** Reset the de-duplication cache (test-only). */\nexport function __resetDevWarnCache(): void {\n  warned.clear();\n}\n"
+        }
+      ]
+    }
+  ]
+}

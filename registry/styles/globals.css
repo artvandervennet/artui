@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+/*
+ * artui design tokens. Consumers extend or override these via `@theme`.
+ * Keep this file small — components rely on Tailwind utilities, not on
+ * heavy custom CSS.
+ */
+
+@theme {
+  --color-artui-violation: oklch(0.55 0.22 27);
+}
+
+/* Surface dev-mode a11y violations even outside the warning outline. */
+[data-artui-a11y-violation] {
+  outline: 3px solid var(--color-artui-violation) !important;
+  outline-offset: 2px !important;
+}

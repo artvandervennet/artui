@@ -1,0 +1,31 @@
+{
+  "name": "artui-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Accessibility-first React component library",
+  "license": "MIT",
+  "packageManager": "pnpm@10.19.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=./packages/* && changeset publish"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "@changesets/cli": "^2.31.0",
+    "@types/node": "^25.7.0",
+    "turbo": "^2.9.12",
+    "typescript": "^6.0.3"
+  }
+}

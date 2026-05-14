@@ -1,0 +1,70 @@
+---
+title: Image
+description: An <img> wrapper that refuses to render without a meaningful alt or an explicit decorative flag.
+---
+
+import { Image } from '@artui/registry';
+
+## Install
+
+```bash
+pnpm dlx @artui/cli add Image
+```
+
+The CLI copies `image.tsx` into your `components/` directory and the supporting
+`a11y-types.ts` and `dev-warn.ts` into your `lib/` directory. You own the
+files after that — edit them freely.
+
+## Preview
+
+<div className="not-prose flex items-center justify-center rounded-lg border bg-fd-card p-8">
+  <Image
+    src="https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=400"
+    alt="A mountain lake at dawn with mist rising off the surface"
+    width={400}
+    height={250}
+    style={{ borderRadius: '0.5rem' }}
+  />
+</div>
+
+## API
+
+| Prop          | Type    | Required | Description |
+|---------------|---------|----------|-------------|
+| `alt`         | `string` | yes (unless `decorative`) | Description of what the image communicates. Placeholder strings like `"image"` or `"photo"` are rejected at compile time. |
+| `decorative`  | `true`   | no       | Marks the image as purely decorative. Renders an empty `alt` and `role="presentation"`. Mutually exclusive with `alt`. |
+| ...rest       | `ImgHTMLAttributes` | no | Any native `<img>` attribute. |
+
+## Accessibility
+
+- **WCAG 1.1.1 (Non-text Content):** every `<img>` has either a meaningful
+  text alternative or is explicitly marked decorative — the only two valid
+  outcomes under this criterion.
+- **WCAG 4.1.2 (Name, Role, Value):** decorative images expose
+  `role="presentation"` so assistive technology skips them.
+- **Compile-time:** `alt` is required unless `decorative` is set, and
+  placeholder strings (`"image"`, `"photo"`, `""`, …) are a type error.
+- **Runtime (dev):** if `alt` is computed dynamically and happens to equal a
+  placeholder at runtime, the component warns in the console and outlines the
+  offending `<img>` in red.
+
+## Don't
+
+```tsx
+<Image src="/team.jpg" alt="image" />
+```
+
+> `"image"` tells a screenreader nothing the user couldn't already infer.
+> Write real description text, or mark the image `decorative`.
+
+```tsx
+<Image src="/team.jpg" alt="" />
+```
+
+> An empty `alt` without `decorative` is ambiguous — was it intentional or
+> forgotten? Pass `decorative` to make the intent explicit.
+
+## Related
+
+- Avatar
+- Icon

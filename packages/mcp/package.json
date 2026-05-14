@@ -1,0 +1,29 @@
+{
+  "name": "@artui/mcp",
+  "version": "0.0.0",
+  "description": "MCP server exposing artui component docs to AI coding assistants.",
+  "type": "module",
+  "bin": {
+    "artui-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.7.0",
+    "tsup": "^8.3.5",
+    "vitest": "^2.1.8"
+  }
+}
