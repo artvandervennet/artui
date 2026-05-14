@@ -37,6 +37,16 @@ jobs:
       - name: Build publishable packages
         run: pnpm turbo run build --filter=@artui/cli --filter=@artui/mcp
 
+      - name: Get npm OIDC token
+        id: npm-oidc
+        run: |
+          TOKEN=$(curl -fsSL \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npm" \
+            | jq -r '.value')
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
       - name: Create Release PR or publish
         uses: changesets/action@v1
         with:
@@ -44,4 +54,4 @@ jobs:
           version: pnpm changeset version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ steps.npm-oidc.outputs.token }}
