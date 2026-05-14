@@ -3,6 +3,14 @@
   "version": "0.0.0",
   "description": "MCP server exposing artui component docs to AI coding assistants.",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artvandervennet/artui.git",
+    "directory": "packages/mcp"
+  },
+  "homepage": "https://github.com/artvandervennet/artui/tree/main/packages/mcp",
+  "bugs": "https://github.com/artvandervennet/artui/issues",
+  "license": "MIT",
   "bin": {
     "artui-mcp": "./dist/index.js"
   },

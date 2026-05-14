@@ -3,6 +3,14 @@
   "version": "0.0.1",
   "description": "Install accessible artui components into your project.",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artvandervennet/artui.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/artvandervennet/artui/tree/main/packages/cli",
+  "bugs": "https://github.com/artvandervennet/artui/issues",
+  "license": "MIT",
   "bin": {
     "artui": "dist/index.js"
   },
