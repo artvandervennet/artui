@@ -29,6 +29,9 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+
       - run: pnpm install --frozen-lockfile
 
       - name: Build registry
@@ -37,16 +40,6 @@ jobs:
       - name: Build publishable packages
         run: pnpm turbo run build --filter=@artui/cli --filter=@artui/mcp
 
-      - name: Get npm OIDC token
-        id: npm-oidc
-        run: |
-          TOKEN=$(curl -fsSL \
-            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https://registry.npmjs.org/" \
-            | jq -r '.value')
-          echo "::add-mask::$TOKEN"
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT
-
       - name: Create Release PR or publish
         uses: changesets/action@v1
         with:
@@ -54,4 +47,3 @@ jobs:
           version: pnpm changeset version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ steps.npm-oidc.outputs.token }}
