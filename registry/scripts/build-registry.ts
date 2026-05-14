@@ -99,7 +99,7 @@ async function main(): Promise<void> {
   components.sort((a, b) => a.name.localeCompare(b.name));
 
   const registry = {
-    $schema: 'https://artui.dev/registry-schema.json',
+    $schema: 'https://artui.vandervennet.art/registry-schema.json',
     version: '0.0.0',
     generatedAt: new Date().toISOString(),
     components,

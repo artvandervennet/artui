@@ -17,8 +17,8 @@ export interface ArtuiConfig {
 }
 
 export const DEFAULT_CONFIG: ArtuiConfig = {
-  $schema: 'https://artui.dev/schema.json',
-  registry: 'https://artui.dev/registry.json',
+  $schema: 'https://artui.vandervennet.art/schema.json',
+  registry: 'https://artui.vandervennet.art/registry.json',
   paths: {
     components: 'components/ui',
     lib: 'lib/artui',

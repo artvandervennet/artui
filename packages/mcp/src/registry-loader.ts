@@ -42,7 +42,7 @@ export interface Registry {
   components: RegistryComponent[];
 }
 
-const DEFAULT_REGISTRY_URL = 'https://artui.dev/registry.json';
+const DEFAULT_REGISTRY_URL = 'https://artui.vandervennet.art/registry.json';
 
 /**
  * Resolves the registry source from env override or default URL.
