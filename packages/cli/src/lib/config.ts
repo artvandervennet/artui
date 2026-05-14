@@ -33,7 +33,7 @@ export async function readConfig(cwd: string = process.cwd()): Promise<ArtuiConf
   try {
     raw = await readFile(path, 'utf8');
   } catch {
-    throw new Error(`No ${CONFIG_FILE} found in ${resolve(cwd)}. Run \`artui init\` first.`);
+    throw new Error(`No ${CONFIG_FILE} found in ${resolve(cwd)}.`);
   }
   return JSON.parse(raw) as ArtuiConfig;
 }

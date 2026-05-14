@@ -3,14 +3,16 @@ import { dirname } from 'node:path';
 
 import type { Command } from 'commander';
 
-import { readConfig } from '../lib/config.js';
+import { type ArtuiConfig, readConfig } from '../lib/config.js';
 import { rewriteImports, route } from '../lib/file-router.js';
 import { log } from '../lib/log.js';
 import { findComponent, loadRegistry } from '../lib/registry.js';
+import { runInit } from './init.js';
 
 interface AddOptions {
   registry?: string;
   overwrite?: boolean;
+  yes?: boolean;
 }
 
 export function registerAdd(program: Command): void {
@@ -19,9 +21,18 @@ export function registerAdd(program: Command): void {
     .description('Copy a component (and its dependencies) into your project.')
     .option('--registry <source>', 'override registry URL/path for this run')
     .option('--overwrite', 'overwrite existing files without prompting')
+    .option('-y, --yes', 'skip prompts and accept defaults (runs init automatically if needed)')
     .action(async (componentName: string, options: AddOptions) => {
       const cwd = process.cwd();
-      const config = await readConfig(cwd);
+
+      let config: ArtuiConfig;
+      try {
+        config = await readConfig(cwd);
+      } catch {
+        log.info('No components.json found — running init first.');
+        config = await runInit(cwd, { yes: options.yes, registry: options.registry });
+      }
+
       const source = options.registry ?? config.registry;
 
       log.info(`Fetching registry from ${source}`);
