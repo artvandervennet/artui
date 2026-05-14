@@ -21,6 +21,9 @@
     "version-packages": "changeset version",
     "release": "turbo run build --filter=./packages/* && changeset publish"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
+  },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
     "@changesets/cli": "^2.31.0",

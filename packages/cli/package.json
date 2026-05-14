@@ -4,7 +4,7 @@
   "description": "Install accessible artui components into your project.",
   "type": "module",
   "bin": {
-    "artui": "./dist/index.js"
+    "artui": "dist/index.js"
   },
   "files": [
     "dist",
