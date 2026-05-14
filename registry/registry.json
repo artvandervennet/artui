@@ -1,7 +1,7 @@
 {
   "$schema": "https://artui.dev/registry-schema.json",
   "version": "0.0.0",
-  "generatedAt": "2026-05-14T16:09:37.293Z",
+  "generatedAt": "2026-05-14T19:12:51.974Z",
   "components": [
     {
       "name": "Image",

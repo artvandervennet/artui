@@ -20,12 +20,12 @@ version if you use `nvm` or `fnm`.
 
 ## Workspace layout
 
-```
+```markdown
 artui/
-├── apps/docs/         Fumadocs site
-├── packages/cli/      The `artui` CLI
-├── packages/mcp/      MCP server for AI assistants
-└── registry/          Component source-of-truth
+├── apps/docs/ Fumadocs site
+├── packages/cli/ The `artui` CLI
+├── packages/mcp/ MCP server for AI assistants
+└── registry/ Component source-of-truth
 ```
 
 ## Common commands

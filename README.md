@@ -40,12 +40,12 @@ after that — edit them freely.
 
 ## Packages
 
-| Package | What it is |
-|---|---|
-| [`@artui/cli`](packages/cli) | The `artui` CLI: `init`, `add`, `lint`. |
-| [`@artui/mcp`](packages/mcp) | MCP server with 6 tools for AI assistants. |
-| [`@artui/docs`](apps/docs) | Documentation site (Fumadocs). |
-| [`@artui/registry`](registry) | Component source-of-truth (not published). |
+| Package                       | What it is                                   |
+| ----------------------------- | -------------------------------------------- |
+| [`@artui/cli`](packages/cli)  | The `artui` CLI: `init`, `add`, `lint`.      |
+| [`@artui/mcp`](packages/mcp)  | MCP server with 6 tools for AI assistants.   |
+| [`@artui/docs`](apps/docs)    | Documentation site (Fumadocs).               |
+| [`@artui/registry`](registry) | Component source-of-truth (not published).   |
 
 ## Connecting the MCP server
 
@@ -75,6 +75,26 @@ pnpm dev                              # all workspaces in parallel
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full local workflow.
+
+## Deploying the docs
+
+Vercel is configured via [vercel.json](vercel.json). Import the repo at
+[vercel.com/new](https://vercel.com/new) — no dashboard settings needed.
+The build runs `pnpm turbo run build --filter=@artui/docs...`, which
+builds `@artui/registry` first, copies `registry.json` into the docs
+site's `public/`, then builds Next. Once deployed, both the docs and the
+registry are live:
+
+```text
+https://<your-deploy>.vercel.app/                       → docs
+https://<your-deploy>.vercel.app/docs/components/image  → Image reference
+https://<your-deploy>.vercel.app/registry.json          → CLI/MCP source
+```
+
+After the first deploy, update the default URL in
+[packages/cli/src/lib/config.ts](packages/cli/src/lib/config.ts) and
+[packages/mcp/src/registry-loader.ts](packages/mcp/src/registry-loader.ts)
+to point at your live `registry.json`.
 
 ## License
 
