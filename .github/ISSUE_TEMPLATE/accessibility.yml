@@ -1,0 +1,49 @@
+name: Accessibility issue
+description: A component does not meet a WCAG criterion or breaks an assistive technology.
+labels: ["accessibility", "bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing this. Accessibility regressions are the most important
+        category of bug in this project — please include the specifics below so
+        the fix can land quickly.
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      placeholder: "Image, Modal, ..."
+    validations:
+      required: true
+  - type: input
+    id: wcag
+    attributes:
+      label: WCAG criterion violated
+      description: e.g. "1.1.1 Non-text Content" or "2.1.1 Keyboard"
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What the component does today
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it should do instead
+    validations:
+      required: true
+  - type: input
+    id: at
+    attributes:
+      label: Assistive technology + version
+      description: e.g. "NVDA 2024.4 + Firefox 134", "VoiceOver on macOS 14.5", "keyboard only"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true

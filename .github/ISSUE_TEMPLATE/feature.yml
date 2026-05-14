@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose a new component or a change to an existing one.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Start with the user need, not the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API
+      description: Sketch of props, usage example, or behavior. Pseudocode is fine.
+  - type: textarea
+    id: a11y
+    attributes:
+      label: Accessibility considerations
+      description: Which WCAG criteria apply? Keyboard, focus, ARIA expectations?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing components, libraries, or workarounds and why they don't fit.

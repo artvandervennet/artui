@@ -1,0 +1,50 @@
+name: Bug report
+description: Something does not work as documented.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: A clear description of the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Code, commands, or a repo link. The smaller the better.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: artui version
+      placeholder: "0.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package?
+      options:
+        - "@artui/cli"
+        - "@artui/mcp"
+        - "@artui/registry (a specific component)"
+        - "@artui/docs"
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Node + OS
+      placeholder: "Node 22.10 on macOS 14.5"
+    validations:
+      required: true
