@@ -1,6 +1,6 @@
 {
   "name": "@artui/mcp",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "MCP server exposing artui component docs to AI coding assistants.",
   "type": "module",
   "repository": {
