@@ -1,8 +1,8 @@
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/page';
 import { notFound } from 'next/navigation';
 
-import { getMDXComponents } from '@/mdx-components';
 import { source } from '@/lib/source';
+import { getMDXComponents } from '@/mdx-components';
 
 export default async function Page({ params }: { params: Promise<{ slug?: string[] }> }) {
   const { slug } = await params;
