@@ -1,0 +1,2 @@
+- [Fumadocs conventions](project-fumadocs-conventions.md) — MDX components, frontmatter, routing, playground pattern, Tailwind tokens, CLI command format
+- [Image component API](project-registry-image-api.md) — props, forbidden alt values, compile-time/runtime enforcement, decorative rendering

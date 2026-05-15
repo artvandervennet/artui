@@ -1,70 +1,174 @@
 ---
 title: Image
-description: An <img> wrapper that refuses to render without a meaningful alt or an explicit decorative flag.
+description: An accessible <img> wrapper that enforces meaningful alt text at compile time and at runtime in development.
 ---
-
-import { Image } from '@artui/registry';
 
 ## Install
 
 ```bash
-pnpm dlx @artui/cli add Image
+npx artui@latest add image
 ```
 
-The CLI copies `image.tsx` into your `components/` directory and the supporting
-`a11y-types.ts` and `dev-warn.ts` into your `lib/` directory. You own the
-files after that — edit them freely.
+The CLI copies two files into your project: `image.tsx` (the component) and `lib/dev-overlay.tsx` (the runtime error overlay helper). Both files become yours — edit them freely.
 
-## Preview
+## Playground
 
-<div className="not-prose flex items-center justify-center rounded-lg border bg-fd-card p-8">
-  <Image
-    src="https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=400"
-    alt="A mountain lake at dawn with mist rising off the surface"
-    width={400}
-    height={250}
-    style={{ borderRadius: '0.5rem' }}
-  />
-</div>
+Toggle `decorative`, edit `alt`, and switch `loading` — the preview and code update live. Type a forbidden string like `"photo"` or clear the `alt` field to see the simulated dev overlay and console error.
+
+<ImagePlayground />
+
+## Usage
+
+### Accessible image
+
+```tsx
+import { Image } from '@artui/registry';
+
+<Image
+  src="/team-photo.jpg"
+  alt="The engineering team gathered around a whiteboard during a sprint planning session"
+  width={800}
+  height={450}
+/>
+```
+
+Provide alt text that conveys what the image communicates in context — not just what it depicts. A team photo on an About page warrants different alt text than the same photo used as a case-study header.
+
+### Decorative image
+
+```tsx
+import { Image } from '@artui/registry';
+
+<Image src="/divider-wave.svg" decorative />
+```
+
+When an image is purely visual — a background texture, a decorative divider, a repeated pattern — pass `decorative`. The component renders `alt=""` and `role="presentation"` so screen readers skip the element entirely.
+
+### Above-the-fold images
+
+```tsx
+import { Image } from '@artui/registry';
+
+<Image
+  src="/hero.jpg"
+  alt="A developer reviewing a pull request on a large monitor"
+  width={1440}
+  height={600}
+  loading="eager"
+/>
+```
+
+`loading` defaults to `"lazy"`. Override with `"eager"` for images that are visible on first paint — hero images, above-the-fold illustrations — to avoid a layout shift while the page loads.
+
+## TypeScript enforcement
+
+The `alt` prop is constrained by a conditional type that rejects forbidden literal strings at compile time.
+
+### Compile-time errors
+
+```tsx
+// Type error: 'image' is not meaningful alt text. Describe what the image shows
+<Image src="/hero.jpg" alt="image" />
+
+// Type error: Property 'alt' is missing
+<Image src="/hero.jpg" />
+
+// Type error: Type 'string' is not assignable to type 'never'
+//   alt and decorative are mutually exclusive
+<Image src="/hero.jpg" alt="A mountain at sunrise" decorative />
+```
+
+### Valid usage
+
+```tsx
+// Meaningful string literal — compiles
+<Image src="/hero.jpg" alt="A mountain at sunrise, reflected in the lake below" />
+
+// Explicit decorative flag — compiles
+<Image src="/hero.jpg" decorative />
+```
+
+The forbidden values are: `""`, `"img"`, `"image"`, `"photo"`, `"picture"`, `"icon"` (matching is case-insensitive). The compile-time error message reads:
+
+```
+Type '"image" is not meaningful alt text. Describe what the image shows'
+  is not assignable to type 'string'.
+```
+
+## Runtime errors
+
+Compile-time enforcement only catches string literals. When `alt` is computed from data, the type is `string` and the forbidden check is bypassed at the type level.
+
+```tsx
+const caption = data.imageCaption; // resolves to "image" at runtime
+
+// No compile-time error — `caption` is `string`, not a literal
+<Image src={data.src} alt={caption} />
+```
+
+At runtime in development, the `Image` component detects forbidden alt values and does two things: wraps the `<img>` in a red full-coverage overlay (via `dev-overlay.tsx`) and calls `console.error` once per unique key so the console stays readable across re-renders.
+
+<Callout type="warn">
+  The dev overlay is a **development-only** guard. In production builds (`NODE_ENV === "production"`), the overlay is skipped and the image renders with the bad alt text silently. Audit your data layer to ensure captions from external sources are validated before being passed as `alt`.
+</Callout>
 
 ## API
 
-| Prop          | Type    | Required | Description |
-|---------------|---------|----------|-------------|
-| `alt`         | `string` | yes (unless `decorative`) | Description of what the image communicates. Placeholder strings like `"image"` or `"photo"` are rejected at compile time. |
-| `decorative`  | `true`   | no       | Marks the image as purely decorative. Renders an empty `alt` and `role="presentation"`. Mutually exclusive with `alt`. |
-| ...rest       | `ImgHTMLAttributes` | no | Any native `<img>` attribute. |
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `alt` | `string` | — | Required unless `decorative`. Forbidden strings (`""`, `"img"`, `"image"`, `"photo"`, `"picture"`, `"icon"`) are rejected at compile time when passed as literals, and caught with a dev overlay at runtime. |
+| `decorative` | `true` | — | Renders `alt=""` and `role="presentation"`. Mutually exclusive with `alt` — passing both is a type error. |
+| `loading` | `"lazy" \| "eager"` | `"lazy"` | Native `loading` attribute. Use `"eager"` for above-the-fold images. |
+| `...rest` | `ImgHTMLAttributes<HTMLImageElement>` | — | Any standard `<img>` attribute (`src`, `width`, `height`, `style`, `className`, etc.). `role` is omitted from the public surface — the component manages it. |
 
 ## Accessibility
 
-- **WCAG 1.1.1 (Non-text Content):** every `<img>` has either a meaningful
-  text alternative or is explicitly marked decorative — the only two valid
-  outcomes under this criterion.
-- **WCAG 4.1.2 (Name, Role, Value):** decorative images expose
-  `role="presentation"` so assistive technology skips them.
-- **Compile-time:** `alt` is required unless `decorative` is set, and
-  placeholder strings (`"image"`, `"photo"`, `""`, …) are a type error.
-- **Runtime (dev):** if `alt` is computed dynamically and happens to equal a
-  placeholder at runtime, the component warns in the console and outlines the
-  offending `<img>` in red.
+<Callout type="info">
+  This component enforces **WCAG 1.1.1 Non-text Content** (Level A) and **WCAG 4.1.2 Name, Role, Value** (Level A). Every `<img>` rendered by this component either carries a meaningful text alternative or is explicitly hidden from the accessibility tree.
+</Callout>
 
-## Don't
+| Image state | HTML rendered | Screen reader behavior |
+|-------------|--------------|------------------------|
+| `alt="…"` (meaningful text) | `<img alt="…" loading="lazy">` | Announces the alt text when the image is encountered |
+| `decorative` | `<img alt="" role="presentation" loading="lazy">` | Skipped entirely — not included in the accessibility tree |
 
-```tsx
-<Image src="/team.jpg" alt="image" />
-```
+## Dos and Don'ts
 
-> `"image"` tells a screenreader nothing the user couldn't already infer.
-> Write real description text, or mark the image `decorative`.
+<Callout type="info" title="Do — describe what the image communicates">
+Write alt text for the image's purpose in context, not a generic label.
 
 ```tsx
-<Image src="/team.jpg" alt="" />
+<Image
+  src="/ceo-headshot.jpg"
+  alt="Maria Chen, Chief Executive Officer, smiling in a grey blazer"
+/>
+```
+</Callout>
+
+<Callout type="error" title="Don't — use placeholder strings">
+```tsx
+<Image src="/ceo-headshot.jpg" alt="photo" /> {/* type error */}
 ```
 
-> An empty `alt` without `decorative` is ambiguous — was it intentional or
-> forgotten? Pass `decorative` to make the intent explicit.
+Placeholder strings like `"photo"` or `"image"` are rejected at compile time when passed as literals. They tell a screen reader user nothing the browser hasn't already communicated.
+</Callout>
+
+<Callout type="info" title="Do — mark decorative images with decorative">
+```tsx
+<Image src="/background-pattern.svg" decorative />
+```
+
+The `decorative` prop makes intent explicit and ensures the correct HTML attributes (`alt=""`, `role="presentation"`) are rendered without relying on the caller to remember both.
+</Callout>
+
+<Callout type="error" title="Don't — pass an empty alt without decorative">
+```tsx
+<Image src="/background-pattern.svg" alt="" /> {/* runtime error overlay in development */}
+```
+
+An empty string alt without `decorative` is ambiguous — it may be intentional decoration or a forgotten value. The component flags it in development so the distinction is always deliberate.
+</Callout>
 
 ## Related
 
-- Avatar
-- Icon
+- [Welcome](/docs) — overview of how artui enforces accessibility at the type level
