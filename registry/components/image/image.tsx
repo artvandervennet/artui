@@ -1,13 +1,8 @@
-import { type ImgHTMLAttributes, useMemo } from "react";
+import { type ImgHTMLAttributes, useMemo } from 'react';
 
-const FORBIDDEN_ALTS = [
-  "",
-  "img",
-  "image",
-  "photo",
-  "picture",
-  "icon",
-] as const;
+import { withErrorOverlay } from '../../lib/dev-overlay';
+
+const FORBIDDEN_ALTS = ['', 'img', 'image', 'photo', 'picture', 'icon'] as const;
 type ForbiddenAlt = (typeof FORBIDDEN_ALTS)[number];
 
 type SafeAlt<T extends string> =
@@ -15,7 +10,7 @@ type SafeAlt<T extends string> =
     ? `'${T}' is not meaningful alt text. Describe what the image shows`
     : T;
 
-type BaseImgProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "alt" | "role">;
+type BaseImgProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'alt' | 'role'>;
 
 type DecorativeProps = BaseImgProps & {
   decorative: true;
@@ -36,9 +31,9 @@ export function Image<const T extends string>(props: ImageProps<T>) {
 
   const runtimeError = useMemo(() => {
     if (decorative) return null;
-    const value = typeof alt === "string" ? alt.trim() : "";
-    if (value === "") {
-      return "Alt text is empty or contains only whitespace.";
+    const value = typeof alt === 'string' ? alt.trim() : '';
+    if (value === '') {
+      return 'Alt text is empty or contains only whitespace.';
     }
     if ((FORBIDDEN_ALTS as readonly string[]).includes(value.toLowerCase())) {
       return `'${alt}' is not meaningful alt text. Describe what the image shows.`;
@@ -46,45 +41,18 @@ export function Image<const T extends string>(props: ImageProps<T>) {
     return null;
   }, [decorative, alt]);
 
-  if (runtimeError) {
-    console.error(`[Image] ${runtimeError}`, { src: rest.src, alt });
-  }
-
   if (decorative) {
-    return (
-      <img
-        {...rest}
-        alt=""
-        role="presentation"
-        loading={loading ?? "lazy"}
-        style={style}
-      />
-    );
+    return <img {...rest} alt="" role="presentation" loading={loading ?? 'lazy'} style={style} />;
   }
 
-  const img = (
-    <img
-      {...rest}
-      alt={alt as string}
-      loading={loading ?? "lazy"}
-      style={style}
-    />
-  );
+  const img = <img {...rest} alt={alt as string} loading={loading ?? 'lazy'} style={style} />;
 
   if (!runtimeError) return img;
 
-  return (
-    <span style={{ position: "relative", display: "inline-block" }}>
-      {img}
-      <span
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "#d62828",
-          pointerEvents: "none",
-        }}
-      />
-    </span>
-  );
+  return withErrorOverlay(img, {
+    key: `Image:placeholder-alt:${String(alt)}`,
+    component: 'Image',
+    wcag: '1.1.1',
+    message: runtimeError,
+  });
 }

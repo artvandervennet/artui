@@ -6,7 +6,7 @@ export const meta: ComponentMeta = {
     'An <img> wrapper that refuses to render without a meaningful alt or an explicit `decorative` flag.',
   status: 'stable',
   files: ['image.tsx'],
-  registryDependencies: ['lib/a11y-types.ts', 'lib/dev-warn.ts'],
+  registryDependencies: ['lib/a11y-types.ts', 'lib/dev-overlay.tsx'],
   props: [
     {
       name: 'alt',

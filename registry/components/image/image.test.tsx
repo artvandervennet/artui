@@ -1,20 +1,20 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { __resetDevWarnCache } from '../../lib/dev-warn';
+import { __resetDevOverlayCache } from '../../lib/dev-overlay';
 
 import { Image } from './image';
 
 describe('Image', () => {
-  let warnSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    __resetDevWarnCache();
-    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    __resetDevOverlayCache();
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    warnSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 
   it('renders the provided alt verbatim', () => {
@@ -34,19 +34,19 @@ describe('Image', () => {
     expect(screen.getByTestId('img')).not.toHaveAttribute('role');
   });
 
-  it('warns at runtime when alt evaluates to a placeholder', () => {
+  it('errors at runtime when alt evaluates to a placeholder', () => {
     // TypeScript would normally reject "image" as alt; we cast to bypass for
     // the runtime path that catches dynamic strings TS can't see.
     const placeholder = 'image' as never;
     render(<Image src="/x.jpg" alt={placeholder} />);
-    expect(warnSpy).toHaveBeenCalled();
-    const message = String(warnSpy.mock.calls[0]?.[0] ?? '');
+    expect(errorSpy).toHaveBeenCalled();
+    const message = String(errorSpy.mock.calls[0]?.[0] ?? '');
     expect(message).toContain('<Image>');
     expect(message).toContain('[WCAG 1.1.1]');
   });
 
-  it('does not warn for valid alt text', () => {
+  it('does not error for valid alt text', () => {
     render(<Image src="/x.jpg" alt="Engineering team in the Ghent office" />);
-    expect(warnSpy).not.toHaveBeenCalled();
+    expect(errorSpy).not.toHaveBeenCalled();
   });
 });
