@@ -1,81 +1,90 @@
-'use client';
+import { type ImgHTMLAttributes, useMemo } from "react";
 
-import { useEffect, useRef } from 'react';
-import type { ImgHTMLAttributes } from 'react';
+const FORBIDDEN_ALTS = [
+  "",
+  "img",
+  "image",
+  "photo",
+  "picture",
+  "icon",
+] as const;
+type ForbiddenAlt = (typeof FORBIDDEN_ALTS)[number];
 
-import type { AccessibleText } from '../../lib/a11y-types';
-import { devWarn } from '../../lib/dev-warn';
+type SafeAlt<T extends string> =
+  Lowercase<T> extends ForbiddenAlt
+    ? `'${T}' is not meaningful alt text. Describe what the image shows`
+    : T;
 
-type NativeImgProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'alt'>;
+type BaseImgProps = Omit<ImgHTMLAttributes<HTMLImageElement>, "alt" | "role">;
 
-/**
- * Decorative images contribute nothing to comprehension — a screenreader
- * should skip over them. WCAG 1.1.1 explicitly allows an empty alt for these.
- * The `decorative` discriminator forces authors to make this choice consciously.
- */
-type DecorativeProps = NativeImgProps & {
+type DecorativeProps = BaseImgProps & {
   decorative: true;
   alt?: never;
 };
 
-/**
- * Meaningful images must have meaningful alt text. `AccessibleText` rejects
- * empty strings and placeholder values like "image" / "photo" / "icon" at
- * the type level (§1.4.2 exclude-types pattern).
- */
-type DescriptiveProps<T extends string> = NativeImgProps & {
+type AccessibleProps<T extends string> = BaseImgProps & {
   decorative?: false;
-  alt: AccessibleText<T>;
+  alt: SafeAlt<T>;
 };
 
-export type ImageProps<T extends string = string> = DecorativeProps | DescriptiveProps<T>;
+export type ImageProps<T extends string> = DecorativeProps | AccessibleProps<T>;
 
-/**
- * An <img> that cannot be used inaccessibly.
- *
- * - Authors must either pass `decorative` (empty alt, role="presentation")
- *   or pass real `alt` text. There is no third option.
- * - Placeholder alt values are a compile error.
- * - At runtime in development, dynamic alt strings that happen to evaluate
- *   to a placeholder produce a console warning and outline the <img>.
- */
-export function Image<T extends string>(props: ImageProps<T>): React.ReactElement {
-  const ref = useRef<HTMLImageElement>(null);
+export function Image<const T extends string>(props: ImageProps<T>) {
+  const { decorative, alt, style, loading, ...rest } = props as
+    | (DecorativeProps & { alt?: undefined })
+    | (AccessibleProps<string> & { decorative?: false });
 
-  const decorative = 'decorative' in props && props.decorative === true;
-  const alt = decorative ? '' : props.alt;
-
-  useEffect(() => {
-    if (decorative) return;
-    const value = String(alt).trim().toLowerCase();
-    const placeholders = ['', 'image', 'img', 'photo', 'picture', 'icon', 'logo'];
-    if (placeholders.includes(value)) {
-      devWarn({
-        key: `Image:placeholder-alt:${ref.current?.src ?? alt}`,
-        component: 'Image',
-        wcag: '1.1.1',
-        message: `alt="${alt}" is a placeholder — write text that describes what the image communicates, or pass \`decorative\` if it conveys nothing.`,
-        element: ref.current,
-      });
+  const runtimeError = useMemo(() => {
+    if (decorative) return null;
+    const value = typeof alt === "string" ? alt.trim() : "";
+    if (value === "") {
+      return "Alt text is empty or contains only whitespace.";
     }
-  }, [alt, decorative]);
+    if ((FORBIDDEN_ALTS as readonly string[]).includes(value.toLowerCase())) {
+      return `'${alt}' is not meaningful alt text. Describe what the image shows.`;
+    }
+    return null;
+  }, [decorative, alt]);
 
-  const rest = (decorative
-    ? (() => {
-        const { decorative: _d, ...r } = props;
-        return r;
-      })()
-    : (() => {
-        const { decorative: _d, alt: _a, ...r } = props;
-        return r;
-      })()) as NativeImgProps;
+  if (runtimeError) {
+    console.error(`[Image] ${runtimeError}`, { src: rest.src, alt });
+  }
+
+  if (decorative) {
+    return (
+      <img
+        {...rest}
+        alt=""
+        role="presentation"
+        loading={loading ?? "lazy"}
+        style={style}
+      />
+    );
+  }
+
+  const img = (
+    <img
+      {...rest}
+      alt={alt as string}
+      loading={loading ?? "lazy"}
+      style={style}
+    />
+  );
+
+  if (!runtimeError) return img;
 
   return (
-    <img
-      ref={ref}
-      alt={alt}
-      role={decorative ? 'presentation' : undefined}
-      {...rest}
-    />
+    <span style={{ position: "relative", display: "inline-block" }}>
+      {img}
+      <span
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "#d62828",
+          pointerEvents: "none",
+        }}
+      />
+    </span>
   );
 }
