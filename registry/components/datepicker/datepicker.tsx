@@ -667,7 +667,9 @@ export function Datepicker(props: DatepickerProps): ReactElement {
   useEffect(() => {
     if (!isOpen || !dialogRef.current) return;
     const dialog = dialogRef.current;
-    dialog.showModal();
+    if (!dialog.open) {
+      dialog.showModal();
+    }
 
     const reposition = () => {
       if (!inputRef.current) return;
@@ -683,6 +685,9 @@ export function Datepicker(props: DatepickerProps): ReactElement {
     return () => {
       window.removeEventListener("scroll", reposition, { capture: true });
       window.removeEventListener("resize", reposition);
+      if (dialog.open) {
+        dialog.close();
+      }
     };
   }, [isOpen]);
 
