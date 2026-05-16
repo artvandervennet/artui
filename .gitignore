@@ -16,6 +16,7 @@ apps/docs/public/registry.json
 
 # TypeScript
 *.tsbuildinfo
+next-env.d.ts
 
 # Misc
 .DS_Store
@@ -46,3 +47,4 @@ test-results/
 playwright-report/
 playwright/.cache/
 CLAUDE.local.md
+document.md
