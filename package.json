@@ -26,7 +26,7 @@
     "pre-commit": "node_modules/.bin/lint-staged && node_modules/.bin/biome check --staged --write --no-errors-on-unmatched"
   },
   "lint-staged": {
-    "registry/**/*.{ts,tsx,mjs}": "pnpm --filter @artui/registry run lint"
+    "registry/**/*.{ts,tsx,mjs}": "sh -c 'pnpm --filter @artui/registry run lint' --"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
