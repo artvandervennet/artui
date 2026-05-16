@@ -1,0 +1,272 @@
+---
+title: Datepicker
+description: Accessible date input with calendar popup. Text input and calendar are first-class entry paths. Passes all 9 WCAG criteria where peer libraries fail.
+---
+
+## Install
+
+```bash
+npx artui@latest add datepicker
+```
+
+The CLI copies three files into your project: `datepicker.tsx` (the component), `lib/a11y-types.ts` (shared accessibility types used by the component), and `lib/dev-overlay.tsx` (the runtime error overlay helper). All three files become yours — edit them freely.
+
+## Playground
+
+Select a date via the calendar, type one directly into the input, or use the keyboard. Toggle `locale`, `min`, `max`, and `isDateDisabled` to see constraints enforced live.
+
+<DatepickerPlayground />
+
+## Usage
+
+### Controlled with visible label
+
+```tsx
+import { useState } from 'react';
+import { Datepicker } from '@artui/registry';
+
+const [date, setDate] = useState<Date | null>(null);
+
+<Datepicker label="Appointment date" value={date} onChange={setDate} />
+```
+
+The `label` prop renders a visible `<label>` element wired to the text input. Every Datepicker must have an accessible name — exactly one of `label`, `aria-label`, or `aria-labelledby`.
+
+### Locale
+
+```tsx
+<Datepicker
+  label="Datum"
+  value={date}
+  onChange={setDate}
+  locale="nl-BE"
+/>
+```
+
+`locale` accepts any BCP-47 tag. It controls:
+
+- Date format in the text input (`DD/MM/YYYY` for `nl-BE`, `MM/DD/YYYY` for `en-US`, `YYYY-MM-DD` for `ja`)
+- Week start day (Monday-first for `nl-BE`/`fr-BE`, Sunday-first for `en-US`)
+- Calendar month/year heading and nav-button labels
+
+Defaults to `navigator.language`. Passing an invalid BCP-47 tag triggers a dev overlay and silently falls back to `navigator.language`.
+
+### With min and max
+
+```tsx
+<Datepicker
+  label="Event date"
+  value={date}
+  onChange={setDate}
+  min={new Date(2026, 0, 1)}
+  max={new Date(2026, 11, 31)}
+/>
+```
+
+Days outside `[min, max]` are rendered with `aria-disabled="true"` and the `disabled` attribute — they are not focusable via keyboard and cannot be selected. Passing `min > max` triggers a dev overlay.
+
+### With isDateDisabled
+
+```tsx
+<Datepicker
+  label="Delivery date"
+  value={date}
+  onChange={setDate}
+  isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}
+/>
+```
+
+Use `isDateDisabled` to block individual dates or patterns (weekends, holidays, booked slots). The predicate receives each calendar day; returning `true` disables it. Returning `true` for the current `value` triggers a dev overlay.
+
+### With external error
+
+```tsx
+<Datepicker
+  label="Birth date"
+  value={date}
+  onChange={setDate}
+  error={serverError}
+/>
+```
+
+The `error` prop accepts a validation message from server-side or form-library validation. It is displayed below the input and referenced by the input's `aria-describedby` — identical to how parse errors from the text field are surfaced, so screen readers announce errors consistently.
+
+### With aria-label (no visible label)
+
+```tsx
+<Datepicker aria-label="Date of birth" value={date} onChange={setDate} />
+```
+
+Use `aria-label` when a visible label would be redundant (e.g., inside a form row that already has a heading). Mutually exclusive with `label` and `aria-labelledby`.
+
+## TypeScript enforcement
+
+Every Datepicker must have exactly one accessible name source. Passing none or two is a compile-time error.
+
+### Compile-time errors
+
+```tsx
+// Type error: Property 'value' is missing or no label source provided
+<Datepicker value={date} onChange={setDate} />
+
+// Type error: 'aria-label' is not assignable to type 'never'
+//   label and aria-label are mutually exclusive
+<Datepicker label="Date" aria-label="Date" value={date} onChange={setDate} />
+
+// Type error: 'aria-labelledby' is not assignable to type 'never'
+<Datepicker label="Date" aria-labelledby="my-label" value={date} onChange={setDate} />
+```
+
+### Valid usage
+
+```tsx
+// Visible label — compiles
+<Datepicker label="Appointment date" value={date} onChange={setDate} />
+
+// Non-visible label — compiles
+<Datepicker aria-label="Appointment date" value={date} onChange={setDate} />
+
+// Reference to external element — compiles
+<Datepicker aria-labelledby="my-label-id" value={date} onChange={setDate} />
+```
+
+## Runtime errors
+
+Violations that cannot be caught at compile time (dynamic values, runtime data) are surfaced in development via a red overlay and a `console.error`. All runtime guards are no-ops in production.
+
+```tsx
+// Triggers dev overlay: min is after max
+<Datepicker
+  label="Date"
+  value={null}
+  onChange={setDate}
+  min={new Date(2026, 11, 31)}
+  max={new Date(2026, 0, 1)}
+/>
+
+// Triggers dev overlay: selected value is outside [min, max]
+<Datepicker
+  label="Date"
+  value={new Date(2025, 0, 1)}
+  onChange={setDate}
+  min={new Date(2026, 0, 1)}
+/>
+
+// Triggers dev overlay: the current value is blocked by isDateDisabled
+<Datepicker
+  label="Date"
+  value={new Date(2026, 4, 16)}
+  onChange={setDate}
+  isDateDisabled={(d) => d.getDay() === 6}
+/>
+
+// Triggers dev overlay: invalid BCP-47 locale tag
+<Datepicker label="Date" value={null} onChange={setDate} locale="not-a-locale" />
+```
+
+<Callout type="warn">
+  Runtime guards are **development-only**. In production (`NODE_ENV === "production"`), violations render silently. Validate data from external sources before passing it as `value`, `min`, or `max`.
+</Callout>
+
+## Keyboard navigation
+
+The calendar popup follows the [WAI-ARIA APG Date Picker Dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/).
+
+| Key | Action |
+|-----|--------|
+| `Arrow Left / Right` | Previous / next day |
+| `Arrow Up / Down` | Previous / next week |
+| `Home` | First day of the current month |
+| `End` | Last day of the current month |
+| `Page Up` | Previous month |
+| `Page Down` | Next month |
+| `Enter` / `Space` | Select focused day, close popup, return focus to trigger |
+| `Escape` | Close popup without selecting, return focus to trigger |
+| `Tab` | Cycle: prev-month button → next-month button → close button |
+
+## API
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `label` | `string` | — | Visible label. Required unless `aria-label` or `aria-labelledby` is provided. Mutually exclusive with the other two. |
+| `aria-label` | `string` | — | Non-visible accessible name. Mutually exclusive with `label` and `aria-labelledby`. |
+| `aria-labelledby` | `string` | — | ID of an existing element that labels the input. Mutually exclusive with `label` and `aria-label`. |
+| `value` | `Date \| null` | — | **Required.** Currently selected date, or `null`. |
+| `onChange` | `(next: Date \| null) => void` | — | **Required.** Called when the user selects a date or types a valid one. |
+| `locale` | `string` | `navigator.language` | BCP-47 locale tag. Controls date format, week start, and month labels. |
+| `min` | `Date` | — | Earliest selectable date (inclusive). |
+| `max` | `Date` | — | Latest selectable date (inclusive). |
+| `isDateDisabled` | `(date: Date) => boolean` | — | Predicate to disable individual dates. |
+| `error` | `string` | — | External validation error, wired to the input via `aria-describedby`. |
+| `required` | `boolean` | — | Maps to `aria-required` on the text input. |
+
+## Accessibility
+
+<Callout type="info">
+  This component is designed to pass all 9 WCAG criteria that no peer library (Chakra UI, PrimeReact, shadcn/ui, Ant Design, MUI) satisfies simultaneously.
+</Callout>
+
+| WCAG | Criterion | How it is satisfied |
+|------|-----------|---------------------|
+| **1.3.1** | Info and Relationships | Text input is a first-class entry path. Parse errors are associated with the input via `aria-describedby`. Calendar heading is a semantic `<h2>`. |
+| **2.1.1** | Keyboard | All controls are native `<button>` elements. Arrow keys navigate the day grid. Tab cycles among prev/next/close buttons inside the dialog. |
+| **2.1.2** | No Keyboard Trap | Focus is constrained to the three dialog buttons. `Escape` always exits. Selecting a date also exits. |
+| **2.4.3** | Focus Order | DOM order enforces prev-month → next-month → close. Dialog is `role="dialog"` with `aria-labelledby` pointing at the month/year `<h2>`. |
+| **2.4.7** | Focus Visible | All interactive elements use `outline` (not `box-shadow`) for focus rings, preserving visibility in Windows High Contrast Mode. |
+| **3.3.1** | Error Identification | Invalid typed dates and external `error` prop values are both rendered in an element referenced by the input's `aria-describedby`. |
+| **3.3.2** | Labels or Instructions | Exactly one of `label`, `aria-label`, or `aria-labelledby` is required at compile time. |
+| **4.1.2** | Name, Role, Value | Selected day: `aria-selected="true"`. Today: `aria-current="date"`. Nav buttons: `aria-label` with target month name. Trigger: `aria-haspopup="dialog"` and `aria-expanded`. |
+| **4.1.3** | Status Messages | An `aria-live="polite"` `aria-atomic` region (always in the DOM) announces the new month name on prev/next navigation. |
+
+Additional behaviors:
+
+- **`prefers-reduced-motion`**: CSS transitions on day buttons are removed when the user prefers reduced motion.
+- **Touch targets**: every day cell is at minimum 44×44px (configurable via `--artui-dp-cell-size`).
+- **High Contrast Mode**: focus rings use `outline`, not `box-shadow`, so they remain visible in Windows High Contrast Mode.
+
+## Dos and Don'ts
+
+<Callout type="info" title="Do — provide a label">
+Every Datepicker needs an accessible name so screen reader users know what the field is for.
+
+```tsx
+<Datepicker label="Date of birth" value={date} onChange={setDate} />
+```
+</Callout>
+
+<Callout type="error" title="Don't — omit the label">
+```tsx
+<Datepicker value={date} onChange={setDate} /> {/* compile error */}
+```
+
+Omitting all three label sources is a TypeScript compile error.
+</Callout>
+
+<Callout type="info" title="Do — use isDateDisabled for custom rules">
+```tsx
+<Datepicker
+  label="Delivery date"
+  value={date}
+  onChange={setDate}
+  isDateDisabled={(d) => isHoliday(d) || d.getDay() === 0}
+/>
+```
+</Callout>
+
+<Callout type="error" title="Don't — invert min/max">
+```tsx
+<Datepicker
+  label="Date"
+  value={null}
+  onChange={setDate}
+  min={new Date(2026, 11, 31)}
+  max={new Date(2026, 0, 1)}  {/* dev overlay fires */}
+/>
+```
+
+Passing `min` after `max` triggers a dev overlay with a WCAG 1.3.5 violation.
+</Callout>
+
+## Related
+
+- [Image](/docs/components/image) — same TypeScript discriminated-union + `withErrorOverlay` enforcement model

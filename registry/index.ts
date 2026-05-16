@@ -7,3 +7,6 @@
 
 export { Image } from './components/image/image';
 export type { ImageProps } from './components/image/image';
+
+export { Datepicker } from './components/datepicker/datepicker';
+export type { DatepickerProps } from './components/datepicker/datepicker';
