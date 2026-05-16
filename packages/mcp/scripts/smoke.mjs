@@ -26,11 +26,12 @@ let buffer = '';
 const responses = [];
 child.stdout.on('data', (chunk) => {
   buffer += chunk.toString('utf8');
-  let nl;
-  while ((nl = buffer.indexOf('\n')) !== -1) {
+  let nl = buffer.indexOf('\n');
+  while (nl !== -1) {
     const line = buffer.slice(0, nl).trim();
     buffer = buffer.slice(nl + 1);
     if (line) responses.push(JSON.parse(line));
+    nl = buffer.indexOf('\n');
   }
 });
 

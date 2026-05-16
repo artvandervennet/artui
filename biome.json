@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -14,7 +14,8 @@
       "!**/.next",
       "!**/.turbo",
       "!**/coverage",
-      "!**/registry.json"
+      "!**/registry.json",
+      "!registry"
     ]
   },
   "formatter": {
@@ -39,6 +40,57 @@
     }
   },
   "linter": {
-    "enabled": false
-  }
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error",
+        "useExhaustiveDependencies": "error",
+        "useHookAtTopLevel": "error"
+      },
+      "style": {
+        "useConst": "error",
+        "useImportType": "error",
+        "useTemplate": "error",
+        "noNonNullAssertion": "warn"
+      },
+      "suspicious": {
+        "noConsole": "warn",
+        "noExplicitAny": "warn"
+      },
+      "a11y": {
+        "noAccessKey": "error",
+        "noAriaHiddenOnFocusable": "error",
+        "noInteractiveElementToNoninteractiveRole": "error",
+        "noNoninteractiveElementToInteractiveRole": "error",
+        "noNoninteractiveTabindex": "error",
+        "noPositiveTabindex": "error",
+        "noRedundantAlt": "error",
+        "useAltText": "error",
+        "useAnchorContent": "error",
+        "useAriaPropsForRole": "error",
+        "useButtonType": "error",
+        "useHeadingContent": "error",
+        "useKeyWithClickEvents": "error",
+        "useKeyWithMouseEvents": "error",
+        "useValidAnchor": "error",
+        "useValidAriaProps": "error",
+        "useValidAriaRole": "error",
+        "useValidAriaValues": "error"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/scripts/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    }
+  ]
 }

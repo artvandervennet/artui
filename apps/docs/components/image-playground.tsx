@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Image } from '@artui/registry';
+import { useState } from 'react';
 
 const SRC = 'https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=640&h=360&fit=crop';
 
@@ -86,6 +86,7 @@ export function ImagePlayground() {
         ) : isInvalidAlt ? (
           // Replicates withErrorOverlay DOM output without firing console.error
           <span aria-hidden="true" style={{ position: 'relative', display: 'inline-block' }}>
+            {/* biome-ignore lint/performance/noImgElement: intentional raw <img> to replicate error-overlay DOM without Next.js optimization */}
             <img src={SRC} alt="" width={480} height={270} loading={loading} style={IMG_STYLE} />
             <span
               style={{
