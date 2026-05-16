@@ -438,7 +438,7 @@ const STYLE = `
 .artui-dp-day-btn:hover:not(:disabled) {
   background: color-mix(in srgb, currentColor 8%, transparent);
 }
-.artui-dp-day-btn[aria-selected="true"] {
+.artui-dp-day-cell[aria-selected="true"] .artui-dp-day-btn {
   background: var(--artui-dp-selected-bg, #0057b7);
   color: var(--artui-dp-selected-color, #ffffff);
 }
