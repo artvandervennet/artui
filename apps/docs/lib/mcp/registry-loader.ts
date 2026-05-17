@@ -1,5 +1,4 @@
-import { readFile } from 'node:fs/promises';
-import { isAbsolute, resolve } from 'node:path';
+import registryJson from '../../public/registry.json' with { type: 'json' };
 
 export interface PropDoc {
   name: string;
@@ -42,16 +41,27 @@ export interface Registry {
   components: RegistryComponent[];
 }
 
-const DEFAULT_REGISTRY_URL = 'https://artui.vandervennet.art/registry.json';
-
 /**
- * Resolves the registry source from env override or default URL.
- * `ARTUI_REGISTRY` may be either an http(s) URL or a local file path —
- * used during local development against the registry workspace.
+ * Resolves the registry. Default is the JSON bundled at build time from
+ * `apps/docs/public/registry.json` (placed there by `scripts/copy-registry.mjs`
+ * during the docs site's `prebuild`). The static import keeps Vercel's
+ * file tracing tight — no runtime fs scan, no whole-project bundling.
+ *
+ * `ARTUI_REGISTRY` is honored only in dev: it may point to an http(s) URL
+ * or an absolute file path so you can iterate against an unbuilt registry
+ * workspace. In production the env var is ignored — the bundled JSON is
+ * always served. Gating on NODE_ENV also lets Turbopack tree-shake the
+ * dev branch out, which keeps NFT from tracing the whole project.
  */
 export async function loadRegistry(): Promise<Registry> {
-  const source = process.env.ARTUI_REGISTRY ?? DEFAULT_REGISTRY_URL;
+  if (process.env.NODE_ENV !== 'production') {
+    const override = process.env.ARTUI_REGISTRY;
+    if (override) return loadOverride(override);
+  }
+  return registryJson as Registry;
+}
 
+async function loadOverride(source: string): Promise<Registry> {
   if (/^https?:/i.test(source)) {
     const res = await fetch(source);
     if (!res.ok) {
@@ -60,6 +70,8 @@ export async function loadRegistry(): Promise<Registry> {
     return (await res.json()) as Registry;
   }
 
+  const { readFile } = await import('node:fs/promises');
+  const { isAbsolute, resolve } = await import('node:path');
   const abs = isAbsolute(source) ? source : resolve(process.cwd(), source);
   return JSON.parse(await readFile(abs, 'utf8')) as Registry;
 }

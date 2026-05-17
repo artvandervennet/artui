@@ -43,24 +43,16 @@ after that — edit them freely.
 | Package                       | What it is                                   |
 | ----------------------------- | -------------------------------------------- |
 | [`@artui/cli`](packages/cli)  | The `artui` CLI: `init`, `add`, `lint`.      |
-| [`@artui/mcp`](packages/mcp)  | MCP server with 6 tools for AI assistants.   |
-| [`@artui/docs`](apps/docs)    | Documentation site (Fumadocs).               |
+| [`@artui/docs`](apps/docs)    | Docs site (Fumadocs) + hosted MCP endpoint.  |
 | [`@artui/registry`](registry) | Component source-of-truth (not published).   |
 
 ## Connecting the MCP server
 
-Add to `claude_desktop_config.json` (Claude Desktop) or your editor's MCP
-settings:
+The MCP server is hosted alongside the docs site. One command — no local
+binary, no config file:
 
-```json
-{
-  "mcpServers": {
-    "artui": {
-      "command": "npx",
-      "args": ["-y", "@artui/mcp"]
-    }
-  }
-}
+```bash
+claude mcp add --transport http artui https://artui.vandervennet.art/api/mcp
 ```
 
 Then ask: *"How do I add an accessible image with artui?"* — your AI
@@ -92,9 +84,8 @@ https://<your-deploy>.vercel.app/registry.json          → CLI/MCP source
 ```
 
 After the first deploy, update the default URL in
-[packages/cli/src/lib/config.ts](packages/cli/src/lib/config.ts) and
-[packages/mcp/src/registry-loader.ts](packages/mcp/src/registry-loader.ts)
-to point at your live `registry.json`.
+[packages/cli/src/lib/config.ts](packages/cli/src/lib/config.ts) to point
+at your live `registry.json`.
 
 ## License
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://artui.vandervennet.art/registry-schema.json",
   "version": "0.1.0",
-  "generatedAt": "2026-05-17T12:49:12.721Z",
+  "generatedAt": "2026-05-17T14:44:01.428Z",
   "components": [
     {
       "name": "Datepicker",

@@ -22,7 +22,7 @@
 - [ ] Regression test added that would have caught this
 - [ ] `pnpm turbo run lint typecheck test build` passes locally
 - [ ] Docs updated if behavior visible to users changed
-- [ ] Changeset added (`pnpm changeset`) if `@artui/cli` or `@artui/mcp` is touched
+- [ ] Changeset added (`pnpm changeset`) if `@artui/cli` is touched
 
 ## Notes for reviewers
 

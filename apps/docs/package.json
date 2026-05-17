@@ -5,21 +5,26 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
-    "prebuild": "node scripts/copy-registry.mjs",
+    "copy-registry": "node scripts/copy-registry.mjs",
+    "prebuild": "pnpm copy-registry",
     "build": "next build",
     "start": "next start",
+    "pretypecheck": "pnpm copy-registry",
     "typecheck": "tsc --noEmit",
     "lint": "biome check app lib mdx-components.tsx",
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
     "@artui/registry": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.0.0",
     "fumadocs-core": "^16.8.11",
     "fumadocs-mdx": "^15.0.4",
     "fumadocs-ui": "^16.8.11",
+    "mcp-handler": "^1.0.0",
     "next": "^16.2.6",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",

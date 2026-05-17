@@ -1,7 +1,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
-import { findComponent, loadRegistry } from './registry-loader.js';
+import { findComponent, loadRegistry } from './registry-loader';
 
 /**
  * Tools from §2.2.2 Table 8 of the thesis. All six tools read from a single

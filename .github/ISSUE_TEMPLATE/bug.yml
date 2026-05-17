@@ -35,9 +35,8 @@ body:
       label: Which package?
       options:
         - "@artui/cli"
-        - "@artui/mcp"
         - "@artui/registry (a specific component)"
-        - "@artui/docs"
+        - "@artui/docs (incl. hosted MCP endpoint)"
         - Not sure
     validations:
       required: true

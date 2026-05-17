@@ -22,9 +22,8 @@ version if you use `nvm` or `fnm`.
 
 ```markdown
 artui/
-├── apps/docs/ Fumadocs site
+├── apps/docs/ Fumadocs site + hosted MCP endpoint (/api/mcp)
 ├── packages/cli/ The `artui` CLI
-├── packages/mcp/ MCP server for AI assistants
 └── registry/ Component source-of-truth
 ```
 
@@ -64,8 +63,8 @@ pnpm --filter @artui/docs dev
 Every PR must:
 
 - pass `pnpm turbo run lint typecheck test build`
-- include a Changeset (`pnpm changeset`) if it touches `@artui/cli`
-  or `@artui/mcp` — the release workflow needs it
+- include a Changeset (`pnpm changeset`) if it touches `@artui/cli` —
+  the release workflow needs it
 - include an accessibility test if the change affects component
   behavior (keyboard, focus, ARIA)
 - update the corresponding docs page if props or behavior changed
