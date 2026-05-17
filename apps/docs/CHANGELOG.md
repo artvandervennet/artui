@@ -1,5 +1,13 @@
 # @artui/docs
 
+## 0.1.1
+
+### Patch Changes
+
+- aba3bfc: Promote Datepicker from beta to stable.
+- Updated dependencies [aba3bfc]
+  - @artui/registry@0.2.1
+
 ## 0.1.0
 
 ### Minor Changes
