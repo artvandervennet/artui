@@ -6,7 +6,12 @@ import type { Command } from 'commander';
 import { type ArtuiConfig, readConfig } from '../lib/config.js';
 import { rewriteImports, route } from '../lib/file-router.js';
 import { log } from '../lib/log.js';
-import { findComponent, loadRegistry } from '../lib/registry.js';
+import {
+  assertVersionMatch,
+  findComponent,
+  loadRegistry,
+  resolveRegistryUrl,
+} from '../lib/registry.js';
 import { runInit } from './init.js';
 
 interface AddOptions {
@@ -33,10 +38,16 @@ export function registerAdd(program: Command): void {
         config = await runInit(cwd, { yes: options.yes, registry: options.registry });
       }
 
-      const source = options.registry ?? config.registry;
+      const baseSource = options.registry ?? config.registry;
+      const source = resolveRegistryUrl(baseSource, config.version);
 
-      log.info(`Fetching registry from ${source}`);
+      log.info(
+        config.version
+          ? `Fetching registry v${config.version} from ${source}`
+          : `Fetching registry from ${source}`,
+      );
       const registry = await loadRegistry(source);
+      assertVersionMatch(registry, config.version);
       const component = findComponent(registry, componentName);
 
       log.info(`Adding ${component.name}`);
