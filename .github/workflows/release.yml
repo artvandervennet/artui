@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
 
+# id-token: write is required for npm Trusted Publisher (OIDC) auth.
+# See the "Create Release PR or publish" step below for the full auth contract.
 permissions:
   contents: write
   pull-requests: write
@@ -27,7 +29,14 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          # registry-url is load-bearing: it writes the .npmrc that npm publish
+          # reads, and OIDC publishing requires this exact registry URL.
           registry-url: https://registry.npmjs.org
+
+      - name: Assert npm >= 11.5.1 (required for Trusted Publisher OIDC)
+        run: |
+          npm --version
+          node -e "const v=require('child_process').execSync('npm --version').toString().trim().split('.').map(Number);if(v[0]<11||(v[0]===11&&v[1]<5)||(v[0]===11&&v[1]===5&&v[2]<1)){console.error('npm '+v.join('.')+' < 11.5.1, OIDC publishing will fail');process.exit(1)}"
 
       - run: pnpm install --frozen-lockfile
 
@@ -37,39 +46,81 @@ jobs:
       - name: Build publishable packages
         run: pnpm turbo run build --filter=@artui/cli
 
+      # Auth: npm Trusted Publisher (OIDC). No NPM_TOKEN is used or required.
+      # The id-token: write permission + setup-node's registry-url is what
+      # lets `npm publish` exchange GitHub's OIDC token for an npm publish credential.
+      # Do NOT add NPM_TOKEN here — its presence forces token-mode and breaks the
+      # OIDC flow that the @artui/cli npm package is configured for on npmjs.com.
       - name: Create Release PR or publish
         id: changesets
         uses: changesets/action@v1
         with:
           publish: pnpm changeset publish
           version: pnpm changeset version
+          createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Freeze versioned registry snapshot
-        if: steps.changesets.outputs.published == 'true'
+      # Runs on every push to main. Skips work when the versioned snapshot for
+      # the current registry version already exists in git — content-diff is not
+      # reliable because `registry/registry.json` carries a `generatedAt` timestamp
+      # that regenerates on every build.
+      - name: Refresh registry snapshot (idempotent)
         run: |
+          REG_VERSION=$(node -p "require('./registry/package.json').version")
+          SNAPSHOT_PATH="apps/docs/public/registry/v$REG_VERSION/registry.json"
+          if git cat-file -e "HEAD:$SNAPSHOT_PATH" 2>/dev/null; then
+            echo "Snapshot for v$REG_VERSION already exists at $SNAPSHOT_PATH, skipping."
+            exit 0
+          fi
           pnpm --filter @artui/registry build
           pnpm --filter @artui/docs prebuild
-          VERSION=$(node -p "require('./registry/package.json').version")
-          echo "REGISTRY_VERSION=$VERSION" >> "$GITHUB_ENV"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apps/docs/public/registry apps/docs/public/registry.json apps/docs/lib/registry-version.ts
-          if git diff --cached --quiet; then
-            echo "No snapshot changes to commit."
-          else
-            git commit -m "chore: freeze registry snapshot v$VERSION"
-            git push origin HEAD:main
-          fi
+          git add "$SNAPSHOT_PATH" apps/docs/lib/registry-version.ts registry/registry.json
+          git commit -m "chore: freeze registry snapshot v$REG_VERSION"
+          git push origin HEAD:main
 
-      - name: Tag registry release
-        if: steps.changesets.outputs.published == 'true'
+      # Tag + GitHub Release for the private workspaces (registry, docs).
+      # The CLI is handled by changesets/action's createGithubReleases above.
+      # Idempotent: skips any tag already on origin.
+      - name: Tag + release private packages (idempotent)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="registry@$REGISTRY_VERSION"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists."
-          else
-            git tag "$TAG"
-            git push origin "$TAG"
-          fi
+          set -euo pipefail
+
+          extract_section() {
+            # prints the markdown body between "## <version>" and the next "## " heading
+            awk -v v="$2" '
+              $0 == "## " v { flag=1; next }
+              /^## / && flag { exit }
+              flag { print }
+            ' "$1"
+          }
+
+          publish_tag() {
+            local pkg_dir="$1" prefix="$2" name="$3"
+            local version
+            version=$(node -p "require('./$pkg_dir/package.json').version")
+            local tag="$prefix@$version"
+
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+              echo "Tag $tag already on origin, skipping."
+              return
+            fi
+
+            git tag "$tag"
+            git push origin "$tag"
+
+            local notes_file
+            notes_file=$(mktemp)
+            extract_section "$pkg_dir/CHANGELOG.md" "$version" > "$notes_file"
+            if [ ! -s "$notes_file" ]; then
+              printf "Release %s\n" "$tag" > "$notes_file"
+            fi
+            gh release create "$tag" --title "$name $version" --notes-file "$notes_file"
+          }
+
+          publish_tag registry registry "@artui/registry"
+          publish_tag apps/docs docs "@artui/docs"
