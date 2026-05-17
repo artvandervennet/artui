@@ -1,5 +1,11 @@
 # @artui/registry
 
+## 0.2.1
+
+### Patch Changes
+
+- aba3bfc: Promote Datepicker from beta to stable.
+
 ## 0.2.0
 
 ### Minor Changes
