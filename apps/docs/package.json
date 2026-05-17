@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
-    "prebuild": "node scripts/copy-registry.mjs",
+    "copy-registry": "node scripts/copy-registry.mjs",
+    "prebuild": "pnpm copy-registry",
     "build": "next build",
     "start": "next start",
+    "pretypecheck": "pnpm copy-registry",
     "typecheck": "tsc --noEmit",
     "lint": "biome check app lib mdx-components.tsx",
     "postinstall": "fumadocs-mdx"
