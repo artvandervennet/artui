@@ -17,6 +17,7 @@ import type { ComponentMeta } from '../lib/meta-types.ts';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REGISTRY_ROOT = resolve(__dirname, '..');
 const COMPONENTS_DIR = join(REGISTRY_ROOT, 'components');
+const PACKAGE_JSON = join(REGISTRY_ROOT, 'package.json');
 const OUTPUT = join(REGISTRY_ROOT, 'registry.json');
 
 interface FileEntry {
@@ -82,6 +83,15 @@ async function loadComponent(name: string): Promise<RegistryEntry | null> {
   return { ...meta, fileContents };
 }
 
+async function readVersion(): Promise<string> {
+  const raw = await readFile(PACKAGE_JSON, 'utf8');
+  const { version } = JSON.parse(raw) as { version?: string };
+  if (!version) {
+    throw new Error(`[build-registry] ${PACKAGE_JSON} has no "version" field`);
+  }
+  return version;
+}
+
 async function main(): Promise<void> {
   if (!(await exists(COMPONENTS_DIR))) {
     throw new Error(`No components/ directory at ${COMPONENTS_DIR}`);
@@ -100,7 +110,7 @@ async function main(): Promise<void> {
 
   const registry = {
     $schema: 'https://artui.vandervennet.art/registry-schema.json',
-    version: '0.0.0',
+    version: await readVersion(),
     generatedAt: new Date().toISOString(),
     components,
   };

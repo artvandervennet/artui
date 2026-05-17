@@ -7,6 +7,8 @@ export interface ArtuiConfig {
   $schema?: string;
   /** URL or local path to the registry.json file. */
   registry: string;
+  /** Pin to a specific registry release (e.g. "0.1.1"). Omit for "always latest". */
+  version?: string;
   paths: {
     components: string;
     lib: string;

@@ -31,6 +31,12 @@ export async function runInit(cwd: string, options: InitOptions = {}): Promise<A
         },
         {
           type: 'text',
+          name: 'version',
+          message: 'Pin to a specific registry version? (leave blank for latest)',
+          initial: '',
+        },
+        {
+          type: 'text',
           name: 'components',
           message: 'Where should components be written?',
           initial: DEFAULT_CONFIG.paths.components,
@@ -57,9 +63,11 @@ export async function runInit(cwd: string, options: InitOptions = {}): Promise<A
       { onCancel: () => process.exit(1) },
     );
 
+    const pinned = (answers.version as string).trim();
     config = {
       $schema: DEFAULT_CONFIG.$schema,
       registry: answers.registry as string,
+      ...(pinned ? { version: pinned } : {}),
       paths: {
         components: answers.components as string,
         lib: answers.lib as string,
