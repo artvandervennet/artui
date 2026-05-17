@@ -35,7 +35,7 @@ jobs:
         run: pnpm --filter @artui/registry build
 
       - name: Build publishable packages
-        run: pnpm turbo run build --filter=@artui/cli --filter=@artui/mcp
+        run: pnpm turbo run build --filter=@artui/cli
 
       - name: Create Release PR or publish
         id: changesets

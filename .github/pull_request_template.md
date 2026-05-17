@@ -18,7 +18,7 @@
 - [ ] `pnpm turbo run lint typecheck test build` passes locally
 - [ ] Added or updated tests for changed behavior
 - [ ] Updated `meta.ts` and the docs page if props or behavior changed
-- [ ] Added a Changeset (`pnpm changeset`) if this touches `@artui/cli` or `@artui/mcp`
+- [ ] Added a Changeset (`pnpm changeset`) if this touches `@artui/cli`
 
 ## Accessibility
 

@@ -18,8 +18,9 @@ You can expect:
 
 ## Supported versions
 
-Only the most recent minor version of each published package
-(`@artui/cli`, `@artui/mcp`) receives fixes. The `@artui/registry`
+Only the most recent minor version of the published `@artui/cli` package
+receives fixes. The hosted MCP server at `artui.vandervennet.art/api/mcp`
+is updated continuously alongside the docs site. The `@artui/registry`
 components themselves are copy-pasted into consumer projects, so once
 copied they are owned by that project — fixes are published as updated
 component sources that the CLI can re-fetch.

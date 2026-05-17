@@ -20,8 +20,7 @@ Filter to one workspace: `pnpm --filter @artui/registry test`.
 
 - `registry/` — source-of-truth components. Self-contained, no cross-component imports, no dependencies on `packages/`. Anything imported here ships into the consumer's repo.
 - `packages/cli` (`artui`) — installs registry components into a consumer project. Built with tsup.
-- `packages/mcp` — MCP server exposing registry docs to AI assistants. Built with tsup.
-- `apps/docs` — Fumadocs (Next.js 16 + Tailwind v4) docs site. Prebuild copies the registry.
+- `apps/docs` — Fumadocs (Next.js 16 + Tailwind v4) docs site. Prebuild copies the registry. Also hosts the MCP server at `/api/mcp` (Streamable HTTP) using `mcp-handler`; tools and registry loader live in `apps/docs/lib/mcp/`.
 
 ## Don'ts
 

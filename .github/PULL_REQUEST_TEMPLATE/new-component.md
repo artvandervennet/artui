@@ -44,7 +44,7 @@
 ### CI
 
 - [ ] `pnpm turbo run lint typecheck test build` passes locally
-- [ ] Changeset added (`pnpm changeset`) if `@artui/cli` or `@artui/mcp` is touched
+- [ ] Changeset added (`pnpm changeset`) if `@artui/cli` is touched
 
 ## Tested with
 
