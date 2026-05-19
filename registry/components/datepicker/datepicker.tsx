@@ -13,6 +13,8 @@ import {
 import { type AccessibleText } from "../../lib/a11y-types";
 import { withErrorOverlay } from "../../lib/dev-overlay";
 
+import "./datepicker.css";
+
 // ---------------------------------------------------------------------------
 // Label prop — exactly one source required; combinations are compile errors
 // ---------------------------------------------------------------------------
@@ -255,243 +257,7 @@ function isValidLocale(locale: string): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// CSS (injected once as a <style> element)
-// ---------------------------------------------------------------------------
-
-const STYLE = `
-.artui-datepicker {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
-  font-family: inherit;
-  font-size: inherit;
-}
-
-.artui-dp-label {
-  font-size: 0.875em;
-  font-weight: 500;
-  color: inherit;
-}
-
-.artui-dp-input-row {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-}
-
-.artui-dp-input {
-  flex: 1;
-  min-width: 0;
-  padding: 8px 44px 8px 12px;
-  border: 1px solid currentColor;
-  border-radius: 4px;
-  font-family: inherit;
-  font-size: inherit;
-  background: transparent;
-  color: inherit;
-  outline: none;
-}
-.artui-dp-input:focus {
-  outline: var(--artui-dp-focus-outline, 2px solid currentColor);
-  outline-offset: var(--artui-dp-focus-outline-offset, 2px);
-}
-
-.artui-dp-trigger {
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  width: 44px;
-  border: none;
-  border-radius: 0 4px 4px 0;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1em;
-}
-.artui-dp-trigger:focus {
-  outline: var(--artui-dp-focus-outline, 2px solid currentColor);
-  outline-offset: var(--artui-dp-focus-outline-offset, 2px);
-}
-
-.artui-dp-error {
-  font-size: 0.8em;
-  color: #c0392b;
-  min-height: 1.2em;
-}
-
-.artui-dp-dialog {
-  position: fixed;
-  z-index: 100;
-  width: fit-content;
-  background: var(--artui-dp-dialog-bg, Canvas);
-  color: var(--artui-dp-dialog-color, CanvasText);
-  box-shadow: var(--artui-dp-dialog-shadow, 0 4px 24px rgba(0,0,0,0.18));
-  border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
-  border-radius: 6px;
-  padding: 12px;
-}
-.artui-dp-dialog::backdrop {
-  background: transparent;
-}
-
-.artui-dp-dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  gap: 4px;
-}
-
-.artui-dp-nav-btn {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1em;
-}
-.artui-dp-nav-btn:focus {
-  outline: var(--artui-dp-focus-outline, 2px solid currentColor);
-  outline-offset: var(--artui-dp-focus-outline-offset, 2px);
-}
-.artui-dp-nav-btn:hover {
-  background: color-mix(in srgb, currentColor 6%, transparent);
-}
-
-.artui-dp-heading {
-  flex: 1;
-  text-align: center;
-  font-size: 1em;
-  font-weight: 600;
-  margin: 0;
-}
-
-.artui-dp-close-btn {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 1em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.artui-dp-close-btn:focus {
-  outline: var(--artui-dp-focus-outline, 2px solid currentColor);
-  outline-offset: var(--artui-dp-focus-outline-offset, 2px);
-}
-
-.artui-dp-grid {
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: calc(7 * (var(--artui-dp-cell-size, 44px) + 4px));
-}
-
-.artui-dp-grid th {
-  font-size: 0.75em;
-  font-weight: 600;
-  text-align: center;
-  padding: 4px 0;
-  color: inherit;
-  opacity: 0.6;
-}
-
-.artui-dp-day-cell {
-  padding: 2px;
-  text-align: center;
-}
-
-.artui-dp-day-btn {
-  width: var(--artui-dp-cell-size, 44px);
-  height: var(--artui-dp-cell-size, 44px);
-  border: none;
-  border-radius: 50%;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.875em;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--artui-dp-transition-duration, 150ms) var(--artui-dp-transition-easing, ease-out);
-}
-.artui-dp-day-btn:focus {
-  outline: var(--artui-dp-focus-outline, 2px solid currentColor);
-  outline-offset: var(--artui-dp-focus-outline-offset, 2px);
-}
-.artui-dp-day-btn:hover:not(:disabled) {
-  background: color-mix(in srgb, currentColor 8%, transparent);
-}
-.artui-dp-day-cell[aria-selected="true"] .artui-dp-day-btn {
-  background: var(--artui-dp-selected-bg, #0057b7);
-  color: var(--artui-dp-selected-color, #ffffff);
-}
-.artui-dp-day-btn[aria-current="date"] {
-  box-shadow: var(--artui-dp-today-shadow, inset 0 0 0 2px currentColor);
-}
-.artui-dp-day-btn:disabled,
-.artui-dp-day-btn[aria-disabled="true"] {
-  opacity: var(--artui-dp-disabled-opacity, 0.4);
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.artui-dp-day-btn--overflow {
-  opacity: 0.35;
-}
-
-.artui-dp-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0,0,0,0);
-  white-space: nowrap;
-  border: 0;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .artui-dp-day-btn {
-    transition: none;
-    /* opacity-only fallback — no translate or scale animations */
-  }
-  .artui-dp-dialog {
-    animation: none;
-  }
-}
-`;
-
-let styleInjected = false;
-
-function injectStyle(): void {
-  if (styleInjected || typeof document === "undefined") return;
-  styleInjected = true;
-  const el = document.createElement("style");
-  el.dataset["artuiDp"] = "";
-  el.textContent = STYLE;
-  document.head.appendChild(el);
-}
-
-// ---------------------------------------------------------------------------
-// Main component
+// Component
 // ---------------------------------------------------------------------------
 
 export function Datepicker(props: DatepickerProps): ReactElement {
@@ -569,25 +335,6 @@ export function Datepicker(props: DatepickerProps): ReactElement {
       pendingCursor.current = null;
     }
   }, [inputValue]);
-
-  // ---------------------------------------------------------------------------
-  // Runtime violation detection
-  // ---------------------------------------------------------------------------
-
-  const runtimeViolation = useMemo((): {
-    key: string;
-    wcag?: string;
-    message: string;
-  } | null => {
-    // Invalid locale check
-    if (localeProp && !isValidLocale(localeProp)) {
-      return {
-        key: `Datepicker:invalid-locale:${localeProp}`,
-        message: `locale '${localeProp}' is not a valid BCP-47 tag. Falling back to navigator.language.`,
-      };
-    }
-    return null;
-  }, [localeProp]);
 
   // ---------------------------------------------------------------------------
   // Calendar helpers
@@ -925,10 +672,26 @@ export function Datepicker(props: DatepickerProps): ReactElement {
   const inputAriaLabelledBy = label ? undefined : ariaLabelledBy;
 
   // ---------------------------------------------------------------------------
-  // Render
+  // Runtime violation detection
   // ---------------------------------------------------------------------------
 
-  injectStyle();
+  const runtimeViolation = useMemo((): {
+    key: string;
+    wcag?: string;
+    message: string;
+  } | null => {
+    if (localeProp && !isValidLocale(localeProp)) {
+      return {
+        key: `Datepicker:invalid-locale:${localeProp}`,
+        message: `locale '${localeProp}' is not a valid BCP-47 tag. Falling back to navigator.language.`,
+      };
+    }
+    return null;
+  }, [localeProp]);
+
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
 
   const today = new Date();
 

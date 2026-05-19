@@ -2,8 +2,16 @@ import { type ImgHTMLAttributes, useMemo } from 'react';
 
 import { withErrorOverlay } from '../../lib/dev-overlay';
 
+// ---------------------------------------------------------------------------
+// Module constants
+// ---------------------------------------------------------------------------
+
 const FORBIDDEN_ALTS = ['', 'img', 'image', 'photo', 'picture', 'icon'] as const;
 type ForbiddenAlt = (typeof FORBIDDEN_ALTS)[number];
+
+// ---------------------------------------------------------------------------
+// Props — discriminated union: meaningful alt OR explicit decorative flag
+// ---------------------------------------------------------------------------
 
 type SafeAlt<T extends string> =
   Lowercase<T> extends ForbiddenAlt
@@ -24,11 +32,17 @@ type AccessibleProps<T extends string> = BaseImgProps & {
 
 export type ImageProps<T extends string> = DecorativeProps | AccessibleProps<T>;
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function Image<const T extends string>(props: ImageProps<T>) {
+  // Props
   const { decorative, alt, style, loading, ...rest } = props as
     | (DecorativeProps & { alt?: undefined })
     | (AccessibleProps<string> & { decorative?: false });
 
+  // Computed
   const runtimeError = useMemo(() => {
     if (decorative) return null;
     const value = typeof alt === 'string' ? alt.trim() : '';
@@ -41,6 +55,7 @@ export function Image<const T extends string>(props: ImageProps<T>) {
     return null;
   }, [decorative, alt]);
 
+  // Render
   if (decorative) {
     return <img {...rest} alt="" role="presentation" loading={loading ?? 'lazy'} style={style} />;
   }
