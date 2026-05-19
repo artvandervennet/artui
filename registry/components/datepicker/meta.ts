@@ -5,7 +5,7 @@ export const meta: ComponentMeta = {
   description:
     "Accessible date input with calendar popup. Follows WAI-ARIA APG Date Picker Dialog pattern. Passes all 9 WCAG criteria where peer libraries fail.",
   status: "stable",
-  files: ["datepicker.tsx"],
+  files: ["datepicker.tsx", "datepicker.css"],
   registryDependencies: ["lib/a11y-types.ts", "lib/dev-overlay.tsx"],
   props: [
     {

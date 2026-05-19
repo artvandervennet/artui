@@ -1,0 +1,230 @@
+:root {
+  --artui-dp-focus-outline: 2px solid currentColor;
+  --artui-dp-focus-outline-offset: 2px;
+  --artui-dp-dialog-bg: Canvas;
+  --artui-dp-dialog-color: CanvasText;
+  --artui-dp-dialog-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+  --artui-dp-cell-size: 44px;
+  --artui-dp-selected-bg: #0057b7;
+  --artui-dp-selected-color: #ffffff;
+  --artui-dp-today-shadow: inset 0 0 0 2px currentColor;
+  --artui-dp-disabled-opacity: 0.4;
+  --artui-dp-transition-duration: 150ms;
+  --artui-dp-transition-easing: ease-out;
+}
+
+.artui-datepicker {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: inherit;
+  font-size: inherit;
+
+  & .artui-dp-label {
+    font-size: 0.875em;
+    font-weight: 500;
+    color: inherit;
+  }
+
+  & .artui-dp-input-row {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+  }
+
+  & .artui-dp-input {
+    flex: 1;
+    min-inline-size: 0;
+    padding-block: 8px;
+    padding-inline: 12px 44px;
+    background: transparent;
+    color: inherit;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+
+    &:focus {
+      outline: var(--artui-dp-focus-outline);
+      outline-offset: var(--artui-dp-focus-outline-offset);
+    }
+  }
+
+  & .artui-dp-trigger {
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-start: 0;
+    block-size: 100%;
+    inline-size: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: inherit;
+    border: none;
+    border-start-end-radius: 4px;
+    border-end-end-radius: 4px;
+    cursor: pointer;
+    font-size: 1.1em;
+
+    &:focus {
+      outline: var(--artui-dp-focus-outline);
+      outline-offset: var(--artui-dp-focus-outline-offset);
+    }
+  }
+
+  & .artui-dp-error {
+    min-block-size: 1.2em;
+    color: #c0392b;
+    font-size: 0.8em;
+  }
+
+  & .artui-dp-sr-only {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+.artui-dp-dialog {
+  position: fixed;
+  z-index: 100;
+  inline-size: fit-content;
+  padding: 12px;
+  background: var(--artui-dp-dialog-bg);
+  color: var(--artui-dp-dialog-color);
+  border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  border-radius: 6px;
+  box-shadow: var(--artui-dp-dialog-shadow);
+
+  &::backdrop {
+    background: transparent;
+  }
+
+  & .artui-dp-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    margin-block-end: 8px;
+  }
+
+  & .artui-dp-nav-btn,
+  & .artui-dp-close-btn {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+    padding-block: 0;
+    padding-inline: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: inherit;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+
+    &:focus {
+      outline: var(--artui-dp-focus-outline);
+      outline-offset: var(--artui-dp-focus-outline-offset);
+    }
+  }
+
+  & .artui-dp-nav-btn:hover {
+    background: color-mix(in srgb, currentColor 6%, transparent);
+  }
+
+  & .artui-dp-heading {
+    flex: 1;
+    margin: 0;
+    text-align: center;
+    font-size: 1em;
+    font-weight: 600;
+  }
+
+  & .artui-dp-grid {
+    inline-size: calc(7 * (var(--artui-dp-cell-size) + 4px));
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    & th {
+      padding-block: 4px;
+      padding-inline: 0;
+      text-align: center;
+      font-size: 0.75em;
+      font-weight: 600;
+      color: inherit;
+      opacity: 0.6;
+    }
+  }
+
+  & .artui-dp-day-cell {
+    padding: 2px;
+    text-align: center;
+
+    &[aria-selected="true"] .artui-dp-day-btn {
+      background: var(--artui-dp-selected-bg);
+      color: var(--artui-dp-selected-color);
+    }
+  }
+
+  & .artui-dp-day-btn {
+    inline-size: var(--artui-dp-cell-size);
+    block-size: var(--artui-dp-cell-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: inherit;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.875em;
+    transition: background var(--artui-dp-transition-duration)
+      var(--artui-dp-transition-easing);
+
+    &:focus {
+      outline: var(--artui-dp-focus-outline);
+      outline-offset: var(--artui-dp-focus-outline-offset);
+    }
+
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, currentColor 8%, transparent);
+    }
+
+    &[aria-current="date"] {
+      box-shadow: var(--artui-dp-today-shadow);
+    }
+
+    &:disabled,
+    &[aria-disabled="true"] {
+      opacity: var(--artui-dp-disabled-opacity);
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+
+  & .artui-dp-day-btn--overflow {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artui-dp-day-btn {
+    transition: none;
+  }
+
+  .artui-dp-dialog {
+    animation: none;
+  }
+}

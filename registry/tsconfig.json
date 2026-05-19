@@ -6,6 +6,6 @@
     },
     "types": ["node", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["components", "lib", "hooks", "scripts", "test-setup.ts"],
+  "include": ["components", "lib", "hooks", "scripts", "test-setup.ts", "css.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
