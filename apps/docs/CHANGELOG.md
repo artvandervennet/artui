@@ -1,5 +1,13 @@
 # @artui/docs
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [0a13d07]
+- Updated dependencies [0a13d07]
+  - @artui/registry@0.3.0
+
 ## 0.1.1
 
 ### Patch Changes

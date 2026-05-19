@@ -1,5 +1,19 @@
 # @artui/registry
 
+## 0.3.0
+
+### Minor Changes
+
+- 0a13d07: refactor(styling): per-component CSS files with modern CSS
+
+  Every component now ships its own `<name>.css` file alongside `<name>.tsx` instead of inlining a `STYLE` template string and injecting it into `<head>` at runtime. The new files use native CSS nesting and logical properties (`margin-block-end`, `inset-inline-end`, `padding-inline`) throughout, and each declares its component-scoped custom properties in a `:root` block at the top. Class names are unchanged — consumers who already styled around `.artui-dialog`, `.artui-dp-*`, etc. keep working without modification.
+
+  Consumers who reinstall via the CLI receive the new `.css` files automatically. Consumers who hand-copied component sources previously will need to copy the new `.css` file and delete the old `injectStyle()`/`STYLE` block.
+
+- 0a13d07: feat(dialog): add accessible Dialog component
+
+  Native `<dialog>` with `showModal()` providing browser-managed focus trap, top-layer rendering, and Escape handling. Discriminated-union props enforce exactly one label source (`title` or `aria-labelledby`) at compile time. Three runtime dev overlays cover empty children (WCAG 1.3.1), unfocusable body content (WCAG 2.1.1), and unresolvable aria-labelledby (WCAG 4.1.2). A hidden sentinel close button guarantees at least one focus stop. Focus is captured on open and restored on close.
+
 ## 0.2.1
 
 ### Patch Changes
