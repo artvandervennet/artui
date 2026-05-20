@@ -56,38 +56,10 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm changeset publish
-          version: pnpm changeset version
+          version: pnpm version-packages
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Runs on every push to main. Skips work when the versioned snapshot for
-      # the current registry version already exists in git — content-diff is not
-      # reliable because `registry/registry.json` carries a `generatedAt` timestamp
-      # that regenerates on every build.
-      - name: Refresh registry snapshot (idempotent)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          REG_VERSION=$(node -p "require('./registry/package.json').version")
-          SNAPSHOT_PATH="apps/docs/public/registry/v$REG_VERSION/registry.json"
-          if git cat-file -e "HEAD:$SNAPSHOT_PATH" 2>/dev/null; then
-            echo "Snapshot for v$REG_VERSION already exists at $SNAPSHOT_PATH, skipping."
-            exit 0
-          fi
-          pnpm --filter @artui/registry build
-          pnpm --filter @artui/docs prebuild
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$SNAPSHOT_PATH" apps/docs/lib/registry-version.ts registry/registry.json
-          git commit -m "chore: freeze registry snapshot v$REG_VERSION"
-          BRANCH="chore/freeze-registry-snapshot-v$REG_VERSION"
-          git push origin "HEAD:$BRANCH"
-          gh pr create \
-            --title "chore: freeze registry snapshot v$REG_VERSION" \
-            --body "Automated: freeze registry snapshot for v$REG_VERSION" \
-            --base main \
-            --head "$BRANCH" || echo "PR already exists or branch already merged, skipping."
 
       # Tag + GitHub Release for the private workspaces (registry, docs).
       # The CLI is handled by changesets/action's createGithubReleases above.
