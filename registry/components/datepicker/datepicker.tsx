@@ -1,8 +1,7 @@
 import {
-  type ClipboardEvent,
+  type ChangeEvent,
   type KeyboardEvent,
   type ReactElement,
-  useCallback,
   useEffect,
   useId,
   useMemo,
@@ -49,6 +48,10 @@ function isSameDay(a: Date, b: Date): boolean {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate()
   );
+}
+
+function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
 function startOfMonth(d: Date): Date {
@@ -220,20 +223,6 @@ function applyMask(digits: string, fmt: string): string {
   return result;
 }
 
-/** Returns the 0-based index in digitStr of the digit just before `cursor` in the masked string.
- *  Returns -1 if there are no digits before the cursor. */
-function digitIndexBeforeCursor(cursor: number, masked: string, sep: string): number {
-  let digitCount = 0;
-  let lastDigit = -1;
-  for (let i = 0; i < cursor && i < masked.length; i++) {
-    if (masked[i] !== sep) {
-      lastDigit = digitCount;
-      digitCount++;
-    }
-  }
-  return lastDigit;
-}
-
 /** Returns the position in `masked` where the digit at `digitIndex` starts. */
 function maskCursorForDigitIndex(digitIndex: number, masked: string, sep: string): number {
   let count = 0;
@@ -354,18 +343,11 @@ export function Datepicker(props: DatepickerProps): ReactElement {
     [displayMonth, resolvedLocale],
   );
 
-  const isCellDisabled = useCallback(
-    (date: Date): boolean => {
-      if (min && date < startOfDay(min)) return true;
-      if (max && date > startOfDay(max)) return true;
-      if (isDateDisabled?.(date)) return true;
-      return false;
-    },
-    [min, max, isDateDisabled],
-  );
-
-  function startOfDay(d: Date): Date {
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  function isCellDisabled(date: Date): boolean {
+    if (min && date < startOfDay(min)) return true;
+    if (max && date > startOfDay(max)) return true;
+    if (isDateDisabled?.(date)) return true;
+    return false;
   }
 
   const prevMonthLabel = useMemo(() => {
@@ -474,64 +456,44 @@ export function Datepicker(props: DatepickerProps): ReactElement {
   }, [headingText, isOpen]);
 
   // ---------------------------------------------------------------------------
-  // Input handlers (masked: only digits typed; separators auto-inserted)
+  // Input handler (masked: digits + separators; mask is re-applied on every change)
   // ---------------------------------------------------------------------------
+  //
+  // Driven by `change`/`input` events rather than `keydown` so voice-control
+  // dictation (Dragon, Windows Speech Recognition), IME composition, browser
+  // autofill, and paste all work — they all set value but never synthesise
+  // keydown.
 
-  function handleMaskKeyDown(e: KeyboardEvent<HTMLInputElement>): void {
+  function handleInputChange(e: ChangeEvent<HTMLInputElement>): void {
     const fmt = getDateFormat(resolvedLocale);
-    if (e.key >= "0" && e.key <= "9") {
-      e.preventDefault();
-      if (digitStr.length >= 8) return;
-      const sep = fmt.includes("-") ? "-" : "/";
-      const cursor = inputRef.current?.selectionStart ?? inputValue.length;
-      const insertIdx = digitIndexBeforeCursor(cursor, inputValue, sep) + 1;
-      const newDigits = digitStr.slice(0, insertIdx) + e.key + digitStr.slice(insertIdx);
-      setDigitStr(newDigits);
-      const masked = applyMask(newDigits, fmt);
-      setInputValue(masked);
-      pendingCursor.current = maskCursorForDigitIndex(insertIdx + 1, masked, sep);
-      if (newDigits.length === 8) {
-        const parsed = parseInputValue(masked, resolvedLocale);
-        if (parsed) {
-          setInputError(null);
-          onChange(parsed);
-          setDisplayMonth(startOfMonth(parsed));
-        } else {
-          setInputError(`Enter a valid date in ${fmt} format.`);
-        }
-      } else {
-        setInputError(null);
-      }
-    } else if (e.key === "Backspace") {
-      e.preventDefault();
-      const sep = fmt.includes("-") ? "-" : "/";
-      const cursor = inputRef.current?.selectionStart ?? inputValue.length;
-      const digitIdx = digitIndexBeforeCursor(cursor, inputValue, sep);
-      if (digitIdx === -1) return;
-      const newDigits = digitStr.slice(0, digitIdx) + digitStr.slice(digitIdx + 1);
-      const newMasked = applyMask(newDigits, fmt);
-      setDigitStr(newDigits);
-      setInputValue(newMasked);
-      setInputError(null);
-      if (newDigits.length === 0) onChange(null);
-      pendingCursor.current = maskCursorForDigitIndex(digitIdx, newMasked, sep);
-    } else if (e.key === "Delete") {
-      e.preventDefault();
-      setDigitStr("");
-      setInputValue("");
-      onChange(null);
-      setInputError(null);
+    const sep = fmt.includes("-") ? "-" : "/";
+    const raw = e.target.value;
+    const caret = e.target.selectionStart ?? raw.length;
+
+    // Count how many digits appear before the caret in the user's raw input —
+    // that's where we want the caret to land in the masked result.
+    let digitsBeforeCaret = 0;
+    for (let i = 0; i < caret && i < raw.length; i++) {
+      if (raw[i] && /\d/.test(raw[i] as string)) digitsBeforeCaret++;
     }
-    // All other keys (Tab, arrows, Escape, etc.) pass through naturally.
-  }
 
-  function handleMaskPaste(e: ClipboardEvent<HTMLInputElement>): void {
-    e.preventDefault();
-    const fmt = getDateFormat(resolvedLocale);
-    const newDigits = toDigits(e.clipboardData.getData("text"));
-    setDigitStr(newDigits);
+    const newDigits = toDigits(raw);
     const masked = applyMask(newDigits, fmt);
+
+    setDigitStr(newDigits);
     setInputValue(masked);
+    pendingCursor.current = maskCursorForDigitIndex(
+      digitsBeforeCaret,
+      masked,
+      sep,
+    );
+
+    if (newDigits.length === 0) {
+      setInputError(null);
+      onChange(null);
+      return;
+    }
+
     if (newDigits.length === 8) {
       const parsed = parseInputValue(masked, resolvedLocale);
       if (parsed) {
@@ -541,6 +503,8 @@ export function Datepicker(props: DatepickerProps): ReactElement {
       } else {
         setInputError(`Enter a valid date in ${fmt} format.`);
       }
+    } else {
+      setInputError(null);
     }
   }
 
@@ -721,9 +685,7 @@ export function Datepicker(props: DatepickerProps): ReactElement {
           required={required}
           aria-required={required || undefined}
           aria-invalid={activeError ? "true" : undefined}
-          onKeyDown={handleMaskKeyDown}
-          onPaste={handleMaskPaste}
-          onChange={() => {}}
+          onChange={handleInputChange}
           onBlur={handleInputBlur}
         />
         <button

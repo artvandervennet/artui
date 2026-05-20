@@ -12,6 +12,9 @@ import { withErrorOverlay } from "../../lib/dev-overlay";
 
 import "./dialog.css";
 
+const isDev =
+  typeof process !== "undefined" && process.env.NODE_ENV !== "production";
+
 // ---------------------------------------------------------------------------
 // Props — discriminated union: exactly one label source required
 // ---------------------------------------------------------------------------
@@ -45,10 +48,8 @@ function getFirstFocusable(container: HTMLElement): HTMLElement | null {
   // Prefer a focusable element inside the body slot over the header close button,
   // so keyboard users land on the dialog's primary content first.
   const body = container.querySelector<HTMLElement>(".artui-dialog-body");
-  if (body) {
-    const bodyFirst = body.querySelector<HTMLElement>(FOCUSABLE);
-    if (bodyFirst) return bodyFirst;
-  }
+  const bodyFirst = body?.querySelector<HTMLElement>(FOCUSABLE);
+  if (bodyFirst) return bodyFirst;
   return container.querySelector<HTMLElement>(FOCUSABLE);
 }
 
@@ -56,7 +57,7 @@ function getFirstFocusable(container: HTMLElement): HTMLElement | null {
 // Component
 // ---------------------------------------------------------------------------
 
-export function Dialog(props: DialogProps): ReactElement | null {
+export function Dialog(props: DialogProps): ReactElement {
   // Props
   const {
     open,
@@ -93,7 +94,13 @@ export function Dialog(props: DialogProps): ReactElement | null {
   // Lifecycle
   // -------------------------------------------------------------------------
 
-  // Open / close lifecycle: showModal, initial focus, event wiring, cleanup.
+  // Effect A — open transition: showModal, initial focus, event wiring.
+  // Cleanup only removes listeners. dialog.close() is deliberately NOT called
+  // here because this effect's cleanup fires after React has already committed
+  // the re-render — by that point the <dialog> could have been removed from
+  // the DOM (in a conditional-render pattern), making close() a no-op and
+  // leaving NVDA's virtual buffer stranded in modal mode. close() is handled
+  // exclusively by Effect B, which runs while the element is still mounted.
   useEffect(() => {
     if (!open) return;
 
@@ -133,17 +140,21 @@ export function Dialog(props: DialogProps): ReactElement | null {
     return () => {
       dialog.removeEventListener("click", handleClick);
       dialog.removeEventListener("cancel", handleCancel);
-      if (dialog.open) {
-        dialog.close();
-      }
     };
   }, [open, initialFocusRef, returnFocusRef, onClose, closeOnBackdropClick]);
 
-  // Restore focus on close.
+  // Effect B — close transition: dialog.close() then focus restore.
+  // Running close() here (while the element is still in the DOM) ensures the
+  // browser receives the close signal before any potential unmount, preventing
+  // NVDA from getting stuck in a modal context with no dialog to read.
   useEffect(() => {
     if (open) return;
+    const dialog = dialogRef.current;
+    if (dialog?.open) {
+      dialog.close();
+    }
     const target = returnFocusRef?.current ?? returnTargetRef.current;
-    if (target && target instanceof HTMLElement) {
+    if (target instanceof HTMLElement) {
       target.focus();
     }
   }, [open, returnFocusRef]);
@@ -162,7 +173,7 @@ export function Dialog(props: DialogProps): ReactElement | null {
 
   // Runtime violation detection (dev overlays).
   useEffect(() => {
-    if (!open || !dialogRef.current) return;
+    if (!isDev || !open || !dialogRef.current) return;
     const dialog = dialogRef.current;
 
     // Dialog:labelledby-missing (4.1.2) — aria-labelledby points at a nonexistent element.
@@ -176,12 +187,12 @@ export function Dialog(props: DialogProps): ReactElement | null {
     }
 
     // Dialog:no-focusable (2.1.1) — no focusable elements in the dialog body.
-    // We check only the body slot, not the header close button or the sentinel.
+    // We check only the body slot, not the header close button.
     const body = dialog.querySelector(".artui-dialog-body");
     const bodyFocusable = body ? body.querySelectorAll(FOCUSABLE) : [];
     if (bodyFocusable.length === 0) {
       console.error(
-        `[artui] <Dialog> [WCAG 2.1.1]: No focusable elements found inside the dialog body. The hidden sentinel close button is the only focus stop.`,
+        `[artui] <Dialog> [WCAG 2.1.1]: No focusable elements found inside the dialog body. Add at least one interactive element so keyboard users can act on the dialog.`,
       );
     }
   }, [open, ariaLabelledBy]);
@@ -190,8 +201,13 @@ export function Dialog(props: DialogProps): ReactElement | null {
   // Render
   // -------------------------------------------------------------------------
 
-  if (!open) return null;
-
+  // Always render the <dialog> element — never conditionally unmount it.
+  // A closed native <dialog> (no `open` attribute) is display:none per the
+  // browser UA stylesheet and invisible to the accessibility tree, so there
+  // is no observable difference for users. Keeping it mounted ensures
+  // dialog.close() can always be called before the element leaves the DOM,
+  // which is required to correctly end the browser's top-layer modal session
+  // and allow screen readers (NVDA, JAWS) to restore their virtual buffers.
   const element = (
     <dialog
       ref={dialogRef}
@@ -238,22 +254,11 @@ export function Dialog(props: DialogProps): ReactElement | null {
       )}
 
       <div className="artui-dialog-body">{children}</div>
-
-      {/* Hidden sentinel button — last-resort focusable so the dialog never has zero focus stops. */}
-      <button
-        type="button"
-        className="artui-dialog-sentinel"
-        aria-label="Close dialog"
-        tabIndex={-1}
-        onClick={onClose}
-      >
-        Close dialog
-      </button>
     </dialog>
   );
 
-  // Dialog:empty-children (1.3.1) — children rendered no visible content.
-  if (!hasChildren) {
+  // Dialog:empty-children (1.3.1) — only meaningful when the dialog is open.
+  if (open && !hasChildren) {
     return withErrorOverlay(element, {
       key: "Dialog:empty-children",
       component: "Dialog",

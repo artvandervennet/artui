@@ -1,0 +1,136 @@
+:root {
+  --artui-dropdown-bg: Canvas;
+  --artui-dropdown-color: CanvasText;
+  --artui-dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --artui-dropdown-border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  --artui-dropdown-radius: 8px;
+  --artui-dropdown-item-radius: 4px;
+  --artui-dropdown-item-padding: 8px 12px;
+  --artui-dropdown-content-padding: 4px;
+  /* Horizontal breathing room between a parent menu and its submenu so the
+     borders and box-shadows don't visually collide at the seam. */
+  --artui-dropdown-sub-offset: 4px;
+  --artui-dropdown-focus-outline: 2px solid currentColor;
+  --artui-dropdown-focus-outline-offset: -2px;
+  --artui-dropdown-item-hover-bg: color-mix(in srgb, currentColor 8%, transparent);
+  --artui-dropdown-item-disabled-opacity: 0.45;
+  --artui-dropdown-separator-color: color-mix(in srgb, currentColor 15%, transparent);
+  --artui-dropdown-z-index: 9000;
+}
+
+/* ---- Trigger ---- */
+
+.artui-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  padding: 8px 14px;
+  background: transparent;
+  color: inherit;
+  border: var(--artui-dropdown-border);
+  border-radius: var(--artui-dropdown-radius);
+  cursor: pointer;
+  font: inherit;
+
+  &:focus {
+    outline: var(--artui-dropdown-focus-outline);
+    outline-offset: var(--artui-dropdown-focus-outline-offset);
+  }
+
+  &:hover:not(:disabled) {
+    background: var(--artui-dropdown-item-hover-bg);
+  }
+
+  &:disabled {
+    opacity: var(--artui-dropdown-item-disabled-opacity);
+    cursor: not-allowed;
+  }
+}
+
+/* ---- Content panel (both root and sub) ---- */
+
+.artui-dropdown-content {
+  z-index: var(--artui-dropdown-z-index);
+  min-width: 160px;
+  padding: var(--artui-dropdown-content-padding);
+  background: var(--artui-dropdown-bg);
+  color: var(--artui-dropdown-color);
+  border: var(--artui-dropdown-border);
+  border-radius: var(--artui-dropdown-radius);
+  box-shadow: var(--artui-dropdown-shadow);
+  font-family: inherit;
+  font-size: inherit;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+/* ---- Item ---- */
+
+.artui-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--artui-dropdown-item-padding);
+  border-radius: var(--artui-dropdown-item-radius);
+  cursor: pointer;
+  user-select: none;
+
+  &:focus {
+    outline: var(--artui-dropdown-focus-outline);
+    outline-offset: var(--artui-dropdown-focus-outline-offset);
+    background: var(--artui-dropdown-item-hover-bg);
+  }
+
+  &:hover:not(.artui-dropdown-item--disabled) {
+    background: var(--artui-dropdown-item-hover-bg);
+  }
+
+  &.artui-dropdown-item--disabled {
+    opacity: var(--artui-dropdown-item-disabled-opacity);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+/* ---- SubTrigger arrow ---- */
+
+.artui-dropdown-subtrigger {
+  justify-content: space-between;
+}
+
+.artui-dropdown-subtrigger-arrow {
+  font-size: 1.1em;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+/* ---- Separator ---- */
+
+.artui-dropdown-separator {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--artui-dropdown-separator-color);
+}
+
+/* ---- Entrance animation (respects prefers-reduced-motion) ---- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .artui-dropdown-content {
+    animation: artui-dropdown-in 130ms ease-out;
+  }
+}
+
+@keyframes artui-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

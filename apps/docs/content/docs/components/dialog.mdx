@@ -155,7 +155,6 @@ Violations that cannot be caught at compile time are surfaced in development via
 </Dialog>
 
 // Triggers dev overlay: no focusable elements in dialog body (WCAG 2.1.1)
-// (A hidden sentinel button is always present, but body content should be keyboard-reachable)
 <Dialog open={open} onClose={() => setOpen(false)} title="Text only">
   <p>This paragraph has no interactive elements.</p>
 </Dialog>
@@ -201,8 +200,8 @@ Focus is constrained to the dialog until it closes. After close, focus returns t
 | WCAG | Criterion | How it is satisfied |
 |------|-----------|---------------------|
 | **1.3.1** | Info and Relationships | The `title` prop renders a semantic `<h2>`. A dev overlay fires when `children` is empty. |
-| **2.1.1** | Keyboard | A hidden sentinel close button is always the last child, guaranteeing at least one focus stop. A dev overlay fires when the body has no focusable elements. |
-| **2.1.2** | No Keyboard Trap | Focus is trapped by the browser's `showModal()`. Escape always exits. The sentinel prevents Tab from escaping when the body has no interactive content. |
+| **2.1.1** | Keyboard | The header close button is always rendered, so the dialog always has at least one focus stop. A dev overlay fires when the dialog body has no focusable elements. |
+| **2.1.2** | No Keyboard Trap | Focus is trapped by the browser's `showModal()`. Escape always exits. |
 | **2.4.3** | Focus Order | Focus moves to `initialFocusRef` (or first focusable body descendant) on open; returns to the previously focused element (or `returnFocusRef`) on close. |
 | **2.4.7** | Focus Visible | The close button uses `outline` (not `box-shadow`) for its focus ring, preserving visibility in Windows High Contrast Mode. |
 | **4.1.2** | Name, Role, Value | `<dialog>` carries `role="dialog"` natively, `aria-modal="true"`, and `aria-labelledby` pointing at the title `<h2>` or a caller-supplied element. A dev overlay fires when `aria-labelledby` does not resolve. |

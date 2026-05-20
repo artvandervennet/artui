@@ -198,15 +198,8 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const cells = screen.getAllByRole("button", { name: /15/ });
-    const dayBtn = cells.find((el) =>
-      el.classList.contains("artui-dp-day-btn"),
-    );
-    if (dayBtn) {
-      await user.click(dayBtn);
-    }
-    expect(handleChange).toHaveBeenCalled();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "May 15, 2026" }));
+    expect(handleChange).toHaveBeenCalledWith(new Date(2026, 4, 15));
   });
 
   it("disabled days cannot be selected", async () => {
@@ -225,10 +218,8 @@ describe("Datepicker", () => {
     const disabled = document.querySelector<HTMLElement>(
       'button[aria-disabled="true"]',
     );
-    if (disabled) {
-      // fireEvent bypasses pointer-events:none; the handler still guards with isDisabled check
-      fireEvent.click(disabled);
-    }
+    // fireEvent bypasses pointer-events:none; the handler still guards with isDisabled check
+    fireEvent.click(disabled!);
     expect(handleChange).not.toHaveBeenCalled();
   });
 
@@ -367,7 +358,7 @@ describe("Datepicker", () => {
   // Input / text entry
   // -------------------------------------------------------------------------
 
-  it("typing a valid date in the input calls onChange", () => {
+  it("entering a valid date via input change calls onChange", () => {
     const handleChange = vi.fn();
     render(
       <Datepicker
@@ -378,14 +369,11 @@ describe("Datepicker", () => {
       />,
     );
     const input = screen.getByRole("textbox");
-    // Mask input: type digits only — separators are auto-inserted.
-    for (const digit of "05152026") {
-      fireEvent.keyDown(input, { key: digit });
-    }
+    fireEvent.change(input, { target: { value: "05/15/2026" } });
     expect(handleChange).toHaveBeenCalledWith(new Date(2026, 4, 15));
   });
 
-  it("typing an invalid date shows an error message wired via aria-describedby", () => {
+  it("entering an invalid date shows an error message wired via aria-describedby", () => {
     render(
       <Datepicker
         label="Date"
@@ -395,14 +383,26 @@ describe("Datepicker", () => {
       />,
     );
     const input = screen.getByRole("textbox");
-    // Type an impossible date (month 99).
-    for (const digit of "05992026") {
-      fireEvent.keyDown(input, { key: digit });
-    }
+    fireEvent.change(input, { target: { value: "99/99/2026" } });
     const errorId = input.getAttribute("aria-describedby");
-    expect(errorId).toBeTruthy();
     const errorEl = document.getElementById(errorId!);
     expect(errorEl?.textContent).toMatch(/valid date/i);
+  });
+
+  it("input value events drive the masked field (voice/IME regression)", () => {
+    const handleChange = vi.fn();
+    render(
+      <Datepicker
+        label="Date"
+        value={null}
+        onChange={handleChange}
+        locale="en-US"
+      />,
+    );
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    // Voice-control software sets the value programmatically without dispatching keydown.
+    fireEvent.change(input, { target: { value: "05152026" } });
+    expect(handleChange).toHaveBeenCalledWith(new Date(2026, 4, 15));
   });
 
   it("external error prop is displayed and wired via aria-describedby", () => {
@@ -436,10 +436,7 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const day14 = screen.queryByRole("button", { name: "May 14, 2026" });
-    if (day14) {
-      expect(day14).toBeDisabled();
-    }
+    expect(screen.getByRole("button", { name: "May 14, 2026" })).toBeDisabled();
   });
 
   it("days after max are disabled", async () => {
@@ -454,10 +451,7 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const day16 = screen.queryByRole("button", { name: "May 16, 2026" });
-    if (day16) {
-      expect(day16).toBeDisabled();
-    }
+    expect(screen.getByRole("button", { name: "May 16, 2026" })).toBeDisabled();
   });
 
   // -------------------------------------------------------------------------
