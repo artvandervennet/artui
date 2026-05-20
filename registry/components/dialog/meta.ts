@@ -85,12 +85,12 @@ export const meta: ComponentMeta = {
     {
       wcag: "2.1.1",
       description:
-        "A hidden sentinel close button is always rendered as the last child, guaranteeing at least one focus stop. A dev overlay fires when only the sentinel is focusable, prompting the developer to add interactive content.",
+        "The header close button is always rendered, so the dialog never has zero focus stops. A dev overlay fires when the dialog body has no focusable elements, prompting the developer to add interactive content.",
     },
     {
       wcag: "2.1.2",
       description:
-        "Focus is trapped inside the dialog by the browser's native showModal() implementation. Escape always exits. The sentinel button prevents focus from escaping through Tab when the dialog body has no other focusable elements.",
+        "Focus is trapped inside the dialog by the browser's native showModal() implementation. Escape always exits.",
     },
     {
       wcag: "2.4.3",

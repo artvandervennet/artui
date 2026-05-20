@@ -1,0 +1,325 @@
+---
+title: DropdownMenu
+description: Accessible dropdown menu following the WAI-ARIA APG Menu Button pattern. Supports single-level submenus, typeahead, full keyboard navigation, and compile-time enforcement of accessible names.
+---
+
+<InstallBanner />
+
+## Playground
+
+Open the menu and try `Down`/`Up` arrows, typeahead, `Home`/`End`, and `Escape`. Open the submenu with `Arrow Right` or click; close it with `Arrow Left` or `Escape`.
+
+<DropdownMenuPlayground />
+
+## Install
+
+```bash
+npx artui@latest add dropdown-menu
+```
+
+The CLI copies two files into your project: `dropdown-menu.tsx` (the component and all sub-components) and `dropdown-menu.css` (styles). The shared lib files `lib/a11y-types.ts` and `lib/dev-overlay.tsx` are also added if not already present. All files become yours — edit them freely.
+
+## Usage
+
+### Basic menu
+
+```tsx
+import { DropdownMenu } from '@/components/dropdown-menu';
+
+<DropdownMenu>
+  <DropdownMenu.Trigger>Account</DropdownMenu.Trigger>
+  <DropdownMenu.Content>
+    <DropdownMenu.Item onSelect={() => navigate('/profile')}>Profile</DropdownMenu.Item>
+    <DropdownMenu.Item onSelect={() => navigate('/settings')}>Settings</DropdownMenu.Item>
+    <DropdownMenu.Separator />
+    <DropdownMenu.Item onSelect={signOut}>Sign out</DropdownMenu.Item>
+  </DropdownMenu.Content>
+</DropdownMenu>
+```
+
+The `Trigger` renders a `<button>` with `aria-haspopup="menu"` and `aria-expanded`. The `Content` renders a `<div role="menu">` positioned directly below the trigger using a coordinate captured once at open time.
+
+### With submenu
+
+```tsx
+<DropdownMenu>
+  <DropdownMenu.Trigger>Account</DropdownMenu.Trigger>
+  <DropdownMenu.Content>
+    <DropdownMenu.Item onSelect={() => navigate('/profile')}>Profile</DropdownMenu.Item>
+    <DropdownMenu.Sub>
+      <DropdownMenu.SubTrigger>Preferences</DropdownMenu.SubTrigger>
+      <DropdownMenu.SubContent>
+        <DropdownMenu.Item onSelect={() => setTheme('light')}>Light theme</DropdownMenu.Item>
+        <DropdownMenu.Item onSelect={() => setTheme('dark')}>Dark theme</DropdownMenu.Item>
+      </DropdownMenu.SubContent>
+    </DropdownMenu.Sub>
+  </DropdownMenu.Content>
+</DropdownMenu>
+```
+
+`Sub` + `SubTrigger` + `SubContent` follow the same APG pattern. The sub-trigger shows `▹` as a visual affordance (aria-hidden). Arrow Right or click opens the sub-menu; Arrow Left or Escape closes it and returns focus to the sub-trigger.
+
+### Controlled
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<DropdownMenu open={open} onOpenChange={setOpen}>
+  <DropdownMenu.Trigger>Account</DropdownMenu.Trigger>
+  <DropdownMenu.Content>
+    <DropdownMenu.Item onSelect={() => navigate('/profile')}>Profile</DropdownMenu.Item>
+  </DropdownMenu.Content>
+</DropdownMenu>
+```
+
+When `open` is provided, the component is controlled. `onOpenChange` receives the requested next state — the consumer decides whether to commit.
+
+### Icon-only trigger
+
+```tsx
+<DropdownMenu>
+  <DropdownMenu.Trigger aria-label="User menu">
+    <UserIcon aria-hidden="true" />
+  </DropdownMenu.Trigger>
+  <DropdownMenu.Content>
+    <DropdownMenu.Item onSelect={signOut}>Sign out</DropdownMenu.Item>
+  </DropdownMenu.Content>
+</DropdownMenu>
+```
+
+When the trigger has no visible text, pass `aria-label` to provide an accessible name. Passing neither children nor `aria-label` nor `aria-labelledby` is a compile error.
+
+### Disabled items
+
+```tsx
+<DropdownMenu>
+  <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+  <DropdownMenu.Content>
+    <DropdownMenu.Item onSelect={publish}>Publish</DropdownMenu.Item>
+    <DropdownMenu.Item onSelect={archive} disabled>Archive (unavailable)</DropdownMenu.Item>
+  </DropdownMenu.Content>
+</DropdownMenu>
+```
+
+Disabled items receive `aria-disabled="true"` and are excluded from keyboard navigation. They remain visible so users understand why the action is unavailable.
+
+## TypeScript enforcement
+
+Every `Trigger` and `SubTrigger` must have an accessible name. Passing the wrong shape is a compile error.
+
+### Compile-time errors
+
+```tsx
+// Type error: no label source — must provide children, aria-label, or aria-labelledby
+<DropdownMenu.Trigger />
+
+// Type error: empty string is not an accessible name
+<DropdownMenu.Trigger>{""}</DropdownMenu.Trigger>
+
+// Type error: children and aria-label are mutually exclusive
+<DropdownMenu.Trigger aria-label="User menu">Account</DropdownMenu.Trigger>
+
+// Type error: onSelect is required on Item
+<DropdownMenu.Item>Profile</DropdownMenu.Item>
+```
+
+### Valid usage
+
+```tsx
+// Visible text — compiles
+<DropdownMenu.Trigger>Account</DropdownMenu.Trigger>
+
+// aria-label — compiles
+<DropdownMenu.Trigger aria-label="User menu">{undefined}</DropdownMenu.Trigger>
+
+// aria-labelledby — compiles
+<DropdownMenu.Trigger aria-labelledby="nav-label">{undefined}</DropdownMenu.Trigger>
+```
+
+## Runtime errors
+
+Violations that cannot be caught at compile time are surfaced in development via a red overlay and a `console.error`. All runtime guards are no-ops in production.
+
+```tsx
+// Triggers dev overlay: empty Content (WCAG 1.3.1)
+<DropdownMenu.Content>{false}</DropdownMenu.Content>
+
+// Triggers dev overlay: SubContent without a matching SubTrigger
+<DropdownMenu.Sub>
+  <DropdownMenu.SubContent>
+    <DropdownMenu.Item onSelect={noop}>Item</DropdownMenu.Item>
+  </DropdownMenu.SubContent>
+</DropdownMenu.Sub>
+```
+
+<Callout type="warn">
+  Runtime guards are **development-only**. In production (`NODE_ENV === "production"`), violations render silently. Validate dynamic values before passing them as props.
+</Callout>
+
+## Keyboard navigation
+
+### Root menu
+
+| Key | Action |
+|-----|--------|
+| `Enter` / `Space` / `Down` / `Up` | Open menu and focus first item |
+| `Arrow Down` | Move focus to next item |
+| `Arrow Up` | Move focus to previous item |
+| `Home` | Move focus to first item |
+| `End` | Move focus to last item |
+| `Enter` / `Space` | Activate focused item |
+| `Escape` | Close menu, return focus to trigger |
+| `Tab` | Close menu, move focus naturally |
+| Any printable character | Typeahead — jump to first item starting with that character |
+
+### Submenu
+
+| Key | Action |
+|-----|--------|
+| `Arrow Right` / `Enter` / `Space` | Open sub-menu from sub-trigger |
+| `Arrow Down` / `Arrow Up` | Navigate sub-menu items |
+| `Arrow Left` / `Escape` | Close sub-menu, return focus to sub-trigger |
+
+### Scroll and resize
+
+Any scroll or resize event closes the menu. The trigger position is computed once when the menu opens — the component does not reposition on scroll.
+
+## API
+
+### DropdownMenu (root)
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `open` | `boolean` | — | Controlled open state. Uncontrolled when omitted. |
+| `onOpenChange` | `(open: boolean) => void` | — | Called when open state changes. Required when `open` is provided. |
+| `children` | `ReactNode` | — | **Required.** Must contain one `Trigger` and one `Content`. |
+
+### DropdownMenu.Trigger
+
+Requires exactly one of:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `AccessibleText` | Visible label text. |
+| `aria-label` | `AccessibleText` | Invisible label (for icon-only triggers). |
+| `aria-labelledby` | `string` | ID of an external label element. |
+
+Additional props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `disabled` | `boolean` | — | Disables the trigger. |
+| `className` | `string` | — | Additional CSS class on the button. |
+
+### DropdownMenu.Content
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | **Required.** Items, separators, and sub groups. |
+| `className` | `string` | — | Additional CSS class on the menu panel. |
+
+### DropdownMenu.Item
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `onSelect` | `() => void` | — | **Required.** Called when the item is activated. |
+| `children` | `ReactNode` | — | **Required.** Item label. |
+| `disabled` | `boolean` | — | Marks item as `aria-disabled` and removes it from keyboard navigation. |
+| `className` | `string` | — | Additional CSS class on the item element. |
+
+### DropdownMenu.Separator
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | — | Additional CSS class on the separator. |
+
+### DropdownMenu.Sub
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | **Required.** Must contain one `SubTrigger` and one `SubContent`. |
+
+### DropdownMenu.SubTrigger
+
+Same accessible name contract as `Trigger` (one of `children`, `aria-label`, `aria-labelledby`). Additional props:
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `disabled` | `boolean` | — | Disables the sub-trigger. |
+| `className` | `string` | — | Additional CSS class. |
+
+### DropdownMenu.SubContent
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | **Required.** Sub-menu items. |
+| `className` | `string` | — | Additional CSS class on the sub-menu panel. |
+
+## Accessibility
+
+| WCAG | Criterion | How it is satisfied |
+|------|-----------|---------------------|
+| **1.3.1** | Info and Relationships | `role="menu"`, `role="menuitem"`, `role="separator"` convey structure. A dev overlay fires for empty Content. |
+| **2.1.1** | Keyboard | Full APG keyboard contract: arrows, Home/End, Enter/Space, Escape, typeahead, ArrowRight/Left for sub-menus. |
+| **2.4.3** | Focus Order | Focus moves to the first item on open. Escape returns focus to the trigger. Sub-menu Escape/ArrowLeft returns focus to the sub-trigger. |
+| **2.4.7** | Focus Visible | Focus indicators use `outline` (not `box-shadow`) — visible in Windows High Contrast Mode. |
+| **2.5.5** | Target Size | Trigger button has a minimum 44×44 px touch target. |
+| **4.1.2** | Name, Role, Value | Trigger has `aria-haspopup="menu"`, `aria-expanded`, `aria-controls`. Menu has `aria-labelledby`. Sub-triggers carry the same trio. `AccessibleNameProps` enforces names at compile time. |
+
+Additional behaviors:
+
+- **`prefers-reduced-motion`**: The entrance animation is gated by `@media (prefers-reduced-motion: no-preference)` — users who prefer reduced motion see no animation.
+- **System colors**: Background and foreground default to `Canvas`/`CanvasText`, respecting OS color schemes including Windows High Contrast Mode.
+- **Scroll/resize close**: The menu closes on any scroll or resize event to avoid stale positioning.
+
+## Dos and Don'ts
+
+<Callout type="info" title="Do — always provide an accessible name on the trigger">
+```tsx
+<DropdownMenu.Trigger>Account</DropdownMenu.Trigger>
+<DropdownMenu.Trigger aria-label="User menu">{undefined}</DropdownMenu.Trigger>
+```
+</Callout>
+
+<Callout type="error" title="Don't — render a trigger with no accessible name">
+```tsx
+<DropdownMenu.Trigger />  {/* compile error */}
+<DropdownMenu.Trigger>{""}</DropdownMenu.Trigger>  {/* compile error */}
+```
+
+Both are TypeScript compile errors. Screen reader users need a name to understand what the menu contains before they open it.
+</Callout>
+
+<Callout type="info" title="Do — always provide onSelect on every Item">
+```tsx
+<DropdownMenu.Item onSelect={() => navigate('/profile')}>Profile</DropdownMenu.Item>
+```
+</Callout>
+
+<Callout type="error" title="Don't — omit onSelect">
+```tsx
+<DropdownMenu.Item>Profile</DropdownMenu.Item>  {/* compile error */}
+```
+
+`onSelect` is required. An item without an action has no purpose in a menu.
+</Callout>
+
+<Callout type="info" title="Do — use disabled items to signal unavailable actions">
+```tsx
+<DropdownMenu.Item onSelect={archive} disabled>Archive (unavailable)</DropdownMenu.Item>
+```
+
+Visible disabled items tell users that an action exists but is currently unavailable — better than hiding it.
+</Callout>
+
+<Callout type="error" title="Don't — render an empty Content">
+```tsx
+<DropdownMenu.Content>{false}</DropdownMenu.Content>
+```
+
+A dev overlay fires with WCAG 1.3.1. A menu with no items is meaningless to keyboard and screen reader users.
+</Callout>
+
+## Related
+
+- [Dialog](/docs/components/dialog) — same TypeScript discriminated-union + `withErrorOverlay` enforcement model for accessible naming

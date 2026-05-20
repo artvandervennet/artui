@@ -120,13 +120,20 @@ describe("Dialog", () => {
   // Open / close lifecycle
   // -------------------------------------------------------------------------
 
-  it("renders nothing when open is false", () => {
+  it("dialog element is present but not open when open is false", () => {
     render(
       <Dialog open={false} onClose={() => {}} title="Hidden">
         <p>Content</p>
       </Dialog>,
     );
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // The <dialog> is always in the DOM — a closed native <dialog> (no `open`
+    // attribute) is display:none per the UA stylesheet and AT-invisible, so
+    // the external contract is unchanged. We must keep it mounted so that
+    // dialog.close() can fire before any unmount, preventing NVDA from getting
+    // stranded in modal mode.
+    const dialog = document.querySelector("dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).not.toHaveAttribute("open");
   });
 
   it("renders the dialog when open is true", () => {
@@ -268,39 +275,40 @@ describe("Dialog", () => {
   // Runtime overlays
   // -------------------------------------------------------------------------
 
-  it("fires dev overlay for empty children", () => {
+  it("fires dev overlay with WCAG 1.3.1 for empty children", () => {
     render(
       <Dialog open onClose={() => {}} title="Empty">
         {false}
       </Dialog>,
     );
-    expect(errorSpy).toHaveBeenCalled();
-    const msg = String(errorSpy.mock.calls[0]?.[0] ?? "");
-    expect(msg).toMatch(/1\.3\.1/);
+    const hit = errorSpy.mock.calls.find((call: unknown[]) =>
+      String(call[0]).includes("1.3.1"),
+    );
+    expect(hit).toBeDefined();
   });
 
-  it("fires dev overlay when aria-labelledby points to a nonexistent element", () => {
+  it("fires dev overlay with WCAG 4.1.2 when aria-labelledby points to a nonexistent element", () => {
     render(
       <Dialog open onClose={() => {}} aria-labelledby="does-not-exist">
         <p>Content</p>
       </Dialog>,
     );
-    expect(errorSpy).toHaveBeenCalled();
-    const msg = String(errorSpy.mock.calls[0]?.[0] ?? "");
-    expect(msg).toMatch(/4\.1\.2/);
+    const hit = errorSpy.mock.calls.find((call: unknown[]) =>
+      String(call[0]).includes("4.1.2"),
+    );
+    expect(hit).toBeDefined();
   });
 
-  it("fires dev overlay when no focusable elements are in the dialog body", () => {
+  it("fires dev overlay with WCAG 2.1.1 when no focusable elements are in the dialog body", () => {
     render(
       <Dialog open onClose={() => {}} title="No focusable">
         <p>Just text, no buttons</p>
       </Dialog>,
     );
-    expect(errorSpy).toHaveBeenCalled();
-    const msg = errorSpy.mock.calls.find((call: unknown[]) =>
+    const hit = errorSpy.mock.calls.find((call: unknown[]) =>
       String(call[0]).includes("2.1.1"),
-    )?.[0];
-    expect(String(msg)).toMatch(/2\.1\.1/);
+    );
+    expect(hit).toBeDefined();
   });
 
   // -------------------------------------------------------------------------

@@ -69,8 +69,7 @@ export const meta: ComponentMeta = {
       name: "isDateDisabled",
       type: "(date: Date) => boolean",
       required: false,
-      description:
-        "Custom predicate to disable individual dates. Returning true for the current value triggers a dev overlay.",
+      description: "Custom predicate to disable individual dates.",
     },
     {
       name: "error",
@@ -191,15 +190,9 @@ export const meta: ComponentMeta = {
         "Two label sources at once. Compile error — pass exactly one of label, aria-label, or aria-labelledby.",
     },
     {
-      code: `<Datepicker
-  label="Date"
-  value={date}
-  onChange={setDate}
-  min={new Date(2026, 11, 31)}
-  max={new Date(2026, 0, 1)}
-/>`,
+      code: `<Datepicker label="Date" value={date} onChange={setDate} locale="not-a-locale" />`,
       reason:
-        "min after max — dev overlay fires with a WCAG 1.3.5 violation. The calendar cannot render a valid range.",
+        "Invalid BCP-47 locale tag — dev overlay fires and the component falls back to navigator.language.",
     },
   ],
 };
