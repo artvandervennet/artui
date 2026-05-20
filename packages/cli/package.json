@@ -1,6 +1,6 @@
 {
   "name": "@artui/cli",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Install accessible artui components into your project.",
   "type": "module",
   "repository": {
