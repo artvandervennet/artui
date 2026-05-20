@@ -66,6 +66,8 @@ jobs:
       # reliable because `registry/registry.json` carries a `generatedAt` timestamp
       # that regenerates on every build.
       - name: Refresh registry snapshot (idempotent)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           REG_VERSION=$(node -p "require('./registry/package.json').version")
           SNAPSHOT_PATH="apps/docs/public/registry/v$REG_VERSION/registry.json"
@@ -79,7 +81,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$SNAPSHOT_PATH" apps/docs/lib/registry-version.ts registry/registry.json
           git commit -m "chore: freeze registry snapshot v$REG_VERSION"
-          git push origin HEAD:main
+          BRANCH="chore/freeze-registry-snapshot-v$REG_VERSION"
+          git push origin "HEAD:$BRANCH"
+          gh pr create \
+            --title "chore: freeze registry snapshot v$REG_VERSION" \
+            --body "Automated: freeze registry snapshot for v$REG_VERSION" \
+            --base main \
+            --head "$BRANCH" || echo "PR already exists or branch already merged, skipping."
 
       # Tag + GitHub Release for the private workspaces (registry, docs).
       # The CLI is handled by changesets/action's createGithubReleases above.
