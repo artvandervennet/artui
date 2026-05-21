@@ -1,6 +1,7 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
 
+import { AccordionPlayground } from '@/components/accordion-playground';
 import { DatepickerPlayground } from '@/components/datepicker-playground';
 import { DialogPlayground } from '@/components/dialog-playground';
 import { DropdownMenuPlayground } from '@/components/dropdown-menu-playground';
@@ -11,6 +12,7 @@ import { RegistryVersionBadge } from '@/components/registry-version-badge';
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
+    AccordionPlayground,
     DatepickerPlayground,
     DialogPlayground,
     DropdownMenuPlayground,

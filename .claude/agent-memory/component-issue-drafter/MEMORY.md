@@ -1,0 +1,2 @@
+- [Issue conventions for artui new-component proposals](reference-issue-conventions.md) — title, labels, template fields, and the --body-file gotcha on Windows bash.
+- [artui four-tier a11y model](reference-a11y-tier-model.md) — Tier 1 structural / Tier 2 compile-time / Tier 3 dev overlay / Tier 4 fatal fallback; used in every WCAG table.

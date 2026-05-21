@@ -15,3 +15,6 @@ export { Dialog } from './components/dialog/dialog';
 export type { DialogProps } from './components/dialog/dialog';
 
 export { DropdownMenu } from './components/dropdown-menu/dropdown-menu';
+
+export { Accordion } from './components/accordion/accordion';
+export type { AccordionProps, AccordionItemProps, AccordionHeaderProps, AccordionTriggerProps, AccordionPanelProps } from './components/accordion/accordion';
