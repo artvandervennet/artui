@@ -1,5 +1,17 @@
 # @artui/docs
 
+## 0.2.0
+
+### Minor Changes
+
+- cb4f6e5: improved docs
+
+### Patch Changes
+
+- Updated dependencies [cb4f6e5]
+- Updated dependencies [cb4f6e5]
+  - @artui/registry@0.5.0
+
 ## 0.1.3
 
 ### Patch Changes
