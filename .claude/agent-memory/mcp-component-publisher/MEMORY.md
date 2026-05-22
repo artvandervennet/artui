@@ -1,0 +1,1 @@
+- [MCP Registration Pattern](mcp-registration-pattern.md) — Convention-based via registry.json; no per-component code changes needed in packages/mcp or apps/docs/lib/mcp

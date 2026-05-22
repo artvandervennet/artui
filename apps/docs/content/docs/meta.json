@@ -1,4 +1,12 @@
 {
   "title": "artui",
-  "pages": ["index", "mcp", "---Components---", "components"]
+  "pages": [
+    "getting-started",
+    "---Reference---",
+    "components",
+    "mcp",
+    "---Project---",
+    "faq",
+    "contributing"
+  ]
 }

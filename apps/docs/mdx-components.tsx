@@ -1,22 +1,34 @@
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
 
+import { AccordionPlayground } from '@/components/accordion-playground';
 import { DatepickerPlayground } from '@/components/datepicker-playground';
 import { DialogPlayground } from '@/components/dialog-playground';
+import { CardLink } from '@/components/docs/card-link';
+import { Do } from '@/components/docs/do';
+import { Dont } from '@/components/docs/dont';
+import { FeatureGrid } from '@/components/docs/feature-grid';
+import { KeyTable } from '@/components/docs/key-table';
+import { PropsTable } from '@/components/docs/props-table';
+import { WcagTable } from '@/components/docs/wcag-table';
 import { DropdownMenuPlayground } from '@/components/dropdown-menu-playground';
 import { ImagePlayground } from '@/components/image-playground';
-import { InstallBanner } from '@/components/install-banner';
-import { RegistryVersionBadge } from '@/components/registry-version-badge';
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
+    AccordionPlayground,
+    CardLink,
     DatepickerPlayground,
     DialogPlayground,
+    Do,
+    Dont,
     DropdownMenuPlayground,
+    FeatureGrid,
     ImagePlayground,
-    InstallBanner,
-    RegistryVersionBadge,
+    KeyTable,
+    PropsTable,
+    WcagTable,
     ...components,
   };
 }

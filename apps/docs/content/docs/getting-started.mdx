@@ -1,0 +1,80 @@
+---
+title: Getting started
+description: Install the CLI, initialise a registry config, and add your first artui component.
+---
+
+artui is distributed shadcn-style — there is no runtime package. The CLI copies
+component source into your repo, where it becomes yours to edit.
+
+## Prerequisites
+
+- Node.js 20+
+- A React 18 or 19 project (Next.js, Remix, Vite, plain CRA — anything that
+  understands TSX)
+
+## 1. Initialise your project
+
+From the root of your app:
+
+```bash
+npx artui@latest init
+```
+
+This writes a `components.json` that pins the registry URL and a version. The
+version pin guarantees `artui add ...` will install the same source today as
+six months from now.
+## 2. Add a component
+
+```bash
+npx artui@latest add accordion
+```
+
+The CLI copies the component's `.tsx` + `.css` and any shared lib files into
+your project. Everything lands in `components/` (or whatever you configured)
+and is yours to modify.
+
+## 3. Use it
+
+```tsx
+import { Accordion } from '@/components/accordion';
+
+<Accordion headingLevel={3}>
+  <Accordion.Item value="shipping">
+    <Accordion.Header>
+      <Accordion.Trigger>Shipping and delivery</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Panel>
+      <p>Orders ship within 2 business days.</p>
+    </Accordion.Panel>
+  </Accordion.Item>
+</Accordion>
+```
+
+If you forget `headingLevel`, leave a trigger empty, or pass a placeholder
+string like `"image"`, TypeScript will refuse to compile. That is the point of
+artui — the accessible path is the only path that builds.
+
+## Next
+
+<FeatureGrid>
+  <CardLink
+    href="/docs/components/accordion"
+    title="Accordion"
+    description="Native <details>/<summary> with APG keyboard navigation."
+  />
+  <CardLink
+    href="/docs/components/dialog"
+    title="Dialog"
+    description="Native <dialog> with focus trap and scroll lock."
+  />
+  <CardLink
+    href="/docs/components/image"
+    title="Image"
+    description="Alt text enforced at compile time, with decorative escape hatch."
+  />
+  <CardLink
+    href="/docs/philosophy"
+    title="Why accessibility-first?"
+    description="The contract this library promises and why it matters."
+  />
+</FeatureGrid>

@@ -1,0 +1,4 @@
+- [Registry runtime guard convention](registry-runtime-guard-convention.md) — Tier-3 dev overlays use `withErrorOverlay` from `registry/lib/dev-overlay.tsx`; no `dev-warn.ts` exists despite skill doc references.
+- [AccessibleNameProps usage shape](accessible-name-props-shape.md) — intersecting `AccessibleNameProps` with `{ className?: string; ... }` is the working pattern for adding optional non-name props.
+- [Compound component conventions](compound-component-conventions.md) — root-context provider, child registration via refs/counts for runtime guards, namespace export via `Object.assign(Root, { Sub })`.
+- [Native details accordion gaps](native-details-accordion-gaps.md) — what `<details>`/`<summary>` does and doesn't deliver out of the box.

@@ -1,0 +1,238 @@
+---
+title: Accordion
+description: Accessible accordion built on native <details> / <summary>. Adds single-expand coordination, APG keyboard navigation, and focus-into-panel on expand.
+---
+
+```bash
+npx artui@latest add accordion
+```
+
+## Playground
+
+<AccordionPlayground />
+
+## Usage
+
+### Single-expand (uncontrolled)
+
+```tsx
+import { Accordion } from '@/components/accordion';
+
+<Accordion headingLevel={3}>
+  <Accordion.Item value="shipping">
+    <Accordion.Header>
+      <Accordion.Trigger>Shipping and delivery</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Panel>
+      <p>Orders ship within 2 business days.</p>
+    </Accordion.Panel>
+  </Accordion.Item>
+  <Accordion.Item value="returns">
+    <Accordion.Header>
+      <Accordion.Trigger>Returns and refunds</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Panel>
+      <p>Return any item within 30 days of delivery for a full refund.</p>
+    </Accordion.Panel>
+  </Accordion.Item>
+</Accordion>
+```
+
+### Multi-expand
+
+```tsx
+<Accordion type="multiple" headingLevel={3}>
+  <Accordion.Item value="keyboard">
+    <Accordion.Header>
+      <Accordion.Trigger>Keyboard navigation</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Panel>
+      <p>Arrow keys navigate between headers.</p>
+    </Accordion.Panel>
+  </Accordion.Item>
+</Accordion>
+```
+
+### Controlled
+
+```tsx
+const [open, setOpen] = useState('');
+
+<Accordion type="single" value={open} onValueChange={setOpen} headingLevel={3}>
+  <Accordion.Item value="prerequisites">
+    <Accordion.Header>
+      <Accordion.Trigger>Prerequisites</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Panel>
+      <p>Node.js 18+ and pnpm 9+ are required.</p>
+    </Accordion.Panel>
+  </Accordion.Item>
+</Accordion>
+```
+
+Programmatic value changes do not move focus. Only user interactions do.
+
+### Disabled item
+
+```tsx
+<Accordion headingLevel={3}>
+  <Accordion.Item value="billing" disabled>
+    <Accordion.Header>
+      <Accordion.Trigger>Billing (upgrade required)</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Panel>
+      <p>Available on Pro and Enterprise plans.</p>
+    </Accordion.Panel>
+  </Accordion.Item>
+</Accordion>
+```
+
+## API
+
+### Accordion (root)
+
+<PropsTable
+  rows={[
+    { name: 'headingLevel', type: '2 | 3 | 4 | 5 | 6', required: true, description: 'Heading level rendered by every Accordion.Header. No default; pick the level that fits your page outline (WCAG 2.4.10).' },
+    { name: 'type', type: '"single" | "multiple"', default: '"single"', description: 'Whether at most one item can be open or any number can be open simultaneously.' },
+    { name: 'value', type: 'string | string[]', description: 'Controlled open value. string in single mode, string[] in multiple mode. Pair with onValueChange.' },
+    { name: 'defaultValue', type: 'string | string[]', description: 'Uncontrolled initial open value.' },
+    { name: 'onValueChange', type: '(value: string) => void | (value: string[]) => void', description: 'Called on user interaction when the open state changes. Required when value is provided.' },
+    { name: 'children', type: 'ReactNode', required: true, description: 'One or more Accordion.Item elements.' },
+    { name: 'className', type: 'string', description: 'Additional CSS class on the accordion root.' },
+  ]}
+/>
+
+### Accordion.Item
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Stable identifier, unique within the accordion. Duplicates fire a dev overlay.' },
+    { name: 'disabled', type: 'boolean', default: 'false', description: 'Marks the item non-interactive: aria-disabled="true" and excluded from Arrow-key navigation.' },
+    { name: 'children', type: 'ReactNode', required: true, description: 'Must contain one Accordion.Header (with Accordion.Trigger) and one Accordion.Panel.' },
+    { name: 'className', type: 'string', description: 'Additional CSS class on the <details> element.' },
+  ]}
+/>
+
+### Accordion.Header
+
+<PropsTable
+  rows={[
+    { name: 'children', type: 'ReactNode', required: true, description: 'Must contain an Accordion.Trigger.' },
+    { name: 'className', type: 'string', description: 'Additional CSS class on the heading element.' },
+  ]}
+/>
+
+Renders as `<h2>` through `<h6>` inside the `<summary>`, at the level set by `headingLevel` on the root.
+
+### Accordion.Trigger
+
+Requires exactly one of `children`, `aria-label`, or `aria-labelledby`.
+
+<PropsTable
+  rows={[
+    { name: 'children', type: 'AccessibleText', description: 'Visible label text.' },
+    { name: 'aria-label', type: 'AccessibleText', description: 'Invisible label for icon-only triggers. Mutually exclusive with children and aria-labelledby.' },
+    { name: 'aria-labelledby', type: 'string', description: 'ID of an external label element. Mutually exclusive with children and aria-label.' },
+    { name: 'className', type: 'string', description: 'Additional CSS class on the trigger span.' },
+  ]}
+/>
+
+### Accordion.Panel
+
+<PropsTable
+  rows={[
+    { name: 'children', type: 'ReactNode', required: true, description: 'Content shown when the item is open.' },
+    { name: 'className', type: 'string', description: 'Additional CSS class on the panel <div>.' },
+  ]}
+/>
+
+Receives `role="region"` when the accordion has 6 or fewer items, `aria-labelledby` pointing at the header, and `tabIndex={-1}` so it can receive focus on expand.
+
+## Keyboard
+
+<KeyTable
+  rows={[
+    { keys: ['Arrow Down'], action: 'Focus next header; wraps from last to first' },
+    { keys: ['Arrow Up'], action: 'Focus previous header; wraps from first to last' },
+    { keys: ['Home'], action: 'Focus the first header' },
+    { keys: ['End'], action: 'Focus the last header' },
+    { keys: ['Enter'], action: 'Toggle the focused panel' },
+    { keys: ['Space'], action: 'Toggle the focused panel' },
+    { keys: ['Tab'], action: 'Move focus out of the accordion' },
+  ]}
+/>
+
+On user-initiated expand, focus moves into the panel so screen readers announce the newly visible content. On collapse, focus returns to the header.
+
+## Do
+
+<Do title="Set headingLevel to match your page outline">
+```tsx
+<h2>Frequently asked questions</h2>
+<Accordion headingLevel={3}>
+  <Accordion.Item value="what-is-artui">
+    <Accordion.Header>
+      <Accordion.Trigger>What is artui?</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Panel>
+      <p>An accessibility-first React component library.</p>
+    </Accordion.Panel>
+  </Accordion.Item>
+</Accordion>
+```
+</Do>
+
+<Do title="Provide a meaningful accessible name on every Trigger">
+```tsx
+<Accordion.Trigger>Shipping and delivery policy</Accordion.Trigger>
+```
+
+The name should describe the panel content at a glance.
+</Do>
+
+<Do title="Use disabled to signal unavailable sections">
+```tsx
+<Accordion.Item value="billing" disabled>
+  <Accordion.Header>
+    <Accordion.Trigger>Billing (upgrade required)</Accordion.Trigger>
+  </Accordion.Header>
+  <Accordion.Panel>
+    <p>Available on Pro and Enterprise plans.</p>
+  </Accordion.Panel>
+</Accordion.Item>
+```
+
+Visible disabled items communicate that a section exists but is gated.
+</Do>
+
+## Don't
+
+<Dont title="Wrap Accordion.Header in your own heading element">
+```tsx
+<h2>
+  <Accordion.Header>
+    <Accordion.Trigger>Section title</Accordion.Trigger>
+  </Accordion.Header>
+</h2>
+```
+
+`Accordion.Header` already renders an `<hN>` element. Set `headingLevel` on the root instead.
+</Dont>
+
+<Dont title="Add aria-expanded to the Trigger manually">
+```tsx
+<Accordion.Trigger aria-expanded={isOpen}>Section title</Accordion.Trigger>
+```
+
+`aria-expanded` is set on the `<summary>` by `Accordion.Item`. Setting it on the Trigger creates a duplicate, conflicting ARIA attribute.
+</Dont>
+
+<Dont title="Reuse the same value across items">
+```tsx
+<Accordion.Item value="settings">...</Accordion.Item>
+<Accordion.Item value="settings">...</Accordion.Item>
+```
+
+Duplicate values break open-state tracking and trigger a dev overlay.
+</Dont>
