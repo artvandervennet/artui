@@ -104,7 +104,7 @@ export function ImagePlayground() {
       </div>
 
       {/* Controls */}
-      <div className="border-t bg-fd-background divide-y divide-fd-border">
+      <div className="border-t bg-fd-muted/50 divide-y divide-fd-border">
         {/* decorative */}
         <div className="flex items-center gap-4 px-4 py-3">
           <span className="w-24 shrink-0 font-mono text-xs text-fd-muted-foreground">

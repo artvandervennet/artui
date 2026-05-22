@@ -1,0 +1,51 @@
+---
+title: FAQ
+description: Common questions about distribution, versioning, and scope.
+---
+
+## Is artui a runtime package?
+
+No. There is no `npm install artui`. The `artui` CLI is a one-off installer
+that copies component source into your repo. After that the components are
+yours — you import them from your own paths, you bundle them with your own
+build, and updates are opt-in via re-running `artui add`.
+
+## Which React versions are supported?
+
+React 18 and React 19. Components rely only on documented public APIs and do
+not pin to a minor version.
+
+## How does this compare to Radix or shadcn?
+
+- **Radix** ships runtime primitives. It is exhaustive, headless, and you
+  receive its components as compiled dependencies.
+- **shadcn/ui** copies styled components into your repo on top of Radix.
+- **artui** copies *unstyled* accessibility-first primitives — built on
+  native elements where possible (`<details>`, `<dialog>`, `<input
+  type="date">`) and falling back to ARIA only when the platform genuinely
+  lacks a primitive. The compile-time + dev-overlay enforcement is the
+  differentiator.
+
+## Where do runtime warnings go in production?
+
+Nowhere. Every dev overlay and every `console.error` is guarded by
+`process.env.NODE_ENV !== 'production'` and tree-shaken out by any modern
+bundler. Production bundles do not pay the cost.
+
+## Can I edit a copied component?
+
+Yes — that is the model. The copied file is yours. The trade-off is that
+upstream improvements do not flow into your repo automatically; re-run
+`artui add accordion` and reconcile the diff when you want them.
+
+## How are breaking changes communicated?
+
+The registry has its own semver. `components.json` pins a version, and the
+docs banner on every component page tells you which version those docs
+describe. Major bumps are accompanied by a migration note in the changelog.
+
+## Does artui handle internationalisation?
+
+Not directly. Components do not ship strings. Where a string would be
+required (e.g. a default close-button label), the component requires the
+consumer to provide it via props — usually enforced at compile time.

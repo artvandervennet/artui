@@ -1,27 +1,19 @@
 ---
 title: Dialog
-description: Accessible modal dialog using native <dialog> with showModal(). Browser-managed focus trap, top layer, and Escape handling. Follows the WAI-ARIA APG Dialog Modal pattern.
+description: Accessible modal dialog using native <dialog> with showModal(). Browser-managed focus trap, top layer, and Escape handling.
 ---
-
-<InstallBanner />
-
-## Playground
-
-Toggle the label source, description, initial focus target, and backdrop dismissal — the preview and code update live. Open the dialog and try `Esc`, `Tab`, and clicking the backdrop.
-
-<DialogPlayground />
-
-## Install
 
 ```bash
 npx artui@latest add dialog
 ```
 
-The CLI copies three files into your project: `dialog.tsx` (the component), `lib/a11y-types.ts` (shared accessibility types), and `lib/dev-overlay.tsx` (the runtime error overlay helper). All three files become yours — edit them freely.
+## Playground
+
+<DialogPlayground />
 
 ## Usage
 
-### Basic with title
+### Basic
 
 ```tsx
 import { useState } from 'react';
@@ -38,7 +30,7 @@ const [open, setOpen] = useState(false);
 </Dialog>
 ```
 
-The `title` prop renders a visible `<h2>` inside the dialog and auto-wires `aria-labelledby`. Every Dialog must have an accessible name — exactly one of `title` or `aria-labelledby`.
+The `title` prop renders a visible `<h2>` and wires `aria-labelledby`. Every Dialog needs exactly one of `title` or `aria-labelledby`.
 
 ### With description
 
@@ -54,9 +46,9 @@ The `title` prop renders a visible `<h2>` inside the dialog and auto-wires `aria
 </Dialog>
 ```
 
-The `description` prop renders a `<p>` element and wires `aria-describedby` on the dialog. Screen readers announce the description after the dialog name when focus enters.
+The `description` renders a `<p>` and wires `aria-describedby`.
 
-### With initialFocusRef
+### Initial focus
 
 ```tsx
 const cancelRef = useRef<HTMLButtonElement>(null);
@@ -72,9 +64,9 @@ const cancelRef = useRef<HTMLButtonElement>(null);
 </Dialog>
 ```
 
-By default focus lands on the first focusable element in the dialog body. Pass `initialFocusRef` to override — useful when the safer or more expected action should receive initial focus (e.g. "Cancel" over "Delete").
+By default focus lands on the first focusable element. Pass `initialFocusRef` to point at the safer action.
 
-### With aria-labelledby
+### External label
 
 ```tsx
 <h2 id="dialog-heading">Account settings</h2>
@@ -84,7 +76,7 @@ By default focus lands on the first focusable element in the dialog body. Pass `
 </Dialog>
 ```
 
-Use `aria-labelledby` when the dialog title is rendered outside the dialog element (rare), or when you need to point to a live-updated heading. A dev overlay fires if the referenced id does not exist in the DOM.
+A dev overlay fires if the referenced id does not exist in the DOM.
 
 ### No backdrop dismiss
 
@@ -100,163 +92,58 @@ Use `aria-labelledby` when the dialog title is rendered outside the dialog eleme
 </Dialog>
 ```
 
-`closeOnBackdropClick` defaults to `true`. Set it to `false` for confirmations the user must explicitly acknowledge. Escape always works regardless of this prop.
-
-## TypeScript enforcement
-
-Every Dialog must have exactly one accessible name source. Passing neither or both is a compile-time error.
-
-### Compile-time errors
-
-```tsx
-// Type error: no label source — must provide title or aria-labelledby
-<Dialog open={open} onClose={() => setOpen(false)}>
-  <p>Content</p>
-</Dialog>
-
-// Type error: title and aria-labelledby are mutually exclusive
-<Dialog
-  open={open}
-  onClose={() => setOpen(false)}
-  title="Heading"
-  aria-labelledby="external-id"
->
-  <p>Content</p>
-</Dialog>
-```
-
-### Valid usage
-
-```tsx
-// Visible heading — compiles
-<Dialog open={open} onClose={() => setOpen(false)} title="Settings">
-  <p>Content</p>
-</Dialog>
-
-// External label element — compiles
-<Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="my-heading">
-  <p>Content</p>
-</Dialog>
-```
-
-## Runtime errors
-
-Violations that cannot be caught at compile time are surfaced in development via a red overlay and a `console.error`. All runtime guards are no-ops in production.
-
-```tsx
-// Triggers dev overlay: dialog rendered with no children (WCAG 1.3.1)
-<Dialog open={open} onClose={() => setOpen(false)} title="Empty">
-  {false}
-</Dialog>
-
-// Triggers dev overlay: aria-labelledby points to nonexistent element (WCAG 4.1.2)
-<Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="does-not-exist">
-  <p>Content</p>
-</Dialog>
-
-// Triggers dev overlay: no focusable elements in dialog body (WCAG 2.1.1)
-<Dialog open={open} onClose={() => setOpen(false)} title="Text only">
-  <p>This paragraph has no interactive elements.</p>
-</Dialog>
-```
-
-<Callout type="warn">
-  Runtime guards are **development-only**. In production (`NODE_ENV === "production"`), violations render silently. Validate dynamic values before passing them as props.
-</Callout>
-
-## Keyboard navigation
-
-The dialog uses the browser's native `showModal()` focus trap. No JavaScript focus-trap library is needed.
-
-| Key | Action |
-|-----|--------|
-| `Tab` | Move focus to next focusable element inside the dialog |
-| `Shift+Tab` | Move focus to previous focusable element inside the dialog |
-| `Escape` | Close the dialog and restore focus to the previously focused element |
-
-Focus is constrained to the dialog until it closes. After close, focus returns to the element that was focused before the dialog opened (or `returnFocusRef` if provided).
+Escape always works regardless of this prop.
 
 ## API
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `title` | `AccessibleText` | — | Visible heading rendered as `<h2>`. Required unless `aria-labelledby` is provided. Mutually exclusive with `aria-labelledby`. |
-| `aria-labelledby` | `string` | — | ID of an existing element that labels the dialog. Mutually exclusive with `title`. |
-| `open` | `boolean` | — | **Required.** Controls whether the dialog is shown. |
-| `onClose` | `() => void` | — | **Required.** Called when the user closes the dialog (close button, Escape, or backdrop click). |
-| `children` | `ReactNode` | — | **Required.** Dialog body content. Rendering no content triggers a dev overlay. |
-| `description` | `AccessibleText` | — | Supplementary description rendered as `<p>`, wired via `aria-describedby`. |
-| `initialFocusRef` | `RefObject<HTMLElement \| null>` | — | Element to focus on open. Falls back to the first focusable descendant in the body. |
-| `returnFocusRef` | `RefObject<HTMLElement \| null>` | — | Element to focus on close. Falls back to the element focused before the dialog opened. |
-| `closeOnBackdropClick` | `boolean` | `true` | Whether clicking the backdrop calls `onClose`. |
-| `className` | `string` | — | Additional CSS class applied to the `<dialog>` element. |
+<PropsTable
+  rows={[
+    { name: 'title', type: 'AccessibleText', description: 'Visible heading rendered as <h2>. Required unless aria-labelledby is provided. Mutually exclusive with aria-labelledby.' },
+    { name: 'aria-labelledby', type: 'string', description: 'ID of an existing element that labels the dialog. Mutually exclusive with title.' },
+    { name: 'open', type: 'boolean', required: true, description: 'Controls whether the dialog is shown.' },
+    { name: 'onClose', type: '() => void', required: true, description: 'Called when the user closes the dialog (button, Escape, or backdrop).' },
+    { name: 'children', type: 'ReactNode', required: true, description: 'Dialog body content. Rendering nothing triggers a dev overlay.' },
+    { name: 'description', type: 'AccessibleText', description: 'Supplementary description rendered as <p>, wired via aria-describedby.' },
+    { name: 'initialFocusRef', type: 'RefObject<HTMLElement | null>', description: 'Element to focus on open. Falls back to the first focusable descendant.' },
+    { name: 'returnFocusRef', type: 'RefObject<HTMLElement | null>', description: 'Element to focus on close. Falls back to the previously focused element.' },
+    { name: 'closeOnBackdropClick', type: 'boolean', default: 'true', description: 'Whether clicking the backdrop calls onClose.' },
+    { name: 'className', type: 'string', description: 'Additional CSS class on the <dialog> element.' },
+  ]}
+/>
 
-## Accessibility
+## Keyboard
 
-<Callout type="info">
-  This component uses the browser's native `<dialog>` element and `showModal()` API, which provides a real top-layer context, a native focus trap, and Escape handling without any JavaScript polyfill.
-</Callout>
+<KeyTable
+  rows={[
+    { keys: ['Tab'], action: 'Move focus to next focusable element inside the dialog' },
+    { keys: ['Shift', 'Tab'], action: 'Move focus to previous focusable element' },
+    { keys: ['Escape'], action: 'Close the dialog and restore focus' },
+  ]}
+/>
 
-| WCAG | Criterion | How it is satisfied |
-|------|-----------|---------------------|
-| **1.3.1** | Info and Relationships | The `title` prop renders a semantic `<h2>`. A dev overlay fires when `children` is empty. |
-| **2.1.1** | Keyboard | The header close button is always rendered, so the dialog always has at least one focus stop. A dev overlay fires when the dialog body has no focusable elements. |
-| **2.1.2** | No Keyboard Trap | Focus is trapped by the browser's `showModal()`. Escape always exits. |
-| **2.4.3** | Focus Order | Focus moves to `initialFocusRef` (or first focusable body descendant) on open; returns to the previously focused element (or `returnFocusRef`) on close. |
-| **2.4.7** | Focus Visible | The close button uses `outline` (not `box-shadow`) for its focus ring, preserving visibility in Windows High Contrast Mode. |
-| **4.1.2** | Name, Role, Value | `<dialog>` carries `role="dialog"` natively, `aria-modal="true"`, and `aria-labelledby` pointing at the title `<h2>` or a caller-supplied element. A dev overlay fires when `aria-labelledby` does not resolve. |
+Focus is constrained to the dialog by the browser. After close, focus returns to the element that was focused before the dialog opened (or `returnFocusRef`).
 
-Additional behaviors:
+## Do
 
-- **`prefers-reduced-motion`**: The entrance animation is gated by `@media (prefers-reduced-motion: no-preference)` — users who prefer reduced motion see no animation.
-- **Touch targets**: The close button is exactly 44×44 px.
-- **System colors**: Background and foreground default to `Canvas`/`CanvasText` so the dialog respects the OS color scheme including Windows High Contrast Mode.
-- **Top layer**: `showModal()` places the dialog in the browser's top layer — no `z-index` wars with other stacking contexts.
-
-## Dos and Don'ts
-
-<Callout type="info" title="Do — provide a title or aria-labelledby">
-Every Dialog needs an accessible name so screen reader users know what the dialog is about when focus enters.
-
+<Do title="Provide a title or aria-labelledby">
 ```tsx
 <Dialog open={open} onClose={() => setOpen(false)} title="Confirm deletion">
   <p>This action cannot be undone.</p>
   <button onClick={() => setOpen(false)}>Cancel</button>
 </Dialog>
 ```
-</Callout>
+</Do>
 
-<Callout type="error" title="Don't — omit both title and aria-labelledby">
-```tsx
-<Dialog open={open} onClose={() => setOpen(false)}>  {/* compile error */}
-  <p>Content</p>
-</Dialog>
-```
-
-Omitting both label sources is a TypeScript compile error.
-</Callout>
-
-<Callout type="info" title="Do — include at least one interactive element in children">
+<Do title="Include at least one interactive element in children">
 ```tsx
 <Dialog open={open} onClose={() => setOpen(false)} title="Notice">
   <p>Your session will expire in 5 minutes.</p>
   <button onClick={() => setOpen(false)}>Dismiss</button>
 </Dialog>
 ```
-</Callout>
+</Do>
 
-<Callout type="error" title="Don't — render a dialog with no interactive body content">
-```tsx
-<Dialog open={open} onClose={() => setOpen(false)} title="Notice">
-  <p>Your session will expire in 5 minutes.</p>
-  {/* No button — dev overlay fires (WCAG 2.1.1) */}
-</Dialog>
-```
-
-A dev overlay fires when the dialog body has no focusable elements. Add at least a dismiss button.
-</Callout>
-
-<Callout type="info" title="Do — use initialFocusRef to land focus on the safe action">
+<Do title="Use initialFocusRef to land focus on the safe action">
 ```tsx
 const cancelRef = useRef<HTMLButtonElement>(null);
 
@@ -265,19 +152,36 @@ const cancelRef = useRef<HTMLButtonElement>(null);
   <button onClick={handleDelete}>Delete</button>
 </Dialog>
 ```
-</Callout>
+</Do>
 
-<Callout type="error" title="Don't — let destructive actions receive initial focus">
+## Don't
+
+<Dont title="Omit both title and aria-labelledby">
 ```tsx
-<Dialog open={open} onClose={() => setOpen(false)} title="Delete account">
-  <button onClick={() => setOpen(false)}>Cancel</button>
-  <button onClick={handleDelete}>Delete</button>  {/* first focusable — but wrong */}
+<Dialog open={open} onClose={() => setOpen(false)}>  {/* compile error */}
+  <p>Content</p>
 </Dialog>
 ```
 
-Without `initialFocusRef`, focus lands on the first focusable element in DOM order (here "Cancel"). Reorder your elements or use `initialFocusRef` to ensure the safe action is focused first.
-</Callout>
+Omitting both label sources is a TypeScript compile error.
+</Dont>
 
-## Related
+<Dont title="Render a dialog with no interactive body content">
+```tsx
+<Dialog open={open} onClose={() => setOpen(false)} title="Notice">
+  <p>Your session will expire in 5 minutes.</p>
+  {/* No button: dev overlay fires (WCAG 2.1.1) */}
+</Dialog>
+```
+</Dont>
 
-- [Datepicker](/docs/components/datepicker) — same TypeScript discriminated-union + `withErrorOverlay` enforcement model; uses a `<dialog>` internally for its calendar popup
+<Dont title="Let destructive actions receive initial focus">
+```tsx
+<Dialog open={open} onClose={() => setOpen(false)} title="Delete account">
+  <button onClick={() => setOpen(false)}>Cancel</button>
+  <button onClick={handleDelete}>Delete</button>  {/* first focusable, but wrong */}
+</Dialog>
+```
+
+Without `initialFocusRef`, focus lands on the first focusable in DOM order. Reorder or pass `initialFocusRef`.
+</Dont>
