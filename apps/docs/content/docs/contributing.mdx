@@ -1,0 +1,58 @@
+---
+title: Contributing
+description: How to propose a component, file an accessibility bug, or follow the roadmap.
+---
+
+artui is developed in the open at
+[github.com/artvandervennet/artui](https://github.com/artvandervennet/artui).
+Contributions, bug reports, and component proposals are all welcome.
+
+## Reporting an accessibility bug
+
+If a component behaves incorrectly with a screen reader, fails a WCAG
+criterion, or produces invalid markup, please open an issue with:
+
+- the component and its props (a minimal repro is gold),
+- the assistive technology + browser + OS where you observed the bug,
+- the expected behaviour and the actual behaviour.
+
+Accessibility bugs are the highest-priority issues this project tracks.
+
+## Proposing a component
+
+Open an issue using the **New component** template. Before writing it,
+please:
+
+- check that the pattern is not already in the registry,
+- link to the [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/) pattern (or
+  the relevant HTML spec section) it would be built on,
+- describe the compile-time guarantees you expect.
+
+A component is accepted into the registry when:
+
+- there is a documented APG / spec pattern to follow,
+- accessibility violations can be caught at compile time **or** at runtime
+  in development,
+- the implementation has no cross-component dependencies and ships as
+  copyable source.
+
+## Local development
+
+```bash
+pnpm install
+pnpm dev       # docs site
+pnpm test      # vitest
+pnpm typecheck # tsc --noEmit across the workspace
+```
+
+Registry components live under [registry/](https://github.com/artvandervennet/artui/tree/main/registry).
+They must not depend on anything in `packages/` or `apps/` — anything
+imported by a registry component ships into the consumer's project.
+
+## Roadmap
+
+Tracked in GitHub. Near-term focus:
+
+- broader form-control coverage (combobox, select, radio group),
+- a documented testing recipe for the dev-overlay assertions,
+- screen-reader transcripts in the docs for each component.

@@ -15,8 +15,7 @@
       "!**/.turbo",
       "!**/coverage",
       "!**/registry.json",
-      "!registry",
-      "!.claude/worktrees"
+      "!registry"
     ]
   },
   "formatter": {

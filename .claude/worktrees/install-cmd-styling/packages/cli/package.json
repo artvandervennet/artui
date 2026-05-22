@@ -1,0 +1,43 @@
+{
+  "name": "@artui/cli",
+  "version": "0.3.0",
+  "description": "Install accessible artui components into your project.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/artvandervennet/artui.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/artvandervennet/artui/tree/main/packages/cli",
+  "bugs": "https://github.com/artvandervennet/artui/issues",
+  "license": "MIT",
+  "bin": {
+    "artui": "dist/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "execa": "^9.5.2",
+    "picocolors": "^1.1.1",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^25.7.0",
+    "@types/prompts": "^2.4.9",
+    "tsup": "^8.3.5",
+    "vitest": "^2.1.8"
+  }
+}
