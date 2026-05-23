@@ -1,4 +1,4 @@
 {
   "title": "Components",
-  "pages": ["accordion", "image", "datepicker", "dialog", "dropdown-menu", "toast"]
+  "pages": ["accordion", "image", "datepicker", "dialog", "dropdown-menu", "slider", "toast"]
 }

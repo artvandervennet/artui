@@ -19,6 +19,9 @@ export { DropdownMenu } from './components/dropdown-menu/dropdown-menu';
 export { Accordion } from './components/accordion/accordion';
 export type { AccordionProps, AccordionItemProps, AccordionHeaderProps, AccordionTriggerProps, AccordionPanelProps } from './components/accordion/accordion';
 
+export { Slider } from './components/slider/slider';
+export type { SliderProps, SliderThumbDescriptor } from './components/slider/slider';
+
 export { ToastProvider, useToast } from './components/toast/toast';
 export type {
   ToastAction,

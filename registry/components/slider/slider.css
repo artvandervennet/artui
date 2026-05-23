@@ -1,0 +1,173 @@
+:root {
+  --artui-slider-track-size: 6px;
+  --artui-slider-track-bg: color-mix(in srgb, currentColor 18%, transparent);
+  --artui-slider-fill-bg: currentColor;
+  --artui-slider-thumb-size: 20px;
+  --artui-slider-thumb-hit-size: 44px;
+  --artui-slider-thumb-bg: Canvas;
+  --artui-slider-thumb-border: 2px solid currentColor;
+  --artui-slider-thumb-radius: 50%;
+  --artui-slider-thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  --artui-slider-focus-outline: 2px solid currentColor;
+  --artui-slider-focus-outline-offset: 2px;
+  --artui-slider-disabled-opacity: 0.45;
+  --artui-slider-length: 200px;
+  --artui-slider-vertical-length: 200px;
+}
+
+/* ---- Root ---- */
+
+.artui-slider {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  touch-action: none;
+  user-select: none;
+  color: inherit;
+
+  &[data-orientation="horizontal"] {
+    width: var(--artui-slider-length);
+    height: var(--artui-slider-thumb-hit-size);
+  }
+
+  &[data-orientation="vertical"] {
+    flex-direction: column;
+    width: var(--artui-slider-thumb-hit-size);
+    height: var(--artui-slider-vertical-length);
+  }
+
+  &[data-disabled="true"] {
+    opacity: var(--artui-slider-disabled-opacity);
+    cursor: not-allowed;
+  }
+}
+
+/* ---- Track ---- */
+
+.artui-slider-track {
+  position: relative;
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  [data-orientation="horizontal"] & {
+    height: var(--artui-slider-track-size);
+    border-radius: calc(var(--artui-slider-track-size) / 2);
+    background: var(--artui-slider-track-bg);
+  }
+
+  [data-orientation="vertical"] & {
+    width: var(--artui-slider-track-size);
+    border-radius: calc(var(--artui-slider-track-size) / 2);
+    background: var(--artui-slider-track-bg);
+    flex-direction: column;
+  }
+
+  [data-disabled="true"] & {
+    cursor: not-allowed;
+  }
+}
+
+/* ---- Fill ---- */
+
+.artui-slider-fill {
+  position: absolute;
+  background: var(--artui-slider-fill-bg);
+  border-radius: inherit;
+  pointer-events: none;
+
+  [data-orientation="horizontal"] & {
+    top: 0;
+    height: 100%;
+  }
+
+  [data-orientation="vertical"] & {
+    left: 0;
+    width: 100%;
+  }
+}
+
+/* ---- Thumb ---- */
+
+.artui-slider-thumb {
+  position: absolute;
+  /* Visual disc sized by --artui-slider-thumb-size; hit area expanded to 44px
+   * via padding so WCAG 2.5.5 (44×44 minimum) is met without a visible 44px disc. */
+  width: var(--artui-slider-thumb-size);
+  height: var(--artui-slider-thumb-size);
+  margin: 0;
+  padding: 0;
+  background: var(--artui-slider-thumb-bg);
+  border: var(--artui-slider-thumb-border);
+  border-radius: var(--artui-slider-thumb-radius);
+  box-shadow: var(--artui-slider-thumb-shadow);
+  cursor: grab;
+  /* Translate the center of the thumb to its percentage position. */
+  transform: translate(-50%, -50%);
+  top: 50%;
+  z-index: 1;
+
+  [data-orientation="vertical"] & {
+    transform: translate(-50%, 50%);
+    left: 50%;
+    top: unset;
+  }
+
+  &:focus-visible {
+    outline: var(--artui-slider-focus-outline);
+    outline-offset: var(--artui-slider-focus-outline-offset);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  /* Expanded hit area (WCAG 2.5.8 — 24px minimum, recommended 44px). */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: calc((var(--artui-slider-thumb-hit-size) - var(--artui-slider-thumb-size)) / -2);
+  }
+}
+
+/* When two thumbs overlap, the second one should appear on top on hover/focus. */
+.artui-slider-thumb:hover,
+.artui-slider-thumb:focus-visible {
+  z-index: 2;
+}
+
+/* ---- Reduced motion ---- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .artui-slider-fill {
+    transition:
+      left 60ms linear,
+      width 60ms linear,
+      bottom 60ms linear,
+      height 60ms linear;
+  }
+
+  .artui-slider-thumb {
+    transition: left 60ms linear, bottom 60ms linear;
+  }
+}
+
+/* ---- Windows High Contrast Mode ---- */
+
+@media (forced-colors: active) {
+  .artui-slider-track {
+    background: ButtonFace;
+    border: 1px solid ButtonText;
+  }
+
+  .artui-slider-fill {
+    background: Highlight;
+  }
+
+  .artui-slider-thumb {
+    background: ButtonFace;
+    border-color: ButtonText;
+  }
+}

@@ -1,3 +1,6 @@
+- [render-path-getelementbyid-limit](render-path-getelementbyid-limit.md) — document.getElementById in render body returns null for siblings not yet committed; aria-labelledby checks must use useEffect
+- [slider-aria-valuetext-pattern](slider-aria-valuetext-pattern.md) — Slider wires aria-valuetext from formatValue automatically; thumb-level override > root-level
+- [dev-guard-useeffect-empty-deps](dev-guard-useeffect-empty-deps.md) — Mount-only dev guards use useEffect([]) without setTimeout; setTimeout only needed when waiting for child registration
 - [jsdom details toggle pitfall](jsdom-details-toggle-pitfall.md) — Never set details.open in tests; dispatch toggle event directly to avoid jsdom name-attribute side effects
 - [details controlled sync pattern](details-controlled-sync-pattern.md) — Only sync details.open from React in controlled mode to avoid toggle feedback loops
 - [dev guard timing pattern](dev-guard-timing-pattern.md) — Use useEffect + setTimeout(0) for dev guards that depend on child registration effects

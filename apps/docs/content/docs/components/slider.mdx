@@ -1,0 +1,293 @@
+---
+title: Slider
+description: Accessible single-thumb and range slider following WAI-ARIA APG Slider patterns, with compile-time per-thumb name enforcement, automatic aria-valuetext, and dynamic dependent aria-valuemin/aria-valuemax.
+---
+
+```bash
+npx artui@latest add slider
+```
+
+## Playground
+
+<SliderPlayground />
+
+## Usage
+
+### Single thumb with formatted value
+
+```tsx
+import { Slider } from '@/components/slider';
+
+<Slider
+  min={0}
+  max={1000}
+  step={10}
+  defaultValue={250}
+  aria-label="Maximum price"
+  formatValue={(v) => `€${v}`}
+/>
+```
+
+### Range with per-thumb labels
+
+```tsx
+import { Slider } from '@/components/slider';
+
+<Slider
+  min={0}
+  max={1000}
+  step={10}
+  defaultValue={[100, 750]}
+  aria-label="Price range"
+  formatValue={(v) => `€${v}`}
+  thumbs={[
+    { 'aria-label': 'Minimum price' },
+    { 'aria-label': 'Maximum price' },
+  ]}
+/>
+```
+
+Each thumb in `thumbs` must carry an accessible name — omitting both `aria-label` and `aria-labelledby` is a TypeScript compile error.
+
+### Controlled
+
+```tsx
+import { Slider } from '@/components/slider';
+
+const [budget, setBudget] = useState(500);
+
+<Slider
+  min={0}
+  max={1000}
+  step={10}
+  value={budget}
+  onValueChange={setBudget}
+  aria-label="Budget"
+  formatValue={(v) => `€${v}`}
+/>
+```
+
+### Non-numeric domain
+
+```tsx
+import { Slider } from '@/components/slider';
+
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+<Slider
+  min={0}
+  max={6}
+  step={1}
+  defaultValue={1}
+  aria-label="Pickup day"
+  formatValue={(v) => WEEKDAYS[v]}
+/>
+```
+
+`formatValue` wires the returned string to `aria-valuetext` automatically so screen readers announce "Monday" instead of "1".
+
+### Vertical orientation
+
+```tsx
+import { Slider } from '@/components/slider';
+
+<Slider
+  min={0}
+  max={100}
+  step={1}
+  defaultValue={50}
+  orientation="vertical"
+  aria-label="Volume"
+/>
+```
+
+## API
+
+### SliderProps
+
+`SliderProps` is a discriminated union: when `thumbs` is present the component enters range mode and `value` / `defaultValue` / `onValueChange` accept tuples. When `thumbs` is absent it is single-thumb mode and those props accept scalars.
+
+<PropsTable
+  rows={[
+    { name: 'min', type: 'number', default: '0', description: 'Minimum value.' },
+    { name: 'max', type: 'number', default: '100', description: 'Maximum value.' },
+    { name: 'step', type: 'number', description: 'Arrow-key step size. Defaults to (max - min) / 100. A dev overlay fires when step ≤ 0 or step > (max - min).' },
+    { name: 'largeStep', type: 'number', description: 'PageUp / PageDown jump size. Defaults to max(step * 10, (max - min) / 10).' },
+    { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables interaction. Uses aria-disabled rather than the HTML disabled attribute so the thumb stays in the tab order for AT inspection.' },
+    { name: 'orientation', type: '"horizontal" | "vertical"', default: '"horizontal"', description: 'Slider orientation.' },
+    { name: 'formatValue', type: '(value: number, thumbIndex: number) => string', description: 'When provided, the returned string is wired to aria-valuetext on every thumb automatically. Use for non-numeric domains (e.g. "€250", "Monday").' },
+    { name: 'value', type: 'number (single) | readonly [number, number] (range)', description: 'Controlled value. Pair with onValueChange.' },
+    { name: 'defaultValue', type: 'number (single) | readonly [number, number] (range)', description: 'Uncontrolled initial value.' },
+    { name: 'onValueChange', type: '(value: number) => void (single) | (value: readonly [number, number]) => void (range)', description: 'Called whenever the value changes.' },
+    { name: 'thumbs', type: 'readonly [SliderThumbDescriptor, SliderThumbDescriptor]', description: 'Activates range mode. Each descriptor must carry an accessible name — omitting aria-label, aria-labelledby, and children is a compile error.' },
+    { name: 'aria-label', type: 'string', description: 'Single mode: accessible name on the thumb. Range mode: accessible name on the group wrapper.' },
+    { name: 'aria-labelledby', type: 'string', description: 'Single mode: ID of an element labelling the thumb. Range mode: ID of the element labelling the group. A dev overlay fires when the ID does not resolve in the DOM.' },
+    { name: 'className', type: 'string', description: 'Additional CSS class applied to the slider root element.' },
+  ]}
+/>
+
+### SliderThumbDescriptor
+
+Descriptor for each thumb in range mode. Exactly one of `aria-label`, `aria-labelledby`, or `children` is required at the type level.
+
+<PropsTable
+  rows={[
+    { name: 'aria-label', type: 'string', description: 'Accessible name for this thumb.' },
+    { name: 'aria-labelledby', type: 'string', description: 'ID of an element that labels this thumb.' },
+    { name: 'children', type: 'string', description: 'Accessible name passed as children (used as aria-label internally).' },
+    { name: 'formatValue', type: '(value: number) => string', description: 'Per-thumb value formatter. Takes precedence over the root-level formatValue for this thumb.' },
+  ]}
+/>
+
+### Range thumb swap
+
+When a range thumb is dragged or moved by keyboard past the other thumb's current value, the component performs a swap: focus and pointer capture transfer seamlessly to the other thumb so the gesture continues without interruption. No step is lost and no re-press is required.
+
+Guarantees of the swap:
+
+- Focus follows the moving value — the thumb that is now in motion receives focus automatically.
+- The full step is always applied — the value does not freeze at the crossing point.
+- Screen readers announce the new thumb on focus change, so AT users hear "Minimum price: €300" rather than silence.
+- `aria-valuemin` and `aria-valuemax` recompute on every render based on current value ordering, so each thumb always reports an accurate range boundary.
+
+## Keyboard
+
+<KeyTable
+  rows={[
+    { keys: ['Arrow Right', 'Arrow Up'], action: 'Increase focused thumb value by step' },
+    { keys: ['Arrow Left', 'Arrow Down'], action: 'Decrease focused thumb value by step' },
+    { keys: ['Page Up'], action: 'Increase focused thumb value by largeStep' },
+    { keys: ['Page Down'], action: 'Decrease focused thumb value by largeStep' },
+    { keys: ['Home'], action: 'Move focused thumb to its effective minimum' },
+    { keys: ['End'], action: 'Move focused thumb to its effective maximum' },
+    { keys: ['Tab'], action: 'Move focus to the next focusable element outside the slider' },
+    { keys: ['Shift+Tab'], action: 'Move focus to the previous focusable element outside the slider' },
+  ]}
+/>
+
+In range mode, when any key would push a thumb past the other thumb's value, focus transfers automatically to the other thumb and the full step is applied — the gesture continues without interruption. Tab order between the two thumbs always follows DOM order (`thumbs[0]` first, `thumbs[1]` second), regardless of which has the lower value at that moment.
+
+## Do
+
+<Do title="Provide aria-label or aria-labelledby on every Slider">
+```tsx
+<Slider
+  min={0}
+  max={100}
+  defaultValue={40}
+  aria-label="Download speed limit"
+/>
+```
+</Do>
+
+<Do title="Use formatValue for any value that is not self-describing as a raw number">
+```tsx
+<Slider
+  min={0}
+  max={1000}
+  step={10}
+  defaultValue={250}
+  aria-label="Maximum price"
+  formatValue={(v) => `€${v}`}
+/>
+```
+
+Screen readers announce "€250" instead of "250", giving users the unit and context they need.
+</Do>
+
+<Do title="Name each range thumb individually via thumbs descriptors">
+```tsx
+<Slider
+  min={0}
+  max={1000}
+  step={10}
+  defaultValue={[100, 750]}
+  aria-label="Price range"
+  thumbs={[
+    { 'aria-label': 'Minimum price' },
+    { 'aria-label': 'Maximum price' },
+  ]}
+/>
+```
+
+Distinct names let screen reader users distinguish which thumb they are operating without guessing from position.
+</Do>
+
+<Do title="Sort the tuple in onValueChange if your downstream code expects a sorted range">
+```tsx
+<Slider
+  min={0}
+  max={100}
+  defaultValue={[20, 80]}
+  aria-label="Temperature range"
+  formatValue={(v) => `${v}°C`}
+  thumbs={[
+    { 'aria-label': 'Minimum temperature' },
+    { 'aria-label': 'Maximum temperature' },
+  ]}
+  onValueChange={([a, b]) => setRange([Math.min(a, b), Math.max(a, b)])}
+/>
+```
+
+After a swap, `thumbs[0]` may hold the higher value. Sorting in `onValueChange` keeps your state predictable without any AT impact.
+</Do>
+
+## Don't
+
+<Dont title="Omit accessible names from range thumbs">
+```tsx
+<Slider
+  min={0}
+  max={100}
+  thumbs={[{}, {}]}
+/>
+```
+
+Empty `SliderThumbDescriptor` objects are a TypeScript compile error. In JavaScript runtimes a dev overlay fires with WCAG 4.1.2 `[Slider:multi-without-thumb-names]`. Without names, both thumbs are announced identically and users cannot tell them apart.
+</Dont>
+
+<Dont title="Render a range slider without a group label">
+```tsx
+<Slider
+  min={0}
+  max={1000}
+  thumbs={[
+    { 'aria-label': 'Minimum price' },
+    { 'aria-label': 'Maximum price' },
+  ]}
+/>
+```
+
+Missing `aria-label` or `aria-labelledby` on the root triggers a dev overlay with WCAG 1.3.1 `[Slider:range-without-group-name]`. The two thumb names alone do not convey what the overall range represents.
+</Dont>
+
+<Dont title="Pass a value outside [min, max]">
+```tsx
+<Slider min={0} max={100} defaultValue={150} aria-label="Speed" />
+```
+
+A dev overlay fires with WCAG 4.1.2 `[Slider:value-out-of-range]` and the value is clamped silently. The slider's reported `aria-valuenow` would be out of sync with what your UI displays.
+</Dont>
+
+<Dont title="Assume thumbs[0] always holds the lower value after a swap">
+```tsx
+// incorrect — assumes slot 0 is always the lower bound
+const [range, setRange] = useState<readonly [number, number]>([20, 80]);
+
+<Slider
+  min={0}
+  max={100}
+  aria-label="Price range"
+  value={range}
+  onValueChange={setRange}
+  thumbs={[
+    { 'aria-label': 'Minimum price' },
+    { 'aria-label': 'Maximum price' },
+  ]}
+/>
+
+const lowerBound = range[0]; // wrong after a cross-over
+```
+
+After a swap, value identity travels with focus while slot identity stays put — `thumbs[0]` may hold the higher value. Sort in `onValueChange` if you need a guaranteed `[lo, hi]` tuple downstream.
+</Dont>
