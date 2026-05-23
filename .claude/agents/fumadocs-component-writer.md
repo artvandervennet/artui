@@ -14,38 +14,39 @@ Produce thorough, idiomatic Fumadocs MDX documentation for artui components — 
 
 ## Required Documentation Structure
 
-For each component, produce an MDX file with the following sections in order:
+**This is the canonical template.** Read `apps/docs/content/docs/components/dropdown-menu.mdx` and `accordion.mdx` before writing — they are the reference. Do not invent extra sections.
 
-1. **Frontmatter Metafile** — YAML frontmatter at the top of the MDX. Always include:
-   - `title`: PascalCase component name
-   - `description`: One-sentence summary of what the component does and why it exists (accessibility-focused)
-   - Any additional metadata fields the existing docs site uses (inspect `apps/docs/content/` to match)
+Sections in order:
 
-2. **Overview** — 2-4 sentences. State the component's purpose, accessibility guarantees (WAI-ARIA patterns, keyboard interactions, focus management, screen reader semantics), and when to reach for it.
+1. **Frontmatter** — YAML with only `title` (PascalCase component name) and `description` (one sentence — what + key a11y guarantees). Nothing else.
 
-3. **Installation** — Show the artui CLI command to install the component, e.g. `npx artui add <component-name>`. Mention that the file is copied into the consumer's repo as-is.
+2. **Install snippet** — Immediately under the frontmatter, a single fenced bash block: ```` ```bash\nnpx artui@latest add <component-name>\n``` ````. **No `## Installation` heading. No prose before or after it.** The bash block is the first thing under the frontmatter.
 
-4. **Fuma Playground** — An interactive `<ComponentPreview>` (or the equivalent Fumadocs component used in this repo — verify by reading existing docs first) demonstrating realistic, accessible usage. The playground example must:
-   - Use the component as it would appear in production
-   - Be keyboard-navigable and screen-reader friendly
-   - Avoid contrived 'foo/bar' content
+3. **`## Playground`** — Just the heading and the component-specific playground tag (e.g. `<ToastPlayground />`, `<AccordionPlayground />`). No prose intro between the heading and the tag. The playground component lives at `apps/docs/components/<name>-playground.tsx` and must be registered in `apps/docs/mdx-components.tsx`.
 
-5. **API Reference** — Tables of props/parameters with: `Name`, `Type`, `Default`, `Description`. For each prop, note accessibility implications (e.g., `aria-label` requirements, focus behavior). One row per prop. No prose between rows.
+4. **`## Usage`** — H3 subsections, one per common pattern (3–5 of them). Each subsection: a brief H3 title (e.g. `### Controlled`, `### With submenu`), a code block using `from '@/components/<name>'` (the post-CLI consumer path, not `@artui/registry`), and at most one short sentence of prose after the block if behaviour needs clarifying. No prose before the first code block.
 
-6. **Usage Examples** — 2-4 focused MDX code blocks showing common patterns. Each example should solve a real problem (e.g., 'Trapping focus inside a modal', 'Restoring focus on unmount'). Prefer real implementations over toy snippets.
+5. **`## API`** — One H3 per exported type/component (`### ComponentName`, `### ComponentName.Sub`, `### ComponentOptions`, etc.), each followed by a `<PropsTable rows={[...]} />` block. Optional one-line prose between the H3 and the table only when the type itself needs explanation. PropsTable row shape: `{ name, type, required?, default?, description }`. Pull every name, type, and default directly from the component source.
 
-7. **Dos and Don'ts** — Two parallel lists under a single heading.
-   - **Do:** concrete, actionable affirmative practices specific to this component (focus order, ARIA usage, semantic HTML pairings).
-   - **Don't:** concrete anti-patterns. Be specific — 'Don't nest two focus traps in the same render tree' beats 'Don't misuse focus traps'. Each bullet should be one tight sentence.
+6. **`## Keyboard`** — A `<KeyTable rows={[...]} />` block. Row shape: `{ keys: [...], action: '...' }`. Optional trailing paragraph after the table for context that doesn't fit in a row (e.g. "Focus is never moved to a toast on render."). Split into multiple H3 groups (e.g. `### Root menu`, `### Submenu`) only when the keymap genuinely differs by context.
 
-8. **Accessibility Notes** — Explicit section listing: supported WAI-ARIA pattern(s), keyboard interactions table (key → action), screen reader behavior, and any known platform quirks.
+7. **`## Do`** — Several `<Do title="...">` blocks. Each contains a `tsx` code block; optionally one short paragraph after. The title is an imperative sentence.
 
-9. **Related Components** — Cross-links to other registry components that compose well with this one.
+8. **`## Don't`** — Several `<Dont title="...">` blocks. Same shape as Do; the trailing paragraph (when present) explains what goes wrong — a compile error, a dev overlay, a runtime warning, or a UX consequence.
+
+**Forbidden** (these are NOT in the canonical template — do not add them):
+
+- No `## Overview` / `## Introduction` heading or intro prose between the frontmatter and the install snippet.
+- No `## Installation` heading — the bash block stands alone.
+- No `## Why X` callouts or design-rationale sections.
+- No `## Accessibility` section with a `<WcagTable>`. (The `image.mdx` page has a brief `## Accessibility` markdown subsection — that's an outlier for the simplest component and not a pattern to copy. Default to no Accessibility section; fold a11y details into the Don't blocks and the Keyboard trailing paragraph.)
+- No `## Related` / `## Related Components` section.
+- No imports inside the MDX itself — MDX components (`PropsTable`, `KeyTable`, `Do`, `Dont`, playgrounds) are auto-registered via `apps/docs/mdx-components.tsx`.
 
 ## Authoring Rules
 
 - **Read first, write second.** Before authoring, inspect the component source in `registry/components/<name>/` to extract real prop signatures, exports, and behavior. Never invent an API surface.
-- **Match existing Fumadocs conventions.** Read at least one existing doc in `apps/docs/content/` and mirror its component imports, heading levels, and MDX component usage (`<Tabs>`, `<Callout>`, `<Steps>`, etc.).
+- **Match existing Fumadocs conventions.** Read at least one existing doc in `apps/docs/content/docs/components/` (start with `dropdown-menu.mdx` and `accordion.mdx`) and mirror its structure exactly. The MDX components actually used here are `<PropsTable>`, `<KeyTable>`, `<Do>`, `<Dont>`, and the per-component playground tag (`<XPlayground />`). Don't reach for `<Tabs>`, `<Callout>`, `<Steps>`, `<WcagTable>`, or anything else unless an existing doc demonstrates it for this kind of component.
 - **Kebab-case filenames.** Doc files follow the same kebab-case rule as the rest of the repo (e.g., `a11y-ts-planner.mdx`, not `A11yTsPlanner.mdx`).
 - **Accessibility is the headline, not a footnote.** For a11y-focused components, lead with the accessibility guarantee in the overview and reinforce it in examples.
 - **WHY comments only in code samples.** Code blocks should not include 'what' comments. If a snippet needs explanation, write prose around it.
@@ -67,13 +68,19 @@ For each component, produce an MDX file with the following sections in order:
 ## Quality Bar
 
 Before returning, verify:
-- [ ] Frontmatter is valid YAML and matches existing docs' field set
-- [ ] Every prop in the API table exists in the component source
-- [ ] Playground example compiles against the real component signature
-- [ ] Keyboard interactions table covers every key the component handles
-- [ ] Dos and don'ts are component-specific, not generic accessibility platitudes
+- [ ] Frontmatter has exactly `title` and `description`, nothing else
+- [ ] The install bash block is the first content under the frontmatter, with no intro prose and no `## Installation` heading
+- [ ] Sections are exactly: Playground, Usage, API, Keyboard, Do, Don't — in that order, no extras
+- [ ] No `## Overview`, no `## Why X`, no `## Accessibility` with `<WcagTable>`, no `## Related`
+- [ ] Every prop in every `<PropsTable>` exists in the component source with the same name, type, default
+- [ ] Playground tag matches the registered name in `apps/docs/mdx-components.tsx`
+- [ ] Usage code blocks import from `@/components/<name>`, not `@artui/registry`
+- [ ] `<KeyTable>` covers every key the component handles
+- [ ] `<Do>` / `<Dont>` titles are imperative, component-specific sentences
 - [ ] Filename is kebab-case
+- [ ] No `import` statements at the top of the MDX file (components are auto-registered)
 - [ ] No imports from `packages/` or `apps/` in code samples
+- [ ] Component slug appended to `apps/docs/content/docs/components/meta.json`
 
 ## When to Ask
 

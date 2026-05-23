@@ -18,3 +18,14 @@ export { DropdownMenu } from './components/dropdown-menu/dropdown-menu';
 
 export { Accordion } from './components/accordion/accordion';
 export type { AccordionProps, AccordionItemProps, AccordionHeaderProps, AccordionTriggerProps, AccordionPanelProps } from './components/accordion/accordion';
+
+export { ToastProvider, useToast } from './components/toast/toast';
+export type {
+  ToastAction,
+  ToastApi,
+  ToastHandle,
+  ToastOptions,
+  ToastProviderProps,
+  ToastShortcutOptions,
+  ToastType,
+} from './components/toast/toast';
