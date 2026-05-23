@@ -18,39 +18,53 @@ No other fields. The description should name the WAI-ARIA pattern or HTML founda
 
 ## MDX global components available (no import needed in MDX)
 
-- `<InstallBanner />` — placed immediately after frontmatter, before first heading
-- `<Callout type="info" title="...">` / `<Callout type="warn">` / `<Callout type="error" title="...">`
-- Playground components: `<AccordionPlayground />`, `<DialogPlayground />`, `<DropdownMenuPlayground />`, `<ImagePlayground />`, `<DatepickerPlayground />`
-- `<RegistryVersionBadge />`
+Registered in `apps/docs/mdx-components.tsx` via `getMDXComponents()`:
+- `<PropsTable rows={[...]} />` — prop tables; row shape: `{ name, type, required?, default?, description }`
+- `<KeyTable rows={[...]} />` — keyboard shortcut tables; row shape: `{ keys: string[], action }`
+- `<WcagTable rows={[...]} />` — WCAG criterion tables; row shape: `{ criterion, name, level?, satisfiedBy }`
+- `<Do title="...">` / `<Dont title="...">` — do/don't callout blocks that accept code fences and prose children
+- `<CardLink />`, `<FeatureGrid />` — doc navigation/landing helpers
+- Playground components: `<AccordionPlayground />`, `<DialogPlayground />`, `<DropdownMenuPlayground />`, `<ImagePlayground />`, `<DatepickerPlayground />`, `<ToastPlayground />`
 
-## Page structure order
+Fumadocs built-ins from `fumadocs-ui/mdx` are also available (Callout, Steps, Tabs, etc.) but the component pages do NOT use them — they use the artui custom components above.
 
-1. Frontmatter
-2. `<InstallBanner />`
-3. `## Playground` — short prose + playground component
-4. `## Install` — `npx artui@latest add <name>` + note about which files are copied
-5. `## Why native X?` or motivating overview section (optional, component-specific)
-6. `## Usage` — subsections with labeled `###` examples
-7. `## TypeScript enforcement` — compile errors then valid usage
-8. `## Runtime errors` — table of error keys + `<Callout type="warn">` about production
-9. `## Keyboard navigation` — tables with Key/Action, one table per navigation group
-10. `## API` — one `###` per sub-component, tables with Prop/Type/Default/Description
-11. `## Accessibility` — optional `<Callout type="info">` + WCAG table + additional behaviors list
-12. `## Dos and Don'ts` — alternating `<Callout type="info" title="Do —...">` / `<Callout type="error" title="Don't —...">`
-13. `## Related` — bullet list of cross-links
+## Page structure order (canonical from dialog.mdx / dropdown-menu.mdx)
+
+1. Frontmatter (`title`, `description` — no other fields)
+2. `\`\`\`bash` install snippet (`npx artui@latest add <name>`) immediately after frontmatter, before any heading
+3. Optional 2–4 sentence intro paragraph (no heading)
+4. Optional `## Why native X?` motivating callout (prose only, no MDX component)
+5. `## Playground` — playground component tag only (e.g. `<ToastPlayground />`)
+6. `## Usage` — `###` subsections each with a labeled code block + 1–2 sentences of prose
+7. `## API` — `###` per sub-component/type, each with a `<PropsTable>` immediately below
+8. `## Keyboard` — `<KeyTable>` with optional prose after
+9. `## Accessibility` — `<WcagTable>` covering all satisfied WCAG criteria
+10. `## Do` — one or more `<Do>` blocks
+11. `## Don't` — one or more `<Dont>` blocks
+12. `## Related` — markdown bullet list of cross-links
+
+Note: Do/Don't blocks live under separate `## Do` and `## Don't` headings, not interleaved.
 
 ## Dos and Don'ts format
 
-Alternate info/error Callout pairs:
 ```mdx
-<Callout type="info" title="Do — short imperative">
-prose or code
-</Callout>
+## Do
 
-<Callout type="error" title="Don't — short imperative">
-code
-prose explaining why
-</Callout>
+<Do title="Short imperative phrase">
+```tsx
+// code example
+```
+Optional one-sentence explanation.
+</Do>
+
+## Don't
+
+<Dont title="Short imperative phrase">
+```tsx
+// code showing the anti-pattern
+```
+One sentence explaining why.
+</Dont>
 ```
 
 ## Navigation manifest

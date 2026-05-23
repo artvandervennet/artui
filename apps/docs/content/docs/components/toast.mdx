@@ -1,0 +1,229 @@
+---
+title: Toast
+description: Accessible toast notifications using WAI-ARIA live regions and the native Popover API. info / success / warning / error severity, pause-on-hover, no focus theft, compile-time enforcement of accessible titles.
+---
+
+```bash
+npx artui@latest add toast
+```
+
+## Playground
+
+<ToastPlayground />
+
+## Usage
+
+### Shortcut helpers
+
+```tsx
+import { useToast } from '@/components/toast';
+
+function SaveButton() {
+  const toast = useToast();
+  return (
+    <button onClick={() => toast.success('Changes saved.')}>
+      Save
+    </button>
+  );
+}
+```
+
+### Full options via show()
+
+```tsx
+const toast = useToast();
+
+toast.show({
+  title: 'Profile updated.',
+  description: 'Your display name is now visible to collaborators.',
+  type: 'success',
+  duration: 8000,
+});
+```
+
+### Persistent error with an action
+
+Error toasts with a short duration and no action fire a dev warning. Pass `duration: null` and provide an `action` so the user can respond.
+
+```tsx
+toast.error('Upload failed. The file may be corrupted.', {
+  duration: null,
+  action: {
+    label: 'Retry',
+    onAction: retryUpload,
+  },
+});
+```
+
+### Awaiting dismissal
+
+`ToastHandle.done` resolves when the toast is dismissed, expired, collapsed, or the provider unmounts.
+
+```tsx
+const handle = toast.warning('Saving draft…', { duration: null });
+await saveDraft();
+handle.dismiss();
+await handle.done;
+showNextStep();
+```
+
+## API
+
+### ToastProvider
+
+Mount exactly one `ToastProvider` at the root of your application. Mounting more than one duplicates the live-region DOM nodes; a dev overlay fires if duplicates are detected.
+
+<PropsTable
+  rows={[
+    { name: 'children', type: 'ReactNode', required: true, description: 'Application content.' },
+    { name: 'maxVisible', type: 'number', default: '3', description: 'Maximum toasts visible at once per region. The oldest is collapsed when exceeded.' },
+    { name: 'defaultDuration', type: 'number | null', default: '5000', description: 'Default auto-dismiss duration in ms. null makes every toast persistent unless overridden per-toast.' },
+  ]}
+/>
+
+### ToastOptions
+
+Passed to `toast.show()`. The shortcut helpers (`toast.success()`, `toast.error()`, …) accept the same fields minus `title` and `type`.
+
+<PropsTable
+  rows={[
+    { name: 'title', type: 'AccessibleText', required: true, description: 'Notification title. Empty strings and placeholder values are TypeScript compile errors.' },
+    { name: 'description', type: 'string', description: 'Optional secondary text below the title.' },
+    { name: 'type', type: '"info" | "success" | "warning" | "error"', default: '"info"', description: 'Severity. info and success go to the polite region; warning and error go to the assertive region.' },
+    { name: 'duration', type: 'number | null', description: 'Per-toast duration override in ms. null makes this toast persistent. Action toasts are silently bumped to a 10 s minimum.' },
+    { name: 'action', type: 'ToastAction', description: 'Optional action button. Activating it invokes onAction then dismisses the toast.' },
+  ]}
+/>
+
+### ToastAction
+
+<PropsTable
+  rows={[
+    { name: 'label', type: 'AccessibleText', required: true, description: 'Visible button label. Placeholder values are compile errors.' },
+    { name: 'onAction', type: '() => void', required: true, description: 'Called when the action is activated. The toast is dismissed immediately after.' },
+  ]}
+/>
+
+### ToastHandle
+
+Returned by `toast.show()` and all shortcut helpers.
+
+<PropsTable
+  rows={[
+    { name: 'id', type: 'string', description: 'Unique identifier for this toast.' },
+    { name: 'dismiss', type: '() => void', description: 'Programmatically dismiss the toast.' },
+    { name: 'done', type: 'Promise<void>', description: 'Resolves when the toast leaves the DOM for any reason.' },
+  ]}
+/>
+
+### useToast()
+
+Returns a `ToastApi`. Must be called inside a `ToastProvider`.
+
+<PropsTable
+  rows={[
+    { name: 'show', type: '(opts: ToastOptions) => ToastHandle', description: 'Show a toast with full options.' },
+    { name: 'success', type: '(title: AccessibleText, opts?: ToastShortcutOptions) => ToastHandle', description: 'Shortcut for type: "success".' },
+    { name: 'error', type: '(title: AccessibleText, opts?: ToastShortcutOptions) => ToastHandle', description: 'Shortcut for type: "error".' },
+    { name: 'warning', type: '(title: AccessibleText, opts?: ToastShortcutOptions) => ToastHandle', description: 'Shortcut for type: "warning".' },
+    { name: 'info', type: '(title: AccessibleText, opts?: ToastShortcutOptions) => ToastHandle', description: 'Shortcut for type: "info".' },
+  ]}
+/>
+
+## Keyboard
+
+<KeyTable
+  rows={[
+    { keys: ['Alt', 'T'], action: 'Move focus into the newest visible toast (action → close → toast)' },
+    { keys: ['Escape'], action: 'Dismiss the focused toast and return focus to the element that was active when it was shown' },
+    { keys: ['Tab'], action: 'Move focus between the action and close buttons within a toast' },
+    { keys: ['F6'], action: 'Cycle through page landmarks (browser native — reaches the toast region as a landmark)' },
+    { keys: ['Enter'], action: 'Activate the focused action or close button' },
+    { keys: ['Space'], action: 'Activate the focused action or close button' },
+  ]}
+/>
+
+Focus is never moved to a toast on render. The timer pauses while a toast has keyboard focus and resumes when focus leaves.
+
+## Do
+
+<Do title="Mount exactly one ToastProvider at your app root">
+```tsx
+// app/layout.tsx
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <ToastProvider>{children}</ToastProvider>
+      </body>
+    </html>
+  );
+}
+```
+</Do>
+
+<Do title="Use duration: null for errors and any toast with an action">
+```tsx
+toast.error('Payment declined. Please check your card details.', {
+  duration: null,
+  action: { label: 'Update card', onAction: openBillingSettings },
+});
+```
+</Do>
+
+<Do title="Use shortcut helpers for common severity levels">
+```tsx
+toast.success('Invitation sent.');
+toast.warning('Draft autosaved — manual save recommended before closing.');
+```
+</Do>
+
+<Do title="Await handle.done when you need to chain work after dismissal">
+```tsx
+const handle = toast.info('Processing…', { duration: null });
+await processData();
+handle.dismiss();
+```
+</Do>
+
+## Don't
+
+<Dont title="Mount multiple ToastProvider instances">
+```tsx
+<ToastProvider>
+  <Header />
+  <ToastProvider>   {/* dev overlay fires */}
+    <MainContent />
+  </ToastProvider>
+</ToastProvider>
+```
+
+A dev overlay fires and screen readers announce every notification twice.
+</Dont>
+
+<Dont title="Pass an empty or placeholder title">
+```tsx
+toast.show({ title: '' });          // compile error
+toast.show({ title: 'title' });     // compile error
+toast.show({ title: 'TODO' });      // compile error
+```
+
+`AccessibleText` rejects these at compile time.
+</Dont>
+
+<Dont title="Use error toasts with short auto-dismiss and no action">
+```tsx
+toast.error('Sync failed.', { duration: 3000 });
+// Dev warning: error with duration 3000ms and no action.
+```
+
+Pass `duration: null` or add an `action` so users can recover.
+</Dont>
+
+<Dont title="Call useToast() outside ToastProvider">
+```tsx
+function Widget() {
+  const toast = useToast();  // throws if no provider in the tree
+}
+```
+</Dont>

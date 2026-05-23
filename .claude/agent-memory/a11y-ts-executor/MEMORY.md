@@ -1,3 +1,6 @@
 - [jsdom details toggle pitfall](jsdom-details-toggle-pitfall.md) — Never set details.open in tests; dispatch toggle event directly to avoid jsdom name-attribute side effects
 - [details controlled sync pattern](details-controlled-sync-pattern.md) — Only sync details.open from React in controlled mode to avoid toggle feedback loops
 - [dev guard timing pattern](dev-guard-timing-pattern.md) — Use useEffect + setTimeout(0) for dev guards that depend on child registration effects
+- [jsdom portal cleanup pitfall](jsdom-portal-cleanup-pitfall.md) — RTL cleanup unmounts portals; manual DOM removal in afterEach causes "not a child" errors
+- [fake timers matchMedia stub](fake-timers-matchmedia-stub.md) — jsdom lacks matchMedia; must stub before render when using vi.useFakeTimers()
+- [fake timers userEvent timeout](fake-timers-useraction-timeout.md) — userEvent hangs with vi.useFakeTimers(); use fireEvent for click interactions in timer tests
