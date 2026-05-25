@@ -1,3 +1,4 @@
 - [Fumadocs conventions](project-fumadocs-conventions.md) — MDX components, frontmatter, routing, playground pattern, Tailwind tokens, CLI command format
 - [Fumadocs conventions (detailed)](fumadocs-conventions.md) — page structure order, playground 3-step registration, nav manifest, WCAG table format, build command
 - [Image component API](project-registry-image-api.md) — props, forbidden alt values, compile-time/runtime enforcement, decorative rendering
+- [Multiselect docs pattern](multiselect-docs-pattern.md) — keyboard table split (Trigger vs Listbox), no-wrap APG note, live-region mention, playground toggles used

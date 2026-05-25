@@ -13,6 +13,7 @@ import { PropsTable } from '@/components/docs/props-table';
 import { WcagTable } from '@/components/docs/wcag-table';
 import { DropdownMenuPlayground } from '@/components/dropdown-menu-playground';
 import { ImagePlayground } from '@/components/image-playground';
+import { SelectPlayground } from '@/components/select-playground';
 import { SliderPlayground } from '@/components/slider-playground';
 import { ToastPlayground } from '@/components/toast-playground';
 
@@ -28,6 +29,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     DropdownMenuPlayground,
     FeatureGrid,
     ImagePlayground,
+    SelectPlayground,
     SliderPlayground,
     ToastPlayground,
     KeyTable,

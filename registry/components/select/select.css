@@ -1,0 +1,416 @@
+:root {
+  --artui-select-control-bg: Canvas;
+  --artui-select-control-border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  --artui-select-control-radius: 6px;
+  --artui-select-control-padding: 0.25rem 0.5rem;
+  --artui-select-control-min-height: 44px;
+  --artui-select-control-min-width: 180px;
+  --artui-select-content-bg: Canvas;
+  --artui-select-content-border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  --artui-select-content-radius: 6px;
+  --artui-select-content-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --artui-select-content-padding: 4px;
+  --artui-select-content-max-height: 280px;
+  --artui-select-option-padding: 0.5rem 0.75rem;
+  --artui-select-option-radius: 4px;
+  --artui-select-option-hover-bg: color-mix(in srgb, currentColor 8%, transparent);
+  --artui-select-option-selected-bg: color-mix(in srgb, currentColor 12%, transparent);
+  --artui-select-option-focus-outline: 2px solid currentColor;
+  --artui-select-option-focus-outline-offset: -2px;
+  --artui-select-tag-bg: color-mix(in srgb, currentColor 12%, transparent);
+  --artui-select-tag-radius: 4px;
+  --artui-select-tag-padding: 0.125rem 0.25rem 0.125rem 0.5rem;
+  --artui-select-tag-gap: 4px;
+  --artui-select-check-width: 1.25rem;
+  --artui-select-disabled-opacity: 0.45;
+  --artui-select-focus-outline: 2px solid currentColor;
+  --artui-select-focus-outline-offset: 2px;
+}
+
+/* ---- Screen-reader-only / visually hidden ---- */
+
+.artui-select-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ---- Single-mode native <select> ---- */
+
+.artui-select-select {
+  /* Reset native arrow so we can supply our own SVG chevron. */
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  min-height: var(--artui-select-control-min-height);
+  min-width: var(--artui-select-control-min-width);
+  /* Extra inline-end padding reserves room for the chevron icon. */
+  padding: var(--artui-select-control-padding);
+  padding-inline-end: 2rem;
+  background: var(--artui-select-control-bg);
+  /* SVG chevron as data-URI. currentColor is unavailable in data-URIs so we
+     use a neutral mid-grey that works on white/light surfaces. The forced-colors
+     block below overrides with ButtonText for WHCM. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 12px 12px;
+  border: var(--artui-select-control-border);
+  border-radius: var(--artui-select-control-radius);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: var(--artui-select-focus-outline);
+    outline-offset: var(--artui-select-focus-outline-offset);
+  }
+
+  &:disabled {
+    opacity: var(--artui-select-disabled-opacity);
+    cursor: not-allowed;
+  }
+}
+
+/* ---- Control — unified multi-mode field ---- */
+
+.artui-select-control {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--artui-select-tag-gap);
+  /* Fill the container so the field's width is stable and does not grow or
+     shrink as chips are added and removed. */
+  width: 100%;
+  box-sizing: border-box;
+  min-height: var(--artui-select-control-min-height);
+  min-width: var(--artui-select-control-min-width);
+  padding: var(--artui-select-control-padding);
+  background: var(--artui-select-control-bg);
+  border: var(--artui-select-control-border);
+  border-radius: var(--artui-select-control-radius);
+  cursor: default;
+  position: relative;
+
+  &[data-disabled="true"] {
+    opacity: var(--artui-select-disabled-opacity);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Focus ring on the field when the trigger button receives keyboard focus —
+     scoped to :has(:focus-visible) so mouse clicks don't show the ring. */
+  &:has(.artui-select-trigger:focus-visible) {
+    outline: var(--artui-select-focus-outline);
+    outline-offset: var(--artui-select-focus-outline-offset);
+  }
+}
+
+/* Field — chips + label/placeholder. Takes remaining space and wraps; min-width:0
+   lets it shrink so the pinned actions region never gets pushed off the row. */
+.artui-select-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--artui-select-tag-gap);
+}
+
+/* Actions — clear-all + caret, pinned to the right. Never wraps or shrinks, so
+   it stays in place no matter how many chip rows the field wraps to. */
+.artui-select-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+/* ---- Tags (chips) ---- */
+
+.artui-select-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: var(--artui-select-tag-bg);
+  border-radius: var(--artui-select-tag-radius);
+  padding: var(--artui-select-tag-padding);
+  font-size: 0.875em;
+  line-height: 1.5;
+}
+
+.artui-select-tag-label {
+  flex: 1;
+  user-select: none;
+}
+
+.artui-select-tag-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Minimum 44×44 touch target via padding. */
+  padding: 0 0.375rem;
+  margin: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 1em;
+  line-height: 1;
+  border-radius: var(--artui-select-tag-radius);
+
+  &:focus-visible {
+    outline: var(--artui-select-focus-outline);
+    outline-offset: var(--artui-select-focus-outline-offset);
+  }
+
+  &:disabled {
+    opacity: var(--artui-select-disabled-opacity);
+    cursor: not-allowed;
+  }
+}
+
+/* ---- Trigger — compact open/close button pinned in the actions region ---- */
+
+.artui-select-trigger {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* No border or background — visual border lives on the parent control. */
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: default;
+  color: inherit;
+  font: inherit;
+
+  /* Suppress the native focus ring — the control's :has(:focus-visible) shows it instead. */
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+/* Visible label (from `children`) and placeholder text inside the field. */
+.artui-select-value {
+  user-select: none;
+}
+
+.artui-select-placeholder {
+  color: color-mix(in srgb, currentColor 50%, transparent);
+  user-select: none;
+}
+
+/* ---- Clear-all button ---- */
+
+.artui-select-clear-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Minimum 44×44 touch target via padding. */
+  padding: 0 0.5rem;
+  margin: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 0.875em;
+  line-height: 1;
+  border-radius: var(--artui-select-tag-radius);
+
+  &:focus-visible {
+    outline: var(--artui-select-focus-outline);
+    outline-offset: var(--artui-select-focus-outline-offset);
+  }
+
+  &:disabled {
+    opacity: var(--artui-select-disabled-opacity);
+    cursor: not-allowed;
+  }
+}
+
+/* ---- Caret — decorative open affordance, always visible ---- */
+
+.artui-select-caret {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  pointer-events: none;
+  padding: 0 0.375rem;
+  opacity: 0.6;
+}
+
+/* ---- Content (listbox panel) ---- */
+
+.artui-select-content {
+  background: var(--artui-select-content-bg);
+  border: var(--artui-select-content-border);
+  border-radius: var(--artui-select-content-radius);
+  box-shadow: var(--artui-select-content-shadow);
+  padding: var(--artui-select-content-padding);
+  max-height: var(--artui-select-content-max-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Floating overlay — position:fixed + coordinates are applied inline (JS) when
+     open so the panel sits above the page without reflowing it. */
+  z-index: var(--artui-select-content-z, 50);
+}
+
+/* ---- Group ---- */
+
+.artui-select-group {
+  padding-inline-start: 0;
+}
+
+.artui-select-group-label {
+  padding: 0.375rem 0.75rem 0.25rem;
+  font-size: 0.75em;
+  font-weight: 600;
+  opacity: 0.6;
+  user-select: none;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---- Option ---- */
+
+.artui-select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--artui-select-option-padding);
+  border-radius: var(--artui-select-option-radius);
+  cursor: pointer;
+  user-select: none;
+  text-align: start;
+
+  &:hover:not([aria-disabled="true"]) {
+    background: var(--artui-select-option-hover-bg);
+  }
+
+  &:focus-visible {
+    outline: var(--artui-select-option-focus-outline);
+    outline-offset: var(--artui-select-option-focus-outline-offset);
+  }
+
+  &[aria-disabled="true"] {
+    opacity: var(--artui-select-disabled-opacity);
+    cursor: not-allowed;
+  }
+}
+
+.artui-select-option--selected {
+  background: var(--artui-select-option-selected-bg);
+}
+
+/* Checkmark column — fixed width on the trailing edge so the icon sits flush
+   right and rows stay aligned regardless of selection state. */
+.artui-select-option-check {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--artui-select-check-width);
+}
+
+.artui-select-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Reduced motion ---- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .artui-select-content {
+    animation: artui-select-content-in 120ms ease-out;
+  }
+
+  .artui-select-tag {
+    animation: artui-select-tag-in 80ms ease-out;
+  }
+}
+
+@keyframes artui-select-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes artui-select-tag-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---- Windows High Contrast Mode ---- */
+
+@media (forced-colors: active) {
+  .artui-select-select {
+    border-color: ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    /* Replace the grey data-URI chevron with a ButtonText-coloured one so the
+       arrow stays visible in Windows High Contrast Mode. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 4l4 4 4-4' stroke='ButtonText' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 12px 12px;
+    forced-color-adjust: none;
+  }
+
+  .artui-select-control {
+    border-color: ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .artui-select-content {
+    border-color: ButtonText;
+    background: Canvas;
+  }
+
+  .artui-select-option--selected {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .artui-select-tag {
+    background: ButtonFace;
+    border: 1px solid ButtonText;
+  }
+
+  .artui-select-clear-all {
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+
+  .artui-select-caret {
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+}
