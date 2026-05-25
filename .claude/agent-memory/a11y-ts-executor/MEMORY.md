@@ -7,3 +7,6 @@
 - [jsdom portal cleanup pitfall](jsdom-portal-cleanup-pitfall.md) — RTL cleanup unmounts portals; manual DOM removal in afterEach causes "not a child" errors
 - [fake timers matchMedia stub](fake-timers-matchmedia-stub.md) — jsdom lacks matchMedia; must stub before render when using vi.useFakeTimers()
 - [fake timers userEvent timeout](fake-timers-useraction-timeout.md) — userEvent hangs with vi.useFakeTimers(); use fireEvent for click interactions in timer tests
+- [always-mounted-content-pattern](always-mounted-content-pattern.md) — hidden+aria-hidden keeps Options mounted for label registration when panel is closed
+- [label-registry-state-vs-ref](label-registry-state-vs-ref.md) — useState not useRef for child label registries so sibling Tags re-renders when labels arrive
+- [tag-label-test-query](tag-label-test-query.md) — always-mounted content duplicates text; query tag labels via CSS class not getByText

@@ -22,6 +22,8 @@ export type { AccordionProps, AccordionItemProps, AccordionHeaderProps, Accordio
 export { Slider } from './components/slider/slider';
 export type { SliderProps, SliderThumbDescriptor } from './components/slider/slider';
 
+export { Select } from './components/select/select';
+
 export { ToastProvider, useToast } from './components/toast/toast';
 export type {
   ToastAction,

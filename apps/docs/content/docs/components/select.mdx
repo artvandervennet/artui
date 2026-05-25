@@ -1,0 +1,340 @@
+---
+title: Select
+description: An accessible select with two modes. Pick one option from a styled native select, or several from a chip-based listbox. Both sit on real HTML elements, so forms and screen readers work without extra wiring.
+---
+
+```bash
+npx artui@latest add select
+```
+
+## Playground
+
+<SelectPlayground />
+
+## Usage
+
+The `multiple` prop picks the mode. Leave it off for a native `<select>`, or add it for the multi-select listbox. Either way, `Option` and `Group` describe the choices.
+
+### Single
+
+```tsx
+import { Select } from '@/components/select';
+
+<Select aria-label="Country" onValueChange={setCountry}>
+  <Select.Option value="be">Belgium</Select.Option>
+  <Select.Option value="nl">Netherlands</Select.Option>
+  <Select.Option value="fr">France</Select.Option>
+</Select>
+```
+
+This renders a real `<select>`, so the browser owns keyboard handling, focus, and form submission. Drop `Option` and `Group` straight into the root.
+
+### Single with groups
+
+```tsx
+import { Select } from '@/components/select';
+
+<Select aria-label="Country" name="country" onValueChange={setCountry}>
+  <Select.Group label="Benelux">
+    <Select.Option value="be">Belgium</Select.Option>
+    <Select.Option value="nl">Netherlands</Select.Option>
+  </Select.Group>
+  <Select.Option value="fr">France</Select.Option>
+</Select>
+```
+
+`Group` maps to `<optgroup>`. The `name` prop goes to the native select for form submission.
+
+### Multi
+
+```tsx
+import { Select } from '@/components/select';
+
+<Select multiple defaultValue={['be']} onValueChange={setCountries}>
+  <Select.Control aria-label="Countries" />
+  <Select.Content>
+    <Select.Option value="be">Belgium</Select.Option>
+    <Select.Option value="nl">Netherlands</Select.Option>
+    <Select.Option value="fr" disabled>France</Select.Option>
+  </Select.Content>
+</Select>
+```
+
+`Control` is the field: chips on the left, a trigger and caret pinned to the right. `Content` is the listbox that opens below it. A hidden `<select multiple>` mirrors the value for form submission.
+
+### Multi with groups
+
+```tsx
+import { Select } from '@/components/select';
+
+<Select multiple defaultValue={['be']} onValueChange={setCountries}>
+  <Select.Control aria-label="Countries" />
+  <Select.Content>
+    <Select.Group label="Benelux">
+      <Select.Option value="be">Belgium</Select.Option>
+      <Select.Option value="nl">Netherlands</Select.Option>
+    </Select.Group>
+    <Select.Group label="Other">
+      <Select.Option value="fr">France</Select.Option>
+    </Select.Group>
+  </Select.Content>
+</Select>
+```
+
+Screen readers announce the group name before its first option.
+
+### Clear-all
+
+```tsx
+import { Select } from '@/components/select';
+
+<Select multiple defaultValue={['be', 'nl']} onValueChange={setCountries}>
+  <Select.Control aria-label="Countries" showClearAll clearAllLabel="Clear all countries" />
+  <Select.Content>
+    <Select.Option value="be">Belgium</Select.Option>
+    <Select.Option value="nl">Netherlands</Select.Option>
+  </Select.Content>
+</Select>
+```
+
+The clear-all button shows only when something is selected. Pressing it empties the selection, announces "All selections cleared", and returns focus to the trigger.
+
+### Custom remove label
+
+```tsx
+import { Select } from '@/components/select';
+
+<Select multiple defaultValue={['be']} onValueChange={setCountries}>
+  <Select.Control aria-label="Pays" removeLabel={(label) => `Supprimer ${label}`} />
+  <Select.Content>
+    <Select.Option value="be">Belgique</Select.Option>
+  </Select.Content>
+</Select>
+```
+
+Each chip's remove button reads `Remove {label}` by default. Override `removeLabel` to translate it.
+
+## API
+
+### Select — single mode
+
+Renders a styled native `<select>`. You must pass `aria-label` or `aria-labelledby` — leaving both off is a compile error.
+
+<PropsTable
+  rows={[
+    { name: 'multiple', type: 'false', default: 'false', description: 'Mode discriminant. Absent or false renders a native <select>.' },
+    { name: 'aria-label', type: 'AccessibleText', description: 'Accessible name for the select. Required unless aria-labelledby is set.' },
+    { name: 'aria-labelledby', type: 'string', description: 'ID of an element that labels the select. Required unless aria-label is set.' },
+    { name: 'value', type: 'string', description: 'Controlled value.' },
+    { name: 'defaultValue', type: 'string', description: 'Uncontrolled initial value.' },
+    { name: 'onValueChange', type: '(value: string) => void', description: 'Called when the selection changes.' },
+    { name: 'name', type: 'string', description: 'Forwarded to the native select for form submission.' },
+    { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the select.' },
+    { name: 'className', type: 'string', description: 'Extra CSS class on the native select.' },
+    { name: 'children', type: 'ReactNode', required: true, description: 'Select.Option and Select.Group elements, rendered as <option> / <optgroup>.' },
+  ]}
+/>
+
+### Select — multi mode
+
+Renders a hidden `<select multiple>` for form submission alongside the custom listbox UI.
+
+<PropsTable
+  rows={[
+    { name: 'multiple', type: 'true', required: true, description: 'Mode discriminant. Must be true for multi mode.' },
+    { name: 'value', type: 'readonly string[]', description: 'Controlled selection. Pair with onValueChange.' },
+    { name: 'defaultValue', type: 'readonly string[]', default: '[]', description: 'Uncontrolled initial selection.' },
+    { name: 'onValueChange', type: '(value: readonly string[]) => void', description: 'Called when the selection changes.' },
+    { name: 'open', type: 'boolean', description: 'Controlled panel open state. Pair with onOpenChange.' },
+    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Called when the panel opens or closes.' },
+    { name: 'name', type: 'string', description: 'Forwarded to the hidden <select multiple> for form submission.' },
+    { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the trigger and all remove / clear-all buttons.' },
+    { name: 'children', type: 'ReactNode', required: true, description: 'Must contain Select.Control and Select.Content.' },
+  ]}
+/>
+
+### Select.Control
+
+Multi mode only. The field holding chips, the trigger, an optional clear-all button, and the caret. Needs an accessible name via `aria-label`, `aria-labelledby`, or `children` — a compile error otherwise.
+
+<PropsTable
+  rows={[
+    { name: 'aria-label', type: 'AccessibleText', description: 'Accessible name for the trigger. Required unless aria-labelledby or children is set.' },
+    { name: 'aria-labelledby', type: 'string', description: 'ID of an element that labels the trigger.' },
+    { name: 'children', type: 'AccessibleText', description: 'Visible label rendered inside the trigger.' },
+    { name: 'placeholder', type: 'string', default: '"Select options"', description: 'Shown in the trigger when nothing is selected. Hidden once chips appear.' },
+    { name: 'removeLabel', type: '(label: string) => string', description: "Accessible name for each chip's remove button. Defaults to `Remove ${label}`." },
+    { name: 'showClearAll', type: 'boolean', default: 'false', description: 'Shows a clear-all button when true and at least one option is selected.' },
+    { name: 'clearAllLabel', type: 'string', default: '"Clear all selections"', description: 'Accessible name for the clear-all button.' },
+    { name: 'className', type: 'string', description: 'Extra CSS class on the field container.' },
+  ]}
+/>
+
+### Select.Content
+
+Multi mode only. The listbox panel.
+
+<PropsTable
+  rows={[
+    { name: 'children', type: 'ReactNode', required: true, description: 'Select.Option and Select.Group elements. Empty Content triggers a dev overlay (WCAG 1.3.1).' },
+    { name: 'className', type: 'string', description: 'Extra CSS class on the listbox panel.' },
+  ]}
+/>
+
+### Select.Option
+
+Works in both modes. In single mode it sits in the root; in multi mode it sits inside `Select.Content`.
+
+<PropsTable
+  rows={[
+    { name: 'value', type: 'string', required: true, description: 'Unique identifier. Duplicates trigger a dev guard (WCAG 4.1.2).' },
+    { name: 'children', type: 'ReactNode', required: true, description: 'Visible label. Empty or whitespace-only labels trigger a dev overlay (WCAG 1.3.1).' },
+    { name: 'disabled', type: 'boolean', description: 'Disables this option. In multi mode it sets aria-disabled and skips keyboard navigation.' },
+    { name: 'className', type: 'string', description: 'Extra CSS class (multi mode panel only).' },
+  ]}
+/>
+
+### Select.Group
+
+Works in both modes, placed alongside `Option`.
+
+<PropsTable
+  rows={[
+    { name: 'label', type: 'string', required: true, description: 'Group heading. Maps to <optgroup label> in the native select and role=group aria-label in the panel. Empty label triggers a dev overlay (WCAG 1.3.1).' },
+    { name: 'disabled', type: 'boolean', description: 'Disables the group in the native select. In the panel, each Option also needs disabled for keyboard exclusion.' },
+    { name: 'children', type: 'ReactNode', required: true, description: 'Select.Option elements inside the group.' },
+    { name: 'className', type: 'string', description: 'Extra CSS class on the group container (multi mode panel only).' },
+  ]}
+/>
+
+## Keyboard
+
+Single mode hands everything to the native `<select>`, so the keys below cover multi mode only.
+
+### Control
+
+<KeyTable
+  rows={[
+    { keys: ['Enter', 'Space'], action: 'Open the listbox and focus the first option' },
+    { keys: ['Arrow Down', 'Arrow Up'], action: 'Open the listbox and focus the first option' },
+    { keys: ['Backspace'], action: 'Remove the last chip; focus returns to the trigger when none are left' },
+    { keys: ['Tab'], action: 'Move through chips, then the clear-all button, then the trigger' },
+  ]}
+/>
+
+### Listbox
+
+<KeyTable
+  rows={[
+    { keys: ['Arrow Down'], action: 'Focus next option (stops at the last)' },
+    { keys: ['Arrow Up'], action: 'Focus previous option (stops at the first)' },
+    { keys: ['Home'], action: 'Focus first option' },
+    { keys: ['End'], action: 'Focus last option' },
+    { keys: ['Space', 'Enter'], action: 'Toggle the focused option without closing' },
+    { keys: ['Escape'], action: 'Close and return focus to the trigger' },
+    { keys: ['Tab'], action: 'Close and move focus to the next element' },
+    { keys: ['A-Z'], action: 'Typeahead: jump to the first option starting with that letter' },
+  ]}
+/>
+
+Arrows stop at the ends rather than wrapping, per the APG Listbox pattern. A polite live region announces every change, like "Belgium added, 2 selected" or "All selections cleared".
+
+## Do
+
+<Do title="Give every single-mode Select an accessible name">
+```tsx
+<Select aria-label="Country" onValueChange={setCountry}>
+  <Select.Option value="be">Belgium</Select.Option>
+</Select>
+```
+
+Omitting both `aria-label` and `aria-labelledby` is a compile error.
+</Do>
+
+<Do title="Name the Control in multi mode">
+```tsx
+<Select.Control aria-label="Countries" />
+<Select.Control aria-labelledby="countries-label" />
+<Select.Control>Countries</Select.Control>
+```
+
+Pick one of the three. The type requires it.
+</Do>
+
+<Do title="Group long option lists">
+```tsx
+<Select.Content>
+  <Select.Group label="Benelux">
+    <Select.Option value="be">Belgium</Select.Option>
+    <Select.Option value="nl">Netherlands</Select.Option>
+  </Select.Group>
+</Select.Content>
+```
+
+Groups become `role="group"` in the panel and `<optgroup>` in the native select, so both the screen reader and the form get the structure.
+</Do>
+
+<Do title="Use name to submit values">
+```tsx
+<Select multiple name="countries" onValueChange={setCountries}>
+  <Select.Control aria-label="Countries" />
+  <Select.Content>
+    <Select.Option value="be">Belgium</Select.Option>
+  </Select.Content>
+</Select>
+```
+
+Multi-mode values submit as repeated fields, the same as a native `<select multiple>`.
+</Do>
+
+## Don't
+
+<Dont title="Skip the accessible name in single mode">
+```tsx
+{/* compile error — aria-label or aria-labelledby required */}
+<Select onValueChange={setCountry}>
+  <Select.Option value="be">Belgium</Select.Option>
+</Select>
+```
+</Dont>
+
+<Dont title="Use Control or Content in single mode">
+```tsx
+{/* wrong — these belong to multi mode */}
+<Select aria-label="Country" onValueChange={setCountry}>
+  <Select.Control aria-label="Country" />
+  <Select.Content>
+    <Select.Option value="be">Belgium</Select.Option>
+  </Select.Content>
+</Select>
+```
+
+In single mode, put `Option` and `Group` directly in the root.
+</Dont>
+
+<Dont title="Render empty Content">
+```tsx
+<Select.Content>{false}</Select.Content>
+```
+
+A dev overlay fires (WCAG 1.3.1). An empty listbox leaves keyboard and screen reader users nothing to act on.
+</Dont>
+
+<Dont title="Repeat a value across options">
+```tsx
+<Select.Option value="react">React (stable)</Select.Option>
+<Select.Option value="react">React (canary)</Select.Option>
+```
+
+A dev guard fires (WCAG 4.1.2). Duplicate values make the selection ambiguous for the UI and assistive tech alike.
+</Dont>
+
+<Dont title="Use an empty Group label">
+```tsx
+<Select.Group label="">
+  <Select.Option value="be">Belgium</Select.Option>
+</Select.Group>
+```
+
+A dev overlay fires (WCAG 1.3.1). Without a label, screen readers can't identify the group.
+</Dont>

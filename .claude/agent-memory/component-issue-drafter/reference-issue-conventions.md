@@ -20,3 +20,5 @@ New-component proposals on artui follow a strict house style — match it exactl
 - *Alternatives considered* is a two-column table covering Radix, Headless UI, React Aria, shadcn, plus whichever thesis-benchmarked libraries are relevant, ending with the native HTML option if one exists.
 
 **File the body via `--body-file`, not heredoc.** Heredocs on Windows bash mangle backticks and tables; write a temp markdown file, then `gh issue create --body-file <path>` and delete the temp file. Do not commit the temp file.
+
+**Bash tool strips backslashes from Windows paths.** Passing `C:\artui\.tmp-foo.md` to a Bash command arrives as `C:artui.tmp-foo.md` and fails. Use forward slashes in quotes for `--body-file` and `rm`: `"C:/artui/.tmp-foo.md"`. (Read/Write/Edit tools handle backslash paths fine — this only bites shell args.)
