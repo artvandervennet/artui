@@ -2,9 +2,9 @@
   "title": "artui",
   "pages": [
     "getting-started",
-    "---Reference---",
-    "components",
     "mcp",
+    "---Components---",
+    "components",
     "---Project---",
     "faq",
     "contributing"

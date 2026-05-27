@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
+@import "../../../registry/styles/artui-tokens.css";
 
 @source "../node_modules/fumadocs-ui/dist/**/*.js";
 
@@ -13,13 +14,24 @@
   --brand-700: oklch(0.48 0.12 200);
 }
 
+:root,
+.light {
+  --artui-accent: var(--brand-600);
+  --artui-accent-fg: hsl(0 0% 100%);
+}
+
+.dark {
+  --artui-accent: var(--brand-400);
+  --artui-accent-fg: hsl(0 0% 9%);
+}
+
 /* Light mode: clean white base with clear background hierarchy and WCAG AA contrast.
    muted-foreground at hsl(0 0% 40%) gives ~5.4:1 on white — well above AA.
    Solid border (no alpha) prevents bleed on coloured backgrounds. */
 @theme {
   --color-fd-background: hsl(0 0% 100%);
   --color-fd-foreground: hsl(0 0% 3.9%);
-  --color-fd-card: hsl(0 0% 97%);
+  --color-fd-card: hsl(0 0% 99%);
   --color-fd-card-foreground: hsl(0 0% 3.9%);
   --color-fd-popover: hsl(0 0% 100%);
   --color-fd-popover-foreground: hsl(0 0% 15%);
@@ -59,4 +71,29 @@
 
 .prose a:not(.not-prose a, [data-card]):hover {
   text-decoration-color: var(--color-fd-primary);
+}
+
+/* Minimalist component tones — strip elevation and desaturate callout accents */
+:root {
+  --color-fd-info: oklch(0.55 0.03 240);
+  --color-fd-warning: oklch(0.55 0.03 60);
+  --color-fd-error: oklch(0.55 0.03 20);
+  --color-fd-success: oklch(0.55 0.03 150);
+  --color-fd-idea: oklch(0.55 0.03 60);
+}
+
+@layer utilities {
+  figure.shiki {
+    box-shadow: none;
+  }
+
+  .prose .shadow-md {
+    box-shadow: none;
+  }
+}
+
+*:focus-visible,
+*:focus {
+  outline: 2px solid var(--color-fd-ring);
+  outline-offset: 2px;
 }

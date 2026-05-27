@@ -51,40 +51,71 @@ export function DropdownMenuPlayground() {
   const rootProps = isControlled ? { open: controlledOpen, onOpenChange: setControlledOpen } : {};
 
   const codeLines: string[] = [];
+  codeLines.push("import { useState } from 'react';");
+  codeLines.push("import { useRouter } from 'next/navigation';");
+  codeLines.push("import { DropdownMenu } from '@/components/ui/dropdown-menu';");
+  codeLines.push('');
+  codeLines.push('function AccountMenu() {');
+  codeLines.push('  const router = useRouter();');
   if (isControlled) {
-    codeLines.push('const [open, setOpen] = useState(false);');
-    codeLines.push('');
+    codeLines.push('  const [open, setOpen] = useState(false);');
   }
-  codeLines.push(`<DropdownMenu${isControlled ? ' open={open} onOpenChange={setOpen}' : ''}>`);
-  codeLines.push('  <DropdownMenu.Trigger>Account</DropdownMenu.Trigger>');
-  codeLines.push('  <DropdownMenu.Content>');
-  codeLines.push(
-    "    <DropdownMenu.Item onSelect={() => navigate('/profile')}>Profile</DropdownMenu.Item>",
-  );
-  codeLines.push(
-    "    <DropdownMenu.Item onSelect={() => navigate('/settings')}>Settings</DropdownMenu.Item>",
-  );
+  codeLines.push('  const [theme, setTheme] = useState<"light" | "dark">("light");');
+  codeLines.push('');
+  codeLines.push('  const signOut = () => {');
+  codeLines.push("    document.cookie = 'session=; Max-Age=0; path=/';");
+  codeLines.push("    router.push('/login');");
+  codeLines.push('  };');
+  codeLines.push('');
+  codeLines.push('  return (');
+  if (isControlled) {
+    codeLines.push('    <>');
+    codeLines.push('      <button type="button" onClick={() => setOpen(true)}>');
+    codeLines.push('        Open from outside');
+    codeLines.push('      </button>');
+    codeLines.push('      <DropdownMenu open={open} onOpenChange={setOpen}>');
+  } else {
+    codeLines.push('    <DropdownMenu>');
+  }
+  const ind = isControlled ? '        ' : '      ';
+  codeLines.push(`${ind}<DropdownMenu.Trigger>Account</DropdownMenu.Trigger>`);
+  codeLines.push(`${ind}<DropdownMenu.Content>`);
+  codeLines.push(`${ind}  <DropdownMenu.Item onSelect={() => router.push('/profile')}>`);
+  codeLines.push(`${ind}    Profile`);
+  codeLines.push(`${ind}  </DropdownMenu.Item>`);
+  codeLines.push(`${ind}  <DropdownMenu.Item onSelect={() => router.push('/settings')}>`);
+  codeLines.push(`${ind}    Settings`);
+  codeLines.push(`${ind}  </DropdownMenu.Item>`);
   if (showDisabled) {
-    codeLines.push('    <DropdownMenu.Item onSelect={deleteAccount} disabled>');
-    codeLines.push('      Delete account (unavailable)');
-    codeLines.push('    </DropdownMenu.Item>');
+    codeLines.push(
+      `${ind}  <DropdownMenu.Item onSelect={() => router.push('/account/delete')} disabled>`,
+    );
+    codeLines.push(`${ind}    Delete account (unavailable)`);
+    codeLines.push(`${ind}  </DropdownMenu.Item>`);
   }
-  codeLines.push('    <DropdownMenu.Separator />');
-  codeLines.push('    <DropdownMenu.Sub>');
-  codeLines.push('      <DropdownMenu.SubTrigger>Preferences</DropdownMenu.SubTrigger>');
-  codeLines.push('      <DropdownMenu.SubContent>');
-  codeLines.push(
-    "        <DropdownMenu.Item onSelect={() => setTheme('light')}>Light theme</DropdownMenu.Item>",
-  );
-  codeLines.push(
-    "        <DropdownMenu.Item onSelect={() => setTheme('dark')}>Dark theme</DropdownMenu.Item>",
-  );
-  codeLines.push('      </DropdownMenu.SubContent>');
-  codeLines.push('    </DropdownMenu.Sub>');
-  codeLines.push('    <DropdownMenu.Separator />');
-  codeLines.push('    <DropdownMenu.Item onSelect={signOut}>Sign out</DropdownMenu.Item>');
-  codeLines.push('  </DropdownMenu.Content>');
-  codeLines.push('</DropdownMenu>');
+  codeLines.push(`${ind}  <DropdownMenu.Separator />`);
+  codeLines.push(`${ind}  <DropdownMenu.Sub>`);
+  codeLines.push(`${ind}    <DropdownMenu.SubTrigger>Preferences</DropdownMenu.SubTrigger>`);
+  codeLines.push(`${ind}    <DropdownMenu.SubContent>`);
+  codeLines.push(`${ind}      <DropdownMenu.Item onSelect={() => setTheme('light')}>`);
+  codeLines.push(`${ind}        Light theme`);
+  codeLines.push(`${ind}      </DropdownMenu.Item>`);
+  codeLines.push(`${ind}      <DropdownMenu.Item onSelect={() => setTheme('dark')}>`);
+  codeLines.push(`${ind}        Dark theme`);
+  codeLines.push(`${ind}      </DropdownMenu.Item>`);
+  codeLines.push(`${ind}    </DropdownMenu.SubContent>`);
+  codeLines.push(`${ind}  </DropdownMenu.Sub>`);
+  codeLines.push(`${ind}  <DropdownMenu.Separator />`);
+  codeLines.push(`${ind}  <DropdownMenu.Item onSelect={signOut}>Sign out</DropdownMenu.Item>`);
+  codeLines.push(`${ind}</DropdownMenu.Content>`);
+  if (isControlled) {
+    codeLines.push('      </DropdownMenu>');
+    codeLines.push('    </>');
+  } else {
+    codeLines.push('    </DropdownMenu>');
+  }
+  codeLines.push('  );');
+  codeLines.push('}');
   const code = codeLines.join('\n');
 
   return (

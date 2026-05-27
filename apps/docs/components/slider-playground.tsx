@@ -6,10 +6,12 @@ import { useState } from 'react';
 type SliderMode = 'single' | 'range';
 type SliderOrientation = 'horizontal' | 'vertical';
 type SliderDomain = 'numeric' | 'weekday';
+type DisabledState = 'off' | 'on';
 
 const MODES: SliderMode[] = ['single', 'range'];
 const ORIENTATIONS: SliderOrientation[] = ['horizontal', 'vertical'];
 const DOMAINS: SliderDomain[] = ['numeric', 'weekday'];
+const DISABLED_STATES: DisabledState[] = ['off', 'on'];
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -47,11 +49,13 @@ export function SliderPlayground() {
   const [mode, setMode] = useState<SliderMode>('single');
   const [orientation, setOrientation] = useState<SliderOrientation>('horizontal');
   const [domain, setDomain] = useState<SliderDomain>('numeric');
+  const [disabled, setDisabled] = useState<DisabledState>('off');
 
   const [singleValue, setSingleValue] = useState(250);
   const [rangeValue, setRangeValue] = useState<readonly [number, number]>([100, 750]);
 
   const isWeekday = domain === 'weekday';
+  const isDisabled = disabled === 'on';
 
   const min = 0;
   const max = isWeekday ? 6 : 1000;
@@ -72,6 +76,7 @@ export function SliderPlayground() {
       lines.push(`  aria-label="Price range"`);
       lines.push(`  formatValue={(v) => \`€\${v}\`}`);
       if (orientation === 'vertical') lines.push(`  orientation="vertical"`);
+      if (isDisabled) lines.push(`  disabled`);
       lines.push(`  thumbs={[`);
       lines.push(`    { 'aria-label': 'Minimum price' },`);
       lines.push(`    { 'aria-label': 'Maximum price' },`);
@@ -81,6 +86,13 @@ export function SliderPlayground() {
     }
 
     const lines: string[] = [];
+    // Weekday domain needs the lookup array in scope for formatValue.
+    if (isWeekday) {
+      lines.push(
+        `const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];`,
+      );
+      lines.push('');
+    }
     lines.push(`<Slider`);
     lines.push(`  min={${min}}`);
     lines.push(`  max={${max}}`);
@@ -93,6 +105,7 @@ export function SliderPlayground() {
       lines.push(`  formatValue={(v) => \`€\${v}\`}`);
     }
     if (orientation === 'vertical') lines.push(`  orientation="vertical"`);
+    if (isDisabled) lines.push(`  disabled`);
     lines.push(`/>`);
     return lines.join('\n');
   }
@@ -119,6 +132,7 @@ export function SliderPlayground() {
             aria-label={isWeekday ? 'Pickup day' : 'Maximum price'}
             formatValue={formatSingle}
             orientation={orientation}
+            disabled={isDisabled}
           />
         ) : (
           <Slider
@@ -131,6 +145,7 @@ export function SliderPlayground() {
             aria-label="Price range"
             formatValue={(v) => `€${v}`}
             orientation={orientation}
+            disabled={isDisabled}
             thumbs={[{ 'aria-label': 'Minimum price' }, { 'aria-label': 'Maximum price' }]}
           />
         )}
@@ -156,10 +171,20 @@ export function SliderPlayground() {
           </div>
         )}
 
+        <div className="flex items-center gap-4 px-4 py-3">
+          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">disabled</span>
+          <Toggle options={DISABLED_STATES} value={disabled} onChange={setDisabled} />
+        </div>
+
         <div className="px-4 py-3">
           <pre className="rounded-md bg-fd-muted p-4 text-xs font-mono text-fd-foreground overflow-x-auto whitespace-pre">
             {buildCode()}
           </pre>
+          <p className="mt-2 text-xs text-fd-muted-foreground">
+            The preview above is controlled (<code>value</code> / <code>onValueChange</code>) so it
+            stays live. The snippet shows the simpler uncontrolled <code>defaultValue</code> form —
+            production usage can use either.
+          </p>
         </div>
       </div>
     </div>

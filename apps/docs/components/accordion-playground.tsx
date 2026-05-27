@@ -4,8 +4,10 @@ import { Accordion } from '@artui/registry';
 import { useState } from 'react';
 
 type AccordionMode = 'single' | 'multiple';
+type HeadingLevelOption = '2' | '3' | '4' | '5' | '6';
 
 const ACCORDION_MODES: AccordionMode[] = ['single', 'multiple'];
+const HEADING_LEVELS: HeadingLevelOption[] = ['2', '3', '4', '5', '6'];
 
 function Toggle<T extends string>({
   options,
@@ -60,11 +62,19 @@ const ITEMS = [
 
 export function AccordionPlayground() {
   const [mode, setMode] = useState<AccordionMode>('single');
+  const [headingLevel, setHeadingLevel] = useState<HeadingLevelOption>('3');
+  const [disableLast, setDisableLast] = useState(false);
+
+  const level = Number(headingLevel) as 2 | 3 | 4 | 5 | 6;
+  const lastValue = ITEMS[ITEMS.length - 1]?.value;
 
   const codeLines: string[] = [];
-  codeLines.push(`<Accordion${mode === 'multiple' ? ' type="multiple"' : ''} headingLevel={3}>`);
+  codeLines.push(
+    `<Accordion${mode === 'multiple' ? ' type="multiple"' : ''} headingLevel={${level}}>`,
+  );
   for (const item of ITEMS) {
-    codeLines.push(`  <Accordion.Item value="${item.value}">`);
+    const isDisabled = disableLast && item.value === lastValue;
+    codeLines.push(`  <Accordion.Item value="${item.value}"${isDisabled ? ' disabled' : ''}>`);
     codeLines.push('    <Accordion.Header>');
     codeLines.push(`      <Accordion.Trigger>${item.label}</Accordion.Trigger>`);
     codeLines.push('    </Accordion.Header>');
@@ -76,34 +86,29 @@ export function AccordionPlayground() {
   codeLines.push('</Accordion>');
   const code = codeLines.join('\n');
 
+  const items = ITEMS.map((item) => (
+    <Accordion.Item
+      key={item.value}
+      value={item.value}
+      disabled={disableLast && item.value === lastValue}
+    >
+      <Accordion.Header>
+        <Accordion.Trigger>{item.label}</Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Panel>
+        <p>{item.content}</p>
+      </Accordion.Panel>
+    </Accordion.Item>
+  ));
+
   return (
     <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
       <div className="bg-fd-card p-6 min-h-[180px]">
         {mode === 'single' ? (
-          <Accordion headingLevel={3}>
-            {ITEMS.map((item) => (
-              <Accordion.Item key={item.value} value={item.value}>
-                <Accordion.Header>
-                  <Accordion.Trigger>{item.label}</Accordion.Trigger>
-                </Accordion.Header>
-                <Accordion.Panel>
-                  <p>{item.content}</p>
-                </Accordion.Panel>
-              </Accordion.Item>
-            ))}
-          </Accordion>
+          <Accordion headingLevel={level}>{items}</Accordion>
         ) : (
-          <Accordion type="multiple" headingLevel={3}>
-            {ITEMS.map((item) => (
-              <Accordion.Item key={item.value} value={item.value}>
-                <Accordion.Header>
-                  <Accordion.Trigger>{item.label}</Accordion.Trigger>
-                </Accordion.Header>
-                <Accordion.Panel>
-                  <p>{item.content}</p>
-                </Accordion.Panel>
-              </Accordion.Item>
-            ))}
+          <Accordion type="multiple" headingLevel={level}>
+            {items}
           </Accordion>
         )}
       </div>
@@ -112,6 +117,24 @@ export function AccordionPlayground() {
         <div className="flex items-center gap-4 px-4 py-3">
           <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">type</span>
           <Toggle options={ACCORDION_MODES} value={mode} onChange={setMode} />
+        </div>
+
+        <div className="flex items-center gap-4 px-4 py-3">
+          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
+            headingLevel
+          </span>
+          <Toggle options={HEADING_LEVELS} value={headingLevel} onChange={setHeadingLevel} />
+        </div>
+
+        <div className="flex items-center gap-4 px-4 py-3">
+          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
+            disabled item
+          </span>
+          <Toggle
+            options={['off', 'on'] as const}
+            value={disableLast ? 'on' : 'off'}
+            onChange={(v) => setDisableLast(v === 'on')}
+          />
         </div>
 
         <div className="px-4 py-3">

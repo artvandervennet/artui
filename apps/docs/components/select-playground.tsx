@@ -96,11 +96,11 @@ export function SelectPlayground() {
       lines.push('<Select');
       for (const attr of attrs) lines.push(`  ${attr}`);
       lines.push('>');
-      lines.push(
-        hasClearAll
-          ? '  <Select.Control aria-label="Frameworks" showClearAll clearAllLabel="Clear all" />'
-          : '  <Select.Control aria-label="Frameworks" />',
-      );
+
+      const controlAttrs = ['aria-label="Frameworks"', 'placeholder="Select frameworks"'];
+      if (hasClearAll) controlAttrs.push('showClearAll', 'clearAllLabel="Clear all"');
+      lines.push(`  <Select.Control ${controlAttrs.join(' ')} />`);
+
       lines.push('  <Select.Content>');
       pushOptions(lines, '    ');
       lines.push('  </Select.Content>');

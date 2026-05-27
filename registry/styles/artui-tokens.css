@@ -1,0 +1,49 @@
+:root {
+  --artui-bg:               hsl(0 0% 100%);
+  --artui-fg:               hsl(0 0% 3.9%);
+  --artui-border:           hsl(0 0% 87%);
+  --artui-hover-bg:         hsl(0 0% 95%);
+  --artui-surface-2:        hsl(0 0% 93%);
+
+  --artui-accent:           oklch(0.58 0.13 200);
+  --artui-accent-fg:        hsl(0 0% 100%);
+
+  --artui-focus-ring:       2px solid var(--artui-accent);
+  --artui-selected-bg:      color-mix(in oklch, var(--artui-accent) 15%, transparent);
+  --artui-color-info:       var(--artui-accent);
+
+  --artui-color-success:    oklch(0.55 0.16 145);
+  --artui-color-warning:    oklch(0.65 0.12 65);
+  --artui-color-error:      oklch(0.55 0.18 25);
+
+  --artui-shadow:           0 2px 8px rgba(0, 0, 0, 0.06);
+  --artui-shadow-lg:        0 4px 16px rgba(0, 0, 0, 0.06);
+
+  --artui-radius-sm:        4px;
+  --artui-radius:           6px;
+  --artui-radius-lg:        8px;
+
+  --artui-disabled-opacity: 0.45;
+}
+
+.dark {
+  --artui-bg:        hsl(0 0% 9%);
+  --artui-fg:        hsl(0 0% 98%);
+  --artui-border:    hsl(0 0% 20%);
+  --artui-hover-bg:  hsl(0 0% 14%);
+  --artui-surface-2: hsl(0 0% 18%);
+  --artui-accent:    oklch(0.78 0.12 200);
+  --artui-accent-fg: hsl(0 0% 9%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --artui-bg:        hsl(0 0% 9%);
+    --artui-fg:        hsl(0 0% 98%);
+    --artui-border:    hsl(0 0% 20%);
+    --artui-hover-bg:  hsl(0 0% 14%);
+    --artui-surface-2: hsl(0 0% 18%);
+    --artui-accent:    oklch(0.78 0.12 200);
+    --artui-accent-fg: hsl(0 0% 9%);
+  }
+}

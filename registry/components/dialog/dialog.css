@@ -1,13 +1,8 @@
 :root {
-  --artui-dialog-bg: Canvas;
-  --artui-dialog-color: CanvasText;
-  --artui-dialog-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   --artui-dialog-width: auto;
   --artui-dialog-max-width: min(520px, calc(100vw - 32px));
-  --artui-dialog-backdrop-bg: rgba(0, 0, 0, 0.45);
+  --artui-dialog-backdrop-bg: rgba(0, 0, 0, 0.3);
   --artui-dialog-backdrop-filter: blur(4px);
-  --artui-dialog-focus-outline: 2px solid currentColor;
-  --artui-dialog-focus-outline-offset: 2px;
 }
 
 .artui-dialog {
@@ -21,11 +16,11 @@
   max-height: calc(100vh - 32px);
   padding: 24px;
   overflow-y: auto;
-  background: var(--artui-dialog-bg);
-  color: var(--artui-dialog-color);
-  border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
-  border-radius: 12px;
-  box-shadow: var(--artui-dialog-shadow);
+  background: var(--artui-bg);
+  color: var(--artui-fg);
+  border: 1px solid var(--artui-border);
+  border-radius: var(--artui-radius-lg);
+  box-shadow: var(--artui-shadow-lg);
   font-family: inherit;
   font-size: inherit;
 
@@ -67,16 +62,16 @@
     background: transparent;
     color: inherit;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--artui-radius-sm);
     cursor: pointer;
 
     &:focus {
-      outline: var(--artui-dialog-focus-outline);
-      outline-offset: var(--artui-dialog-focus-outline-offset);
+      outline: var(--artui-focus-ring);
+      outline-offset: 2px;
     }
 
     &:hover {
-      background: color-mix(in srgb, currentColor 8%, transparent);
+      background: var(--artui-hover-bg);
     }
   }
 

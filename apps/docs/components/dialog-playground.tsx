@@ -6,16 +6,20 @@ import { useRef, useState } from 'react';
 type LabelMode = 'title' | 'aria-labelledby';
 type DescriptionOption = 'none' | 'short' | 'long';
 type InitialFocusOption = 'default' | 'cancel-button';
+type ReturnFocusOption = 'default' | 'trigger';
 
 const LABEL_MODES: LabelMode[] = ['title', 'aria-labelledby'];
 const DESCRIPTIONS: DescriptionOption[] = ['none', 'short', 'long'];
 const INITIAL_FOCUS: InitialFocusOption[] = ['default', 'cancel-button'];
+const RETURN_FOCUS: ReturnFocusOption[] = ['default', 'trigger'];
 
 const DESCRIPTION_TEXT: Record<DescriptionOption, string | undefined> = {
   none: undefined,
   short: 'This action cannot be undone.',
   long: 'Your account and all associated data will be permanently removed after a 30-day grace period.',
 };
+
+const LABEL_HEADING_ID = 'dialog-playground-heading';
 
 function Toggle<T extends string>({
   options,
@@ -52,15 +56,34 @@ export function DialogPlayground() {
   const [labelMode, setLabelMode] = useState<LabelMode>('title');
   const [description, setDescription] = useState<DescriptionOption>('short');
   const [initialFocus, setInitialFocus] = useState<InitialFocusOption>('default');
+  const [returnFocus, setReturnFocus] = useState<ReturnFocusOption>('default');
   const [closeOnBackdrop, setCloseOnBackdrop] = useState(true);
 
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const initialFocusRef = initialFocus === 'cancel-button' ? cancelRef : undefined;
+  const returnFocusRef = returnFocus === 'trigger' ? triggerRef : undefined;
   const descriptionValue = DESCRIPTION_TEXT[description];
 
+  const usesCancelRef = initialFocus === 'cancel-button';
+  const usesTriggerRef = returnFocus === 'trigger';
+
   const codeLines: string[] = [];
+  if (usesCancelRef) {
+    codeLines.push('const cancelRef = useRef<HTMLButtonElement>(null);');
+  }
+  if (usesTriggerRef) {
+    codeLines.push('const triggerRef = useRef<HTMLButtonElement>(null);');
+  }
+  if (codeLines.length > 0) {
+    codeLines.push('');
+  }
+  if (usesTriggerRef) {
+    codeLines.push('<button ref={triggerRef} onClick={() => setOpen(true)}>Open dialog</button>');
+    codeLines.push('');
+  }
   if (labelMode === 'aria-labelledby') {
-    codeLines.push('<h2 id="dialog-heading">Delete account</h2>');
+    codeLines.push(`<h2 id="${LABEL_HEADING_ID}">Delete account</h2>`);
     codeLines.push('');
   }
   codeLines.push('<Dialog');
@@ -69,13 +92,16 @@ export function DialogPlayground() {
   if (labelMode === 'title') {
     codeLines.push('  title="Delete account"');
   } else {
-    codeLines.push('  aria-labelledby="dialog-heading"');
+    codeLines.push(`  aria-labelledby="${LABEL_HEADING_ID}"`);
   }
   if (descriptionValue) {
     codeLines.push(`  description="${descriptionValue}"`);
   }
-  if (initialFocus === 'cancel-button') {
+  if (usesCancelRef) {
     codeLines.push('  initialFocusRef={cancelRef}');
+  }
+  if (usesTriggerRef) {
+    codeLines.push('  returnFocusRef={triggerRef}');
   }
   if (!closeOnBackdrop) {
     codeLines.push('  closeOnBackdropClick={false}');
@@ -94,13 +120,14 @@ export function DialogPlayground() {
   return (
     <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
       {labelMode === 'aria-labelledby' && (
-        <h2 id="dialog-playground-heading" className="sr-only">
+        <h2 id={LABEL_HEADING_ID} className="sr-only">
           Delete account
         </h2>
       )}
 
       <div className="flex flex-col items-center justify-center bg-fd-card p-8 min-h-[220px] gap-4">
         <button
+          ref={triggerRef}
           type="button"
           onClick={() => setOpen(true)}
           className="px-4 py-2 rounded-md bg-fd-primary text-fd-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
@@ -111,6 +138,10 @@ export function DialogPlayground() {
           Try <kbd className="font-mono">Esc</kbd>, <kbd className="font-mono">Tab</kbd>, and
           clicking the backdrop.
         </p>
+        <p className="text-xs text-fd-muted-foreground">
+          The dialog now uses the shared artui tokens: a neutral surface, solid border, and the
+          lighter <code className="font-mono">--artui-shadow-lg</code> elevation.
+        </p>
 
         <Dialog
           {...dialogProps}
@@ -118,6 +149,7 @@ export function DialogPlayground() {
           onClose={() => setOpen(false)}
           description={descriptionValue}
           initialFocusRef={initialFocusRef}
+          returnFocusRef={returnFocusRef}
           closeOnBackdropClick={closeOnBackdrop}
         >
           <p className="m-0">
@@ -129,14 +161,14 @@ export function DialogPlayground() {
               ref={cancelRef}
               type="button"
               onClick={() => setOpen(false)}
-              className="px-4 py-2 rounded-md border border-current bg-transparent cursor-pointer"
+              className="px-4 py-2 rounded-md border border-[var(--artui-border)] bg-[var(--artui-bg)] text-[var(--artui-fg)] cursor-pointer hover:bg-[var(--artui-hover-bg)] transition-colors"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="px-4 py-2 rounded-md border-none bg-[crimson] text-white cursor-pointer"
+              className="px-4 py-2 rounded-md border-none bg-[var(--artui-color-error)] text-white cursor-pointer"
             >
               Delete
             </button>
@@ -164,6 +196,13 @@ export function DialogPlayground() {
             initialFocusRef
           </span>
           <Toggle options={INITIAL_FOCUS} value={initialFocus} onChange={setInitialFocus} />
+        </div>
+
+        <div className="flex items-center gap-4 px-4 py-3">
+          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
+            returnFocusRef
+          </span>
+          <Toggle options={RETURN_FOCUS} value={returnFocus} onChange={setReturnFocus} />
         </div>
 
         <div className="flex items-center gap-4 px-4 py-3">

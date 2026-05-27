@@ -6,10 +6,12 @@ import { useState } from 'react';
 type ToastVariant = 'info' | 'success' | 'warning' | 'error';
 type DurationMode = 'auto' | 'persistent';
 type ActionMode = 'none' | 'undo';
+type DescriptionMode = 'off' | 'on';
 
 const VARIANTS: ToastVariant[] = ['info', 'success', 'warning', 'error'];
 const DURATION_MODES: DurationMode[] = ['auto', 'persistent'];
 const ACTION_MODES: ActionMode[] = ['none', 'undo'];
+const DESCRIPTION_MODES: DescriptionMode[] = ['off', 'on'];
 
 function Toggle<T extends string>({
   options,
@@ -48,88 +50,68 @@ const VARIANT_TITLES: Record<ToastVariant, string> = {
   error: 'Upload failed.',
 };
 
-function ToastTrigger({
-  variant,
-  durationMode,
-  actionMode,
-}: {
-  variant: ToastVariant;
-  durationMode: DurationMode;
-  actionMode: ActionMode;
-}) {
-  const toast = useToast();
+const VARIANT_DESCRIPTIONS: Record<ToastVariant, string> = {
+  info: 'A copy was sent to your downloads folder.',
+  success: 'All edits are now in sync across your devices.',
+  warning: 'Save your work to avoid losing unsaved changes.',
+  error: 'The file exceeded the 25 MB size limit.',
+};
 
-  const handleShow = () => {
-    const title = VARIANT_TITLES[variant];
-    const duration = durationMode === 'persistent' ? null : undefined;
-    const action =
-      actionMode === 'undo' ? { label: 'Undo' as const, onAction: () => {} } : undefined;
+function buildSnippet(
+  variant: ToastVariant,
+  durationMode: DurationMode,
+  actionMode: ActionMode,
+  descriptionMode: DescriptionMode,
+): string {
+  const title = VARIANT_TITLES[variant];
+  const hasDescription = descriptionMode === 'on';
+  const hasPersistent = durationMode === 'persistent';
+  const hasAction = actionMode === 'undo';
 
-    toast.show({ title, type: variant, duration, action });
-  };
+  // Shortcut form (toast.info / toast.success) reads best for the simplest case.
+  const canUseShortcut = variant === 'info' || variant === 'success';
+  const hasNoOptions = !hasDescription && !hasPersistent && !hasAction;
 
-  const codeLines: string[] = [];
-  const durationLine = durationMode === 'persistent' ? ', duration: null' : '';
-  const actionLine =
-    actionMode === 'undo' ? ', action: { label: "Undo", onAction: handleUndo }' : '';
-
-  if (variant === 'info' || variant === 'success') {
-    if (durationMode === 'auto' && actionMode === 'none') {
-      codeLines.push(`toast.${variant}("${VARIANT_TITLES[variant]}");`);
-    } else {
-      codeLines.push(
-        `toast.${variant}("${VARIANT_TITLES[variant]}", {${durationLine}${actionLine} });`,
-      );
-    }
-  } else {
-    codeLines.push(`toast.show({`);
-    codeLines.push(`  title: "${VARIANT_TITLES[variant]}",`);
-    codeLines.push(`  type: "${variant}",`);
-    if (durationMode === 'persistent') codeLines.push('  duration: null,');
-    if (actionMode === 'undo') codeLines.push('  action: { label: "Undo", onAction: handleUndo },');
-    codeLines.push('});');
+  if (canUseShortcut && hasNoOptions) {
+    return `toast.${variant}("${title}");`;
   }
 
-  const code = codeLines.join('\n');
+  const optionLines: string[] = [];
+  if (hasDescription) optionLines.push(`  description: "${VARIANT_DESCRIPTIONS[variant]}",`);
+  if (hasPersistent) optionLines.push('  duration: null,');
+  if (hasAction) optionLines.push('  action: { label: "Undo", onAction: handleUndo },');
 
-  return { handleShow, code };
+  if (canUseShortcut) {
+    return [`toast.${variant}("${title}", {`, ...optionLines, '});'].join('\n');
+  }
+
+  return [
+    'toast.show({',
+    `  title: "${title}",`,
+    `  type: "${variant}",`,
+    ...optionLines,
+    '});',
+  ].join('\n');
 }
 
 function PlaygroundInner() {
   const [variant, setVariant] = useState<ToastVariant>('info');
   const [durationMode, setDurationMode] = useState<DurationMode>('auto');
   const [actionMode, setActionMode] = useState<ActionMode>('none');
+  const [descriptionMode, setDescriptionMode] = useState<DescriptionMode>('off');
 
   const toast = useToast();
 
   const handleShow = () => {
     const title = VARIANT_TITLES[variant];
+    const description = descriptionMode === 'on' ? VARIANT_DESCRIPTIONS[variant] : undefined;
     const duration = durationMode === 'persistent' ? null : undefined;
     const action =
       actionMode === 'undo' ? { label: 'Undo' as const, onAction: () => {} } : undefined;
-    toast.show({ title, type: variant, duration, action });
+    toast.show({ title, description, type: variant, duration, action });
   };
 
-  const codeLines: string[] = [];
-  const durationSegment = durationMode === 'persistent' ? ', duration: null' : '';
-  const actionSegment =
-    actionMode === 'undo' ? ', action: { label: "Undo", onAction: handleUndo }' : '';
-
-  if (
-    (variant === 'info' || variant === 'success') &&
-    durationMode === 'auto' &&
-    actionMode === 'none'
-  ) {
-    codeLines.push(`toast.${variant}("${VARIANT_TITLES[variant]}");`);
-  } else {
-    codeLines.push('toast.show({');
-    codeLines.push(`  title: "${VARIANT_TITLES[variant]}",`);
-    codeLines.push(`  type: "${variant}",`);
-    if (durationMode === 'persistent') codeLines.push('  duration: null,');
-    if (actionMode === 'undo') codeLines.push('  action: { label: "Undo", onAction: handleUndo },');
-    codeLines.push('});');
-  }
-  const code = codeLines.join('\n');
+  const code = buildSnippet(variant, durationMode, actionMode, descriptionMode);
 
   return (
     <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
@@ -141,9 +123,10 @@ function PlaygroundInner() {
         >
           Show toast
         </button>
-        <p className="text-xs text-fd-muted-foreground">
-          Press <kbd className="font-mono">Alt+T</kbd> to move focus into the newest toast. Press{' '}
-          <kbd className="font-mono">Esc</kbd> while focused to dismiss it.
+        <p className="max-w-sm text-center text-xs text-fd-muted-foreground">
+          Toasts render as neutral cards with a colored left accent border per type, and
+          auto-dismiss after 5s. Press <kbd className="font-mono">Alt+T</kbd> to move focus into the
+          newest toast, then <kbd className="font-mono">Esc</kbd> to dismiss it.
         </p>
       </div>
 
@@ -161,6 +144,17 @@ function PlaygroundInner() {
         <div className="flex items-center gap-4 px-4 py-3">
           <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">action</span>
           <Toggle options={ACTION_MODES} value={actionMode} onChange={setActionMode} />
+        </div>
+
+        <div className="flex items-center gap-4 px-4 py-3">
+          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
+            description
+          </span>
+          <Toggle
+            options={DESCRIPTION_MODES}
+            value={descriptionMode}
+            onChange={setDescriptionMode}
+          />
         </div>
 
         <div className="px-4 py-3">

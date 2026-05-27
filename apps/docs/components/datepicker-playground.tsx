@@ -6,10 +6,16 @@ import { useState } from 'react';
 type LocaleOption = 'nl-BE' | 'en-US' | 'ja-JP';
 type RangeOption = 'none' | 'this-year' | 'future-only';
 type DisabledOption = 'none' | 'weekends' | 'odd-days';
+type ErrorOption = 'none' | 'shown';
+type RequiredOption = 'no' | 'yes';
 
 const LOCALES: LocaleOption[] = ['nl-BE', 'en-US', 'ja-JP'];
 const RANGES: RangeOption[] = ['none', 'this-year', 'future-only'];
 const DISABLED: DisabledOption[] = ['none', 'weekends', 'odd-days'];
+const ERRORS: ErrorOption[] = ['none', 'shown'];
+const REQUIREDS: RequiredOption[] = ['no', 'yes'];
+
+const SAMPLE_ERROR = 'Please choose a date.';
 
 function Toggle<T extends string>({
   options,
@@ -46,6 +52,8 @@ export function DatepickerPlayground() {
   const [locale, setLocale] = useState<LocaleOption>('nl-BE');
   const [range, setRange] = useState<RangeOption>('none');
   const [disabledRule, setDisabledRule] = useState<DisabledOption>('none');
+  const [errorRule, setErrorRule] = useState<ErrorOption>('none');
+  const [requiredRule, setRequiredRule] = useState<RequiredOption>('no');
 
   const now = new Date();
   const min =
@@ -63,18 +71,29 @@ export function DatepickerPlayground() {
         ? (d: Date) => d.getDate() % 2 !== 0
         : undefined;
 
-  // Build live code string
+  const error = errorRule === 'shown' ? SAMPLE_ERROR : undefined;
+  const required = requiredRule === 'yes';
+
+  // Build live code string. min/max are emitted as intent-expressing
+  // expressions (today / start-of-year) rather than frozen numeric literals,
+  // so the snippet stays correct whenever a reader copies it.
   const codeLines = ['<Datepicker', '  label="Appointment date"', `  locale="${locale}"`];
-  if (range !== 'none') {
-    if (min)
-      codeLines.push(`  min={new Date(${min.getFullYear()}, ${min.getMonth()}, ${min.getDate()})}`);
-    if (max)
-      codeLines.push(`  max={new Date(${max.getFullYear()}, ${max.getMonth()}, ${max.getDate()})}`);
+  if (range === 'this-year') {
+    codeLines.push('  min={new Date(new Date().getFullYear(), 0, 1)}');
+    codeLines.push('  max={new Date(new Date().getFullYear(), 11, 31)}');
+  } else if (range === 'future-only') {
+    codeLines.push('  min={new Date()}');
   }
   if (disabledRule === 'weekends') {
     codeLines.push('  isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}');
   } else if (disabledRule === 'odd-days') {
     codeLines.push('  isDateDisabled={(d) => d.getDate() % 2 !== 0}');
+  }
+  if (required) {
+    codeLines.push('  required');
+  }
+  if (error) {
+    codeLines.push(`  error="${error}"`);
   }
   codeLines.push('  value={date}');
   codeLines.push('  onChange={setDate}');
@@ -97,9 +116,15 @@ export function DatepickerPlayground() {
           min={min}
           max={max}
           isDateDisabled={isDateDisabled}
+          required={required}
+          error={error}
         />
         <p className="text-xs text-fd-muted-foreground mt-2">
           Selected: <span className="font-mono text-fd-foreground">{displayValue}</span>
+        </p>
+        <p className="text-xs text-fd-muted-foreground">
+          The selected day uses the themeable <span className="font-mono">--artui-accent</span>{' '}
+          color.
         </p>
       </div>
 
@@ -123,6 +148,18 @@ export function DatepickerPlayground() {
             isDateDisabled
           </span>
           <Toggle options={DISABLED} value={disabledRule} onChange={setDisabledRule} />
+        </div>
+
+        {/* required */}
+        <div className="flex items-center gap-4 px-4 py-3">
+          <span className="w-28 shrink-0 font-mono text-xs text-fd-muted-foreground">required</span>
+          <Toggle options={REQUIREDS} value={requiredRule} onChange={setRequiredRule} />
+        </div>
+
+        {/* error */}
+        <div className="flex items-center gap-4 px-4 py-3">
+          <span className="w-28 shrink-0 font-mono text-xs text-fd-muted-foreground">error</span>
+          <Toggle options={ERRORS} value={errorRule} onChange={setErrorRule} />
         </div>
 
         {/* Code */}

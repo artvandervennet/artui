@@ -5,6 +5,8 @@ import { useState } from 'react';
 
 const SRC = 'https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=640&h=360&fit=crop';
 
+// Mirrors the (unexported) FORBIDDEN_ALTS constant in the Image component so the
+// playground can detect invalid alt text without importing internals.
 const FORBIDDEN = ['', 'img', 'image', 'photo', 'picture', 'icon'] as const;
 
 function isForbidden(value: string): boolean {
@@ -59,14 +61,16 @@ export function ImagePlayground() {
       ? 'Alt text is empty or contains only whitespace.'
       : `'${alt}' is not meaningful alt text. Describe what the image shows.`;
 
-  // Build live code string
-  const codeLines = ['<Image', `  src="…"`];
+  // Build live code string that matches what the preview renders
+  const codeLines = ['<Image', `  src="${SRC}"`];
   if (decorative) {
     codeLines.push('  decorative');
   } else {
     codeLines.push(`  alt="${alt}"`);
   }
   if (loading === 'eager') codeLines.push('  loading="eager"');
+  codeLines.push('  width={480}');
+  codeLines.push('  height={270}');
   codeLines.push('/>');
   const code = codeLines.join('\n');
 
@@ -85,16 +89,16 @@ export function ImagePlayground() {
           />
         ) : isInvalidAlt ? (
           // Replicates withErrorOverlay DOM output without firing console.error
-          <span aria-hidden="true" style={{ position: 'relative', display: 'inline-block' }}>
+          <span style={{ position: 'relative', display: 'inline-block' }}>
             {/* biome-ignore lint/performance/noImgElement: intentional raw <img> to replicate error-overlay DOM without Next.js optimization */}
             <img src={SRC} alt="" width={480} height={270} loading={loading} style={IMG_STYLE} />
             <span
+              aria-hidden="true"
               style={{
                 position: 'absolute',
                 inset: 0,
                 background: '#d62828',
                 pointerEvents: 'none',
-                borderRadius: '0.5rem',
               }}
             />
           </span>
