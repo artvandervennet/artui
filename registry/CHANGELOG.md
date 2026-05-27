@@ -1,5 +1,11 @@
 # @artui/registry
 
+## 0.7.2
+
+### Patch Changes
+
+- 489fbc0: fixed order of items
+
 ## 0.7.1
 
 ### Patch Changes

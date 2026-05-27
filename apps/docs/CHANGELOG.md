@@ -1,5 +1,12 @@
 # @artui/docs
 
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [489fbc0]
+  - @artui/registry@0.7.2
+
 ## 0.2.3
 
 ### Patch Changes
