@@ -163,12 +163,14 @@ let providerMountCount = 0;
 
 export function ToastProvider({
   children,
-  maxVisible = 3,
-  defaultDuration = 5000,
+  maxVisible = Infinity,
+  defaultDuration = 10_000,
 }: ToastProviderProps): ReactElement {
   const [toasts, setToasts] = useState<ToastRecord[]>([]);
   const toastsRef = useRef<ToastRecord[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [politeAnnouncement, setPoliteAnnouncement] = useState('');
+  const [assertiveAnnouncement, setAssertiveAnnouncement] = useState('');
   // Pending show calls queued before mount.
   const pendingRef = useRef<Array<{ opts: ResolvedToastOptions; drained: boolean }>>([]);
 
@@ -201,14 +203,10 @@ export function ToastProvider({
     setMounted(true);
 
     if (supportsPopover) {
-      const polite = document.getElementById("artui-toast-region-polite") as HTMLElement & {
+      const container = document.getElementById("artui-toast-container") as HTMLElement & {
         showPopover?: () => void;
       };
-      const assertive = document.getElementById("artui-toast-region-assertive") as HTMLElement & {
-        showPopover?: () => void;
-      };
-      polite?.showPopover?.();
-      assertive?.showPopover?.();
+      container?.showPopover?.();
     }
   }, []);
 
@@ -435,6 +433,16 @@ export function ToastProvider({
         done,
       };
 
+      // Announce to the appropriate live region.
+      const announcementText = opts.description
+        ? `${opts.title}. ${opts.description}`
+        : opts.title;
+      const setAnnouncement = isAssertive(opts.type)
+        ? setAssertiveAnnouncement
+        : setPoliteAnnouncement;
+      setAnnouncement('');
+      window.setTimeout(() => setAnnouncement(announcementText), 0);
+
       // Transition entering → visible on next tick.
       window.setTimeout(() => {
         setToasts((prev) =>
@@ -446,14 +454,12 @@ export function ToastProvider({
       }, 16);
 
       setToasts((prev) => {
-        const regionToasts = prev.filter(
-          (t) => t.region === record.region && t.state !== "leaving",
-        );
+        const visibleToasts = prev.filter((t) => t.state !== "leaving");
         let next = [...prev, record];
 
         // Collapse oldest if over maxVisible.
-        if (regionToasts.length >= maxVisible) {
-          const oldest = regionToasts[0];
+        if (visibleToasts.length >= maxVisible) {
+          const oldest = visibleToasts[0];
           if (oldest) {
             if (oldest.timerId !== null) {
               clearTimeout(oldest.timerId);
@@ -585,12 +591,7 @@ export function ToastProvider({
       };
 
       // Check that the region is actually in the DOM.
-      const regionId =
-        isAssertive(type)
-          ? "artui-toast-region-assertive"
-          : "artui-toast-region-polite";
-
-      if (mounted && !document.getElementById(regionId)) {
+      if (mounted && !document.getElementById("artui-toast-region")) {
         if (isDev) {
           console.error(
             "[artui] <ToastProvider>: Toast fired but the aria-live region is not in the DOM. " +
@@ -673,28 +674,37 @@ export function ToastProvider({
       {providerChildren}
       {mounted &&
         createPortal(
-          <>
+          <div
+            id="artui-toast-container"
+            className={`artui-toast-container${supportsPopover ? "" : " artui-toast-container--fallback"}`}
+            {...(supportsPopover ? { popover: "manual" as const } : {})}
+          >
+            <div
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              className="artui-visually-hidden"
+            >
+              {politeAnnouncement}
+            </div>
+            <div
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+              className="artui-visually-hidden"
+            >
+              {assertiveAnnouncement}
+            </div>
             <ToastRegion
-              id="artui-toast-region-polite"
-              live="polite"
-              toasts={toasts.filter((t) => t.region === "polite")}
+              id="artui-toast-region"
+              toasts={toasts}
               onPointerEnter={handlePointerEnter}
               onPointerLeave={handlePointerLeave}
               onFocusIn={handleFocusIn}
               onFocusOut={handleFocusOut}
               onDismiss={(id) => startLeaving(id, "dismissed")}
             />
-            <ToastRegion
-              id="artui-toast-region-assertive"
-              live="assertive"
-              toasts={toasts.filter((t) => t.region === "assertive")}
-              onPointerEnter={handlePointerEnter}
-              onPointerLeave={handlePointerLeave}
-              onFocusIn={handleFocusIn}
-              onFocusOut={handleFocusOut}
-              onDismiss={(id) => startLeaving(id, "dismissed")}
-            />
-          </>,
+          </div>,
           document.body,
         )}
     </ToastContext.Provider>
@@ -707,7 +717,6 @@ export function ToastProvider({
 
 interface ToastRegionProps {
   id: string;
-  live: "polite" | "assertive";
   toasts: ToastRecord[];
   onPointerEnter: (id: string) => void;
   onPointerLeave: (id: string) => void;
@@ -718,7 +727,6 @@ interface ToastRegionProps {
 
 function ToastRegion({
   id,
-  live,
   toasts,
   onPointerEnter,
   onPointerLeave,
@@ -746,20 +754,12 @@ function ToastRegion({
     return () => el.removeEventListener("keydown", handler);
   }, [onDismiss]);
 
-  const role = live === "assertive" ? "alert" : "status";
-  const fallbackClass = supportsPopover ? "" : " artui-toast-region--fallback";
-
   return (
     <ol
       ref={regionRef}
       id={id}
-      role={role}
-      aria-live={live}
-      aria-atomic="false"
-      aria-relevant="additions"
-      {...(supportsPopover ? { popover: "manual" } : {})}
-      data-artui-toast-region={live}
-      className={`artui-toast-region artui-toast-region--${live}${fallbackClass}`}
+      data-artui-toast-region
+      className="artui-toast-region"
     >
       {toasts.map((t) => (
         <ToastItem

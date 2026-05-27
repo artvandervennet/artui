@@ -10,39 +10,51 @@
   border: 0;
 }
 
-.artui-toast-region {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  min-width: 18rem;
-  max-width: 22rem;
+.artui-toast-container {
   background: transparent;
   border: none;
+  margin: 0;
+  padding: 0;
 }
 
 @supports selector(:popover-open) {
-  .artui-toast-region {
+  .artui-toast-container {
     position: fixed;
     inset-block-start: 0.75rem;
     inset-inline-end: 0.75rem;
     inset-block-end: auto;
     inset-inline-start: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
   }
 
-  .artui-toast-region:popover-open {
+  .artui-toast-container:popover-open {
     display: flex;
   }
 }
 
-.artui-toast-region--fallback {
+.artui-toast-container--fallback {
   position: fixed;
   inset-block-start: 0.75rem;
   inset-inline-end: 0.75rem;
-  z-index: 2147483000;
   display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  z-index: 2147483000;
+}
+
+.artui-toast-region {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.375rem;
+  min-width: 18rem;
+  max-width: 22rem;
+  background: transparent;
+  border: none;
 }
 
 /* Neutral card with a 3px left border coloured by the toast type accent. */
