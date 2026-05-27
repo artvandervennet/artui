@@ -1,5 +1,11 @@
 # @artui/registry
 
+## 0.7.1
+
+### Patch Changes
+
+- bbfb680: fixed css
+
 ## 0.7.0
 
 ### Minor Changes
