@@ -1,5 +1,13 @@
 # @artui/docs
 
+## 0.2.3
+
+### Patch Changes
+
+- bbfb680: fixed css
+- Updated dependencies [bbfb680]
+  - @artui/registry@0.7.1
+
 ## 0.2.2
 
 ### Patch Changes
