@@ -1,5 +1,17 @@
 # @artui/docs
 
+## 0.3.0
+
+### Minor Changes
+
+- f7051da: fixed some bugs
+
+### Patch Changes
+
+- Updated dependencies [f7051da]
+- Updated dependencies [489fbc0]
+  - @artui/registry@0.8.0
+
 ## 0.2.3
 
 ### Patch Changes
