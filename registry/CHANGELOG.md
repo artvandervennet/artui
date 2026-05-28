@@ -1,5 +1,15 @@
 # @artui/registry
 
+## 0.8.0
+
+### Minor Changes
+
+- bceb557: fixed some bugs
+
+### Patch Changes
+
+- 489fbc0: fixed order of items
+
 ## 0.7.1
 
 ### Patch Changes
