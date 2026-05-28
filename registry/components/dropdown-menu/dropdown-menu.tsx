@@ -714,8 +714,6 @@ function SubContent({ children, className }: SubContentProps): ReactElement | nu
     }
   };
 
-  if (!subOpen || !subTriggerRect) return null;
-
   // Read offsets from CSS tokens so consumers can theme without touching JS.
   // Horizontal: small gap so the submenu's border/shadow doesn't collide with
   // the parent menu's right edge. Vertical: pull up by the panel's own top
@@ -729,12 +727,25 @@ function SubContent({ children, className }: SubContentProps): ReactElement | nu
   const contentPadding =
     parseFloat(rootStyles?.getPropertyValue("--artui-dropdown-content-padding") ?? "") || 4;
 
-  const style: React.CSSProperties = {
-    position: "fixed",
-    top: subTriggerRect.top - contentPadding,
-    // Render to the right of the sub-trigger, with a small gap.
-    left: subTriggerRect.left + subTriggerRect.width + subOffset,
-  };
+  if (!subOpen || !subTriggerRect) return null;
+
+  // Compute placement side before first render — no state or layout effect needed.
+  // MIN_MENU_WIDTH matches the CSS min-width on .artui-dropdown-content so the
+  // flip fires whenever there isn't room for even the narrowest possible menu.
+  const MIN_MENU_WIDTH = 160;
+  const EDGE_MARGIN = 4;
+
+  const rightSpace =
+    window.innerWidth - (subTriggerRect.left + subTriggerRect.width + subOffset);
+  const placeLeft = rightSpace < MIN_MENU_WIDTH;
+
+  const left = placeLeft
+    ? Math.max(EDGE_MARGIN, subTriggerRect.left - subOffset - MIN_MENU_WIDTH)
+    : subTriggerRect.left + subTriggerRect.width + subOffset;
+
+  const top = subTriggerRect.top - contentPadding;
+
+  const style: React.CSSProperties = { position: "fixed", top, left };
 
   let element = (
     <div
