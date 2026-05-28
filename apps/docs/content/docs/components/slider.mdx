@@ -107,37 +107,7 @@ import { Slider } from '@/components/slider';
 
 `SliderProps` is a discriminated union: when `thumbs` is present the component enters range mode and `value` / `defaultValue` / `onValueChange` accept tuples. When `thumbs` is absent it is single-thumb mode and those props accept scalars.
 
-<PropsTable
-  rows={[
-    { name: 'min', type: 'number', default: '0', description: 'Minimum value.' },
-    { name: 'max', type: 'number', default: '100', description: 'Maximum value.' },
-    { name: 'step', type: 'number', description: 'Arrow-key step size. Defaults to (max - min) / 100. A dev overlay fires when step ≤ 0 or step > (max - min).' },
-    { name: 'largeStep', type: 'number', description: 'PageUp / PageDown jump size. Defaults to max(step * 10, (max - min) / 10).' },
-    { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables interaction. Uses aria-disabled rather than the HTML disabled attribute so the thumb stays in the tab order for AT inspection.' },
-    { name: 'orientation', type: '"horizontal" | "vertical"', default: '"horizontal"', description: 'Slider orientation.' },
-    { name: 'formatValue', type: '(value: number, thumbIndex: number) => string', description: 'When provided, the returned string is wired to aria-valuetext on every thumb automatically. Use for non-numeric domains (e.g. "€250", "Monday").' },
-    { name: 'value', type: 'number (single) | readonly [number, number] (range)', description: 'Controlled value. Pair with onValueChange.' },
-    { name: 'defaultValue', type: 'number (single) | readonly [number, number] (range)', description: 'Uncontrolled initial value.' },
-    { name: 'onValueChange', type: '(value: number) => void (single) | (value: readonly [number, number]) => void (range)', description: 'Called whenever the value changes.' },
-    { name: 'thumbs', type: 'readonly [SliderThumbDescriptor, SliderThumbDescriptor]', description: 'Activates range mode. Each descriptor must carry an accessible name; omitting aria-label, aria-labelledby, and children is a compile error.' },
-    { name: 'aria-label', type: 'string', description: 'Single mode: accessible name on the thumb. Range mode: accessible name on the group wrapper.' },
-    { name: 'aria-labelledby', type: 'string', description: 'Single mode: ID of an element labelling the thumb. Range mode: ID of the element labelling the group. A dev overlay fires when the ID does not resolve in the DOM.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class applied to the slider root element.' },
-  ]}
-/>
-
-### SliderThumbDescriptor
-
-Descriptor for each thumb in range mode. Exactly one of `aria-label`, `aria-labelledby`, or `children` is required at the type level.
-
-<PropsTable
-  rows={[
-    { name: 'aria-label', type: 'string', description: 'Accessible name for this thumb.' },
-    { name: 'aria-labelledby', type: 'string', description: 'ID of an element that labels this thumb.' },
-    { name: 'children', type: 'string', description: 'Accessible name passed as children (used as aria-label internally).' },
-    { name: 'formatValue', type: '(value: number) => string', description: 'Per-thumb value formatter. Takes precedence over the root-level formatValue for this thumb.' },
-  ]}
-/>
+<RegistryPropsTable component="Slider" />
 
 ### Range thumb swap
 
@@ -166,6 +136,10 @@ What the swap guarantees:
 />
 
 In range mode, when any key would push a thumb past the other thumb's value, focus transfers automatically to the other thumb and the full step is applied. Tab order between the two thumbs always follows DOM order (`thumbs[0]` first, `thumbs[1]` second), regardless of which has the lower value at that moment.
+
+## Accessibility
+
+<RegistryAccessibility component="Slider" />
 
 ## Do
 

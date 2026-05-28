@@ -8,3 +8,4 @@
 - [dialog/showModal() must never be conditionally unmounted](feedback-dialog-modal-always-mounted.md) — removing a <dialog> from DOM while in showModal() strands NVDA's virtual buffer; always keep mounted, split open/close into two effects
 - [No interactive elements nested inside a button](feedback-no-interactive-in-button.md) — token/combobox fields with chips + trigger must use a div container; clicking blank area via onPointerDown on div, not button nesting
 - [a11y-ts-executor skill not always available](feedback-a11y-ts-executor-skill-unavailable.md) — when skill lookup fails, implement directly from the approved plan; same verification gate applies
+- [Registry-sourced docs RSCs exist](project-registry-sourced-docs.md) — RegistryPropsTable + RegistryAccessibility in apps/docs/components/docs/; all 8 MDX pages use them; sub prop maps to dot-prefix in meta.ts

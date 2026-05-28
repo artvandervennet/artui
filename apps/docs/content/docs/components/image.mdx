@@ -52,23 +52,11 @@ When an image is purely visual, pass `decorative`. The component renders `alt=""
 
 ## API
 
-<PropsTable
-  rows={[
-    { name: 'alt', type: 'string', required: true, description: 'Required unless decorative. Forbidden strings ("", "img", "image", "photo", "picture", "icon") are rejected at compile time when passed as literals and flagged with a dev overlay at runtime.' },
-    { name: 'decorative', type: 'true', description: 'Renders alt="" and role="presentation". Mutually exclusive with alt.' },
-    { name: 'loading', type: '"lazy" | "eager"', default: '"lazy"', description: 'Native loading attribute. Use "eager" for above-the-fold images.' },
-    { name: '...rest', type: 'ImgHTMLAttributes<HTMLImageElement>', description: 'Any standard <img> attribute (src, width, height, style, className, etc.). role is managed by the component.' },
-  ]}
-/>
+<RegistryPropsTable component="Image" />
 
 ## Accessibility
 
-Every `<img>` either carries a meaningful text alternative or is explicitly hidden from the accessibility tree. Decorative images render `alt=""` and `role="presentation"`; meaningful images expose `alt` as the accessible name.
-
-| Image state  | HTML rendered                                          | Screen reader         |
-| ------------ | ------------------------------------------------------ | --------------------- |
-| `alt="…"`    | `<img alt="…" loading="lazy">`                         | Announces the alt text |
-| `decorative` | `<img alt="" role="presentation" loading="lazy">`      | Skipped entirely      |
+<RegistryAccessibility component="Image" />
 
 ## Do
 

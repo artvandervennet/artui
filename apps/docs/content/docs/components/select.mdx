@@ -120,92 +120,31 @@ Each chip's remove button reads `Remove {label}` by default. Override `removeLab
 
 Renders a styled native `<select>`. You must pass `aria-label` or `aria-labelledby`; leaving both off is a compile error.
 
-<PropsTable
-  rows={[
-    { name: 'multiple', type: 'false', default: 'false', description: 'Mode discriminant. Absent or false renders a native <select>.' },
-    { name: 'aria-label', type: 'AccessibleText', description: 'Accessible name for the select. Required unless aria-labelledby is set.' },
-    { name: 'aria-labelledby', type: 'string', description: 'ID of an element that labels the select. Required unless aria-label is set.' },
-    { name: 'value', type: 'string', description: 'Controlled value.' },
-    { name: 'defaultValue', type: 'string', description: 'Uncontrolled initial value.' },
-    { name: 'onValueChange', type: '(value: string) => void', description: 'Called when the selection changes.' },
-    { name: 'name', type: 'string', description: 'Forwarded to the native select for form submission.' },
-    { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the select.' },
-    { name: 'className', type: 'string', description: 'Extra CSS class on the native select.' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'Select.Option and Select.Group elements, rendered as <option> / <optgroup>.' },
-  ]}
-/>
-
-### Select: multi mode
-
-Renders a hidden `<select multiple>` for form submission alongside the custom listbox UI.
-
-<PropsTable
-  rows={[
-    { name: 'multiple', type: 'true', required: true, description: 'Mode discriminant. Must be true for multi mode.' },
-    { name: 'value', type: 'readonly string[]', description: 'Controlled selection. Pair with onValueChange.' },
-    { name: 'defaultValue', type: 'readonly string[]', default: '[]', description: 'Uncontrolled initial selection.' },
-    { name: 'onValueChange', type: '(value: readonly string[]) => void', description: 'Called when the selection changes.' },
-    { name: 'open', type: 'boolean', description: 'Controlled panel open state. Pair with onOpenChange.' },
-    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Called when the panel opens or closes.' },
-    { name: 'name', type: 'string', description: 'Forwarded to the hidden <select multiple> for form submission.' },
-    { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the trigger and all remove / clear-all buttons.' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'Must contain Select.Control and Select.Content.' },
-  ]}
-/>
+<RegistryPropsTable component="Select" />
 
 ### Select.Control
 
 Multi mode only. The field holding chips, the trigger, an optional clear-all button, and the caret. Needs an accessible name via `aria-label`, `aria-labelledby`, or `children`; omitting all three is a compile error.
 
-<PropsTable
-  rows={[
-    { name: 'aria-label', type: 'AccessibleText', description: 'Accessible name for the trigger. Required unless aria-labelledby or children is set.' },
-    { name: 'aria-labelledby', type: 'string', description: 'ID of an element that labels the trigger.' },
-    { name: 'children', type: 'AccessibleText', description: 'Visible label rendered inside the trigger.' },
-    { name: 'placeholder', type: 'string', default: '"Select options"', description: 'Shown in the trigger when nothing is selected. Hidden once chips appear.' },
-    { name: 'removeLabel', type: '(label: string) => string', description: "Accessible name for each chip's remove button. Defaults to `Remove ${label}`." },
-    { name: 'showClearAll', type: 'boolean', default: 'false', description: 'Shows a clear-all button when true and at least one option is selected.' },
-    { name: 'clearAllLabel', type: 'string', default: '"Clear all selections"', description: 'Accessible name for the clear-all button.' },
-    { name: 'className', type: 'string', description: 'Extra CSS class on the field container.' },
-  ]}
-/>
+<RegistryPropsTable component="Select" sub="Control" />
 
 ### Select.Content
 
 Multi mode only. The listbox panel.
 
-<PropsTable
-  rows={[
-    { name: 'children', type: 'ReactNode', required: true, description: 'Select.Option and Select.Group elements. Empty Content triggers a dev overlay (WCAG 1.3.1).' },
-    { name: 'className', type: 'string', description: 'Extra CSS class on the listbox panel.' },
-  ]}
-/>
+<RegistryPropsTable component="Select" sub="Content" />
 
 ### Select.Option
 
 Works in both modes. In single mode it sits in the root; in multi mode it sits inside `Select.Content`.
 
-<PropsTable
-  rows={[
-    { name: 'value', type: 'string', required: true, description: 'Unique identifier. Duplicates trigger a dev guard (WCAG 4.1.2).' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'Visible label. Empty or whitespace-only labels trigger a dev overlay (WCAG 1.3.1).' },
-    { name: 'disabled', type: 'boolean', description: 'Disables this option. In multi mode it sets aria-disabled and skips keyboard navigation.' },
-    { name: 'className', type: 'string', description: 'Extra CSS class (multi mode panel only).' },
-  ]}
-/>
+<RegistryPropsTable component="Select" sub="Option" />
 
 ### Select.Group
 
 Works in both modes, placed alongside `Option`.
 
-<PropsTable
-  rows={[
-    { name: 'label', type: 'string', required: true, description: 'Group heading. Maps to <optgroup label> in the native select and role=group aria-label in the panel. Empty label triggers a dev overlay (WCAG 1.3.1).' },
-    { name: 'disabled', type: 'boolean', description: 'Disables the group in the native select. In the panel, each Option also needs disabled for keyboard exclusion.' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'Select.Option elements inside the group.' },
-    { name: 'className', type: 'string', description: 'Extra CSS class on the group container (multi mode panel only).' },
-  ]}
-/>
+<RegistryPropsTable component="Select" sub="Group" />
 
 ## Keyboard
 
@@ -238,6 +177,10 @@ Single mode hands everything to the native `<select>`, so the keys below cover m
 />
 
 Arrows stop at the ends rather than wrapping, per the APG Listbox pattern. A polite live region announces every change, like "Belgium added, 2 selected" or "All selections cleared".
+
+## Accessibility
+
+<RegistryAccessibility component="Select" />
 
 ## Do
 

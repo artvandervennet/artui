@@ -73,36 +73,17 @@ showNextStep();
 
 Mount exactly one `ToastProvider` at the root of your application. Mounting more than one duplicates the live-region DOM nodes; a dev overlay fires if duplicates are detected.
 
-<PropsTable
-  rows={[
-    { name: 'children', type: 'ReactNode', required: true, description: 'Application content.' },
-    { name: 'maxVisible', type: 'number', default: '3', description: 'Maximum toasts visible at once per region. The oldest is collapsed when exceeded.' },
-    { name: 'defaultDuration', type: 'number | null', default: '5000', description: 'Default auto-dismiss duration in ms. null makes every toast persistent unless overridden per-toast.' },
-  ]}
-/>
+<RegistryPropsTable component="Toast" />
 
 ### ToastOptions
 
 Passed to `toast.show()`. The shortcut helpers (`toast.success()`, `toast.error()`, …) accept the same fields minus `title` and `type`.
 
-<PropsTable
-  rows={[
-    { name: 'title', type: 'AccessibleText', required: true, description: 'Notification title. Empty strings and placeholder values are TypeScript compile errors.' },
-    { name: 'description', type: 'string', description: 'Optional secondary text below the title.' },
-    { name: 'type', type: '"info" | "success" | "warning" | "error"', default: '"info"', description: 'Severity. info and success go to the polite region; warning and error go to the assertive region.' },
-    { name: 'duration', type: 'number | null', description: 'Per-toast duration override in ms. null makes this toast persistent. Action toasts are silently bumped to a 10 s minimum.' },
-    { name: 'action', type: 'ToastAction', description: 'Optional action button. Activating it invokes onAction then dismisses the toast.' },
-  ]}
-/>
+<RegistryPropsTable component="Toast" sub="ToastOptions" />
 
 ### ToastAction
 
-<PropsTable
-  rows={[
-    { name: 'label', type: 'AccessibleText', required: true, description: 'Visible button label. Placeholder values are compile errors.' },
-    { name: 'onAction', type: '() => void', required: true, description: 'Called when the action is activated. The toast is dismissed immediately after.' },
-  ]}
-/>
+<RegistryPropsTable component="Toast" sub="ToastAction" />
 
 ### ToastHandle
 
@@ -144,6 +125,10 @@ Returns a `ToastApi`. Must be called inside a `ToastProvider`.
 />
 
 Focus is never moved to a toast on render. The timer pauses while a toast has keyboard focus and resumes when focus leaves.
+
+## Accessibility
+
+<RegistryAccessibility component="Toast" />
 
 ## Do
 

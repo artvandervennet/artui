@@ -10,6 +10,8 @@ import { Dont } from '@/components/docs/dont';
 import { FeatureGrid } from '@/components/docs/feature-grid';
 import { KeyTable } from '@/components/docs/key-table';
 import { PropsTable } from '@/components/docs/props-table';
+import { RegistryAccessibility } from '@/components/docs/registry-accessibility';
+import { RegistryPropsTable } from '@/components/docs/registry-props-table';
 import { WcagTable } from '@/components/docs/wcag-table';
 import { DropdownMenuPlayground } from '@/components/dropdown-menu-playground';
 import { ImagePlayground } from '@/components/image-playground';
@@ -34,6 +36,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ToastPlayground,
     KeyTable,
     PropsTable,
+    RegistryAccessibility,
+    RegistryPropsTable,
     WcagTable,
     ...components,
   };

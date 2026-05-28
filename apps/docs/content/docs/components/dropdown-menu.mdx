@@ -93,83 +93,35 @@ Disabled items get `aria-disabled="true"` and keyboard navigation skips them.
 
 ### DropdownMenu (root)
 
-<PropsTable
-  rows={[
-    { name: 'open', type: 'boolean', description: 'Controlled open state. Uncontrolled when omitted.' },
-    { name: 'onOpenChange', type: '(open: boolean) => void', description: 'Called when open state changes. Required when open is provided.' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'Must contain one Trigger and one Content.' },
-  ]}
-/>
+<RegistryPropsTable component="DropdownMenu" />
 
 ### DropdownMenu.Trigger
 
 Requires exactly one of `children`, `aria-label`, or `aria-labelledby`.
 
-<PropsTable
-  rows={[
-    { name: 'children', type: 'AccessibleText', description: 'Visible label text.' },
-    { name: 'aria-label', type: 'AccessibleText', description: 'Invisible label for icon-only triggers.' },
-    { name: 'aria-labelledby', type: 'string', description: 'ID of an external label element.' },
-    { name: 'disabled', type: 'boolean', description: 'Disables the trigger.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the button.' },
-  ]}
-/>
+<RegistryPropsTable component="DropdownMenu" sub="Trigger" />
 
 ### DropdownMenu.Content
 
-<PropsTable
-  rows={[
-    { name: 'children', type: 'ReactNode', required: true, description: 'Items, separators, and sub groups.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the menu panel.' },
-  ]}
-/>
+<RegistryPropsTable component="DropdownMenu" sub="Content" />
 
 ### DropdownMenu.Item
 
-<PropsTable
-  rows={[
-    { name: 'onSelect', type: '() => void', required: true, description: 'Called when the item is activated.' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'Item label.' },
-    { name: 'disabled', type: 'boolean', description: 'Marks the item aria-disabled and excludes it from keyboard navigation.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the item element.' },
-  ]}
-/>
+<RegistryPropsTable component="DropdownMenu" sub="Item" />
 
 ### DropdownMenu.Separator
 
-<PropsTable
-  rows={[
-    { name: 'className', type: 'string', description: 'Additional CSS class on the separator.' },
-  ]}
-/>
-
-### DropdownMenu.Sub
-
-<PropsTable
-  rows={[
-    { name: 'children', type: 'ReactNode', required: true, description: 'Must contain one SubTrigger and one SubContent.' },
-  ]}
-/>
+<RegistryPropsTable component="DropdownMenu" sub="Separator" />
 
 ### DropdownMenu.SubTrigger
 
 Same accessible-name contract as `Trigger`.
 
-<PropsTable
-  rows={[
-    { name: 'disabled', type: 'boolean', description: 'Disables the sub-trigger.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class.' },
-  ]}
-/>
+<RegistryPropsTable component="DropdownMenu" sub="SubTrigger" />
 
 ### DropdownMenu.SubContent
 
-<PropsTable
-  rows={[
-    { name: 'children', type: 'ReactNode', required: true, description: 'Sub-menu items.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the sub-menu panel.' },
-  ]}
-/>
+<RegistryPropsTable component="DropdownMenu" sub="SubContent" />
 
 ## Keyboard
 
@@ -200,6 +152,10 @@ Same accessible-name contract as `Trigger`.
 />
 
 The trigger position is computed once when the menu opens. Any scroll or resize event closes the menu.
+
+## Accessibility
+
+<RegistryAccessibility component="DropdownMenu" />
 
 ## Do
 

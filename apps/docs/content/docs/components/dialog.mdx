@@ -96,20 +96,7 @@ Escape always works regardless of this prop.
 
 ## API
 
-<PropsTable
-  rows={[
-    { name: 'title', type: 'AccessibleText', description: 'Visible heading rendered as <h2>. Required unless aria-labelledby is provided. Mutually exclusive with aria-labelledby.' },
-    { name: 'aria-labelledby', type: 'string', description: 'ID of an existing element that labels the dialog. Mutually exclusive with title.' },
-    { name: 'open', type: 'boolean', required: true, description: 'Controls whether the dialog is shown.' },
-    { name: 'onClose', type: '() => void', required: true, description: 'Called when the user closes the dialog (button, Escape, or backdrop).' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'Dialog body content. Rendering nothing triggers a dev overlay.' },
-    { name: 'description', type: 'AccessibleText', description: 'Supplementary description rendered as <p>, wired via aria-describedby.' },
-    { name: 'initialFocusRef', type: 'RefObject<HTMLElement | null>', description: 'Element to focus on open. Falls back to the first focusable descendant.' },
-    { name: 'returnFocusRef', type: 'RefObject<HTMLElement | null>', description: 'Element to focus on close. Falls back to the previously focused element.' },
-    { name: 'closeOnBackdropClick', type: 'boolean', default: 'true', description: 'Whether clicking the backdrop calls onClose.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the <dialog> element.' },
-  ]}
-/>
+<RegistryPropsTable component="Dialog" />
 
 ## Keyboard
 
@@ -122,6 +109,10 @@ Escape always works regardless of this prop.
 />
 
 The browser constrains focus to the dialog. After close, focus returns to the element that was active before the dialog opened (or `returnFocusRef`).
+
+## Accessibility
+
+<RegistryAccessibility component="Dialog" />
 
 ## Do
 

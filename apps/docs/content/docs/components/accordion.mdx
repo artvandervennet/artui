@@ -91,37 +91,13 @@ Programmatic value changes do not move focus. Only user interactions do.
 
 ### Accordion (root)
 
-<PropsTable
-  rows={[
-    { name: 'headingLevel', type: '2 | 3 | 4 | 5 | 6', required: true, description: 'Heading level rendered by every Accordion.Header. No default; pick the level that fits your page outline (WCAG 2.4.10).' },
-    { name: 'type', type: '"single" | "multiple"', default: '"single"', description: 'Whether at most one item can be open or any number can be open simultaneously.' },
-    { name: 'value', type: 'string | string[]', description: 'Controlled open value. string in single mode, string[] in multiple mode. Pair with onValueChange.' },
-    { name: 'defaultValue', type: 'string | string[]', description: 'Uncontrolled initial open value.' },
-    { name: 'onValueChange', type: '(value: string) => void | (value: string[]) => void', description: 'Called on user interaction when the open state changes. Required when value is provided.' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'One or more Accordion.Item elements.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the accordion root.' },
-  ]}
-/>
+<RegistryPropsTable component="Accordion" />
 
 ### Accordion.Item
 
-<PropsTable
-  rows={[
-    { name: 'value', type: 'string', required: true, description: 'Stable identifier, unique within the accordion. Duplicates fire a dev overlay.' },
-    { name: 'disabled', type: 'boolean', default: 'false', description: 'Marks the item non-interactive: aria-disabled="true" and excluded from Arrow-key navigation.' },
-    { name: 'children', type: 'ReactNode', required: true, description: 'Must contain one Accordion.Header (with Accordion.Trigger) and one Accordion.Panel.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the <details> element.' },
-  ]}
-/>
+<RegistryPropsTable component="Accordion" sub="Item" />
 
 ### Accordion.Header
-
-<PropsTable
-  rows={[
-    { name: 'children', type: 'ReactNode', required: true, description: 'Must contain an Accordion.Trigger.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the heading element.' },
-  ]}
-/>
 
 Renders as `<h2>` through `<h6>` inside the `<summary>`, at the level `headingLevel` sets on the root.
 
@@ -129,23 +105,11 @@ Renders as `<h2>` through `<h6>` inside the `<summary>`, at the level `headingLe
 
 Requires exactly one of `children`, `aria-label`, or `aria-labelledby`.
 
-<PropsTable
-  rows={[
-    { name: 'children', type: 'AccessibleText', description: 'Visible label text.' },
-    { name: 'aria-label', type: 'AccessibleText', description: 'Invisible label for icon-only triggers. Mutually exclusive with children and aria-labelledby.' },
-    { name: 'aria-labelledby', type: 'string', description: 'ID of an external label element. Mutually exclusive with children and aria-label.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the trigger span.' },
-  ]}
-/>
+<RegistryPropsTable component="Accordion" sub="Trigger" />
 
 ### Accordion.Panel
 
-<PropsTable
-  rows={[
-    { name: 'children', type: 'ReactNode', required: true, description: 'Content shown when the item is open.' },
-    { name: 'className', type: 'string', description: 'Additional CSS class on the panel <div>.' },
-  ]}
-/>
+<RegistryPropsTable component="Accordion" sub="Panel" />
 
 Gets `role="region"` when the accordion has 6 or fewer items, `aria-labelledby` pointing at the header, and `tabIndex={-1}` so it can receive focus on expand.
 
@@ -164,6 +128,10 @@ Gets `role="region"` when the accordion has 6 or fewer items, `aria-labelledby` 
 />
 
 On user-initiated expand, focus moves into the panel so screen readers announce the newly visible content. On collapse, focus returns to the header.
+
+## Accessibility
+
+<RegistryAccessibility component="Accordion" />
 
 ## Do
 

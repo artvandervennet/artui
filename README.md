@@ -3,89 +3,75 @@
 [![CI](https://github.com/artvandervennet/artui/actions/workflows/ci.yml/badge.svg)](https://github.com/artvandervennet/artui/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-An accessibility-first React component library. Inaccessibility is a
-TypeScript error, not a silent runtime failure that an audit finds three
-months later.
+Accessibility-first React components. Missing alt text or an unlabelled button
+is a TypeScript error — the build won't pass.
 
 ## Why
 
 The [WebAIM Million 2026](https://webaim.org/projects/million/) report found
-detectable WCAG 2 violations on 95.9% of the top one million homepages. The
-same six categories — contrast, alt text, form labels, empty links, empty
-buttons, missing language — appear year after year. The pattern is bad
-tooling, not bad intent.
+WCAG violations on 95.9% of the top one million homepages. Same six categories
+every year: contrast, alt text, form labels, empty links, empty buttons, missing
+language. The tooling keeps missing them.
 
-artui addresses that by making the accessible path the default path:
+artui moves that catch to earlier in the pipeline:
 
-- **Compile time**: missing alt text, placeholder alt values, or an
-  unlabelled button are TypeScript errors. The code doesn't build.
-- **Runtime (dev)**: dynamic strings that evaluate to a placeholder at
-  runtime trigger a console warning and a red outline around the offending
-  element.
-- **AI assistants**: an MCP server exposes component docs to Claude Code,
-  Cursor, and GitHub Copilot, so generated code uses the right component
-  the first time.
+- **Compile time** — missing alt text, placeholder alt values, unlabelled
+  buttons are TypeScript errors. The code doesn't build.
+- **Runtime (dev)** — dynamic strings that evaluate to placeholders at runtime
+  get a console warning and a red outline on the offending element.
+- **AI assistants** — an MCP server gives Claude Code, Cursor, and Copilot
+  the component docs, so generated code starts from the right API.
 
 ## Install
 
 In your existing React project:
 
 ```bash
-pnpm dlx @artui/cli init
-pnpm dlx @artui/cli add Image
+npx artui@latest init
+npx artui@latest add accordion
 ```
 
-The CLI copies the component source into your codebase. You own the files
-after that — edit them freely.
+Or install the CLI globally if you plan to use it across multiple projects:
 
-## Packages
+```bash
+npm install -g @artui/cli
+artui init
+artui add accordion
+```
 
-| Package                       | What it is                                   |
-| ----------------------------- | -------------------------------------------- |
-| [`@artui/cli`](packages/cli)  | The `artui` CLI: `init`, `add`, `lint`.      |
-| [`@artui/docs`](apps/docs)    | Docs site (Fumadocs) + hosted MCP endpoint.  |
-| [`@artui/registry`](registry) | Component source-of-truth (not published).   |
+The CLI copies component source into your project. You own the files and can
+edit them freely.
 
-## Connecting the MCP server
-
-The MCP server is hosted alongside the docs site. One command — no local
-binary, no config file:
+## MCP server
 
 ```bash
 claude mcp add --transport http artui https://artui.vandervennet.art/api/mcp
 ```
 
-Then ask: *"How do I add an accessible image with artui?"* — your AI
-assistant will read the live registry and return the correct command.
+Then ask your assistant: _"how do I add an accessible image with artui?"_
 
-## Development
+## Packages
+
+| Package                      | What it is                              |
+| ---------------------------- | --------------------------------------- |
+| [`@artui/cli`](packages/cli) | `artui init`, `artui add`, `artui list` |
+
+## Developing
 
 ```bash
+git clone https://github.com/artvandervennet/artui && cd artui
 pnpm install
-pnpm --filter @artui/registry build  # generates registry.json
-pnpm dev                              # all workspaces in parallel
+pnpm --filter @artui/registry build   # generates registry.json from meta.ts files
+pnpm dev                               # docs site at http://localhost:3000
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full local workflow.
-
-## Deploying the docs
-
-Vercel is configured via [vercel.json](vercel.json). Import the repo at
-[vercel.com/new](https://vercel.com/new) — no dashboard settings needed.
-The build runs `pnpm turbo run build --filter=@artui/docs...`, which
-builds `@artui/registry` first, copies `registry.json` into the docs
-site's `public/`, then builds Next. Once deployed, both the docs and the
-registry are live:
-
-```text
-https://<your-deploy>.vercel.app/                       → docs
-https://<your-deploy>.vercel.app/docs/components/image  → Image reference
-https://<your-deploy>.vercel.app/registry.json          → CLI/MCP source
+```bash
+pnpm test       # vitest
+pnpm typecheck  # tsc --noEmit across the workspace
+pnpm lint       # biome check
 ```
 
-After the first deploy, update the default URL in
-[packages/cli/src/lib/config.ts](packages/cli/src/lib/config.ts) to point
-at your live `registry.json`.
+To add a component or report an accessibility bug, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

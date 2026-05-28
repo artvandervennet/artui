@@ -89,21 +89,7 @@ Use when a visible label would be redundant. Mutually exclusive with `label` and
 
 ## API
 
-<PropsTable
-  rows={[
-    { name: 'label', type: 'string', description: 'Visible label. Required unless aria-label or aria-labelledby is provided.' },
-    { name: 'aria-label', type: 'string', description: 'Non-visible accessible name. Mutually exclusive with label and aria-labelledby.' },
-    { name: 'aria-labelledby', type: 'string', description: 'ID of an existing labeling element. Mutually exclusive with label and aria-label.' },
-    { name: 'value', type: 'Date | null', required: true, description: 'Currently selected date, or null.' },
-    { name: 'onChange', type: '(next: Date | null) => void', required: true, description: 'Called when the user selects a date or types a valid one.' },
-    { name: 'locale', type: 'string', default: 'navigator.language', description: 'BCP-47 locale tag. Controls date format, week start, and month labels.' },
-    { name: 'min', type: 'Date', description: 'Earliest selectable date (inclusive).' },
-    { name: 'max', type: 'Date', description: 'Latest selectable date (inclusive).' },
-    { name: 'isDateDisabled', type: '(date: Date) => boolean', description: 'Predicate to disable individual dates.' },
-    { name: 'error', type: 'string', description: 'External validation error, wired via aria-describedby.' },
-    { name: 'required', type: 'boolean', description: 'Maps to aria-required on the text input.' },
-  ]}
-/>
+<RegistryPropsTable component="Datepicker" />
 
 ## Keyboard
 
@@ -125,6 +111,10 @@ Calendar popup follows the [WAI-ARIA APG Date Picker Dialog pattern](https://www
     { keys: ['Tab'], action: 'Cycle: prev-month → next-month → close button' },
   ]}
 />
+
+## Accessibility
+
+<RegistryAccessibility component="Datepicker" />
 
 ## Do
 

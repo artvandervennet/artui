@@ -51,7 +51,7 @@ pnpm --filter @artui/docs dev
    handlers), add them under `registry/lib/` and list them as
    `registryDependencies` in your meta.
 3. Add at least one vitest test that exercises the accessibility
-   contract — keyboard reachability, focus management, ARIA exposure.
+   contract: keyboard reachability, focus management, ARIA exposure.
 4. Add a docs page at `apps/docs/content/docs/components/<name>.mdx`
    following the §2.1.3 checklist (purpose, install, preview, API,
    accessibility, do/don'ts, related).
@@ -63,7 +63,7 @@ pnpm --filter @artui/docs dev
 Every PR must:
 
 - pass `pnpm turbo run lint typecheck test build`
-- include a Changeset (`pnpm changeset`) if it touches `@artui/cli` —
+- include a Changeset (`pnpm changeset`) if it touches `@artui/cli`,
   the release workflow needs it
 - include an accessibility test if the change affects component
   behavior (keyboard, focus, ARIA)
@@ -71,7 +71,7 @@ Every PR must:
 
 ## Reporting bugs
 
-Use the issue templates. Accessibility bugs have their own template —
+Use the issue templates. Accessibility bugs have their own template,
 please include the WCAG criterion you believe is violated and which
 assistive technology + version you tested with. That detail makes
 the fix dramatically faster.
