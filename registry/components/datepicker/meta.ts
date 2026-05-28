@@ -13,7 +13,7 @@ export const meta: ComponentMeta = {
       type: "AccessibleText",
       required: false,
       description:
-        "Visible label for the date input. Exactly one of label, aria-label, or aria-labelledby is required — passing none or two is a compile error.",
+        "Visible label for the date input. Exactly one of label, aria-label, or aria-labelledby is required; passing none or two is a compile error.",
     },
     {
       name: "aria-label",
@@ -182,17 +182,17 @@ export const meta: ComponentMeta = {
     {
       code: `<Datepicker value={date} onChange={setDate} />`,
       reason:
-        "Missing label source. Compile error — every Datepicker must have label, aria-label, or aria-labelledby so screen reader users know what the field is for.",
+        "Missing label source. Compile error: every Datepicker must have label, aria-label, or aria-labelledby so screen reader users know what the field is for.",
     },
     {
       code: `<Datepicker label="Date" aria-label="Date" value={date} onChange={setDate} />`,
       reason:
-        "Two label sources at once. Compile error — pass exactly one of label, aria-label, or aria-labelledby.",
+        "Two label sources at once. Compile error: pass exactly one of label, aria-label, or aria-labelledby.",
     },
     {
       code: `<Datepicker label="Date" value={date} onChange={setDate} locale="not-a-locale" />`,
       reason:
-        "Invalid BCP-47 locale tag — dev overlay fires and the component falls back to navigator.language.",
+        "Invalid BCP-47 locale tag; dev overlay fires and the component falls back to navigator.language.",
     },
   ],
 };

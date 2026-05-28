@@ -22,7 +22,7 @@
   }
 }
 
-/* Disable the UA disclosure marker — we render our own chevron. */
+/* Disable the UA disclosure marker: we render our own chevron. */
 .artui-accordion-summary {
   list-style: none;
   display: flex;
@@ -72,7 +72,7 @@
   height: var(--artui-accordion-chevron-size);
   flex-shrink: 0;
   /* CSS mask + currentColor so the glyph tracks the summary's text color
-   * (CanvasText by default — guaranteed contrast against CanvasBg). Plain
+   * (CanvasText by default: guaranteed contrast against CanvasBg). Plain
    * background-image with stroke='currentColor' does NOT work: the SVG is
    * parsed in its own document context and falls back to black, which is
    * invisible on a dark canvas. */

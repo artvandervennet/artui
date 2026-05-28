@@ -13,7 +13,7 @@ export const meta: ComponentMeta = {
       type: "2 | 3 | 4 | 5 | 6",
       required: true,
       description:
-        "Heading level rendered by every Accordion.Header. Required — no default, so authors must pick a level that fits the document outline.",
+        "Heading level rendered by every Accordion.Header. Required: no default, so authors must pick a level that fits the document outline.",
     },
     {
       name: "type",
@@ -82,7 +82,7 @@ export const meta: ComponentMeta = {
       type: "AccessibleText",
       required: false,
       description:
-        "Visible label text for the trigger. Exactly one of children, aria-label, or aria-labelledby is required — compile error otherwise.",
+        "Visible label text for the trigger. Exactly one of children, aria-label, or aria-labelledby is required: compile error otherwise.",
     },
     {
       name: "Trigger.aria-label",
@@ -115,7 +115,7 @@ export const meta: ComponentMeta = {
     {
       wcag: "1.3.1",
       description:
-        "Built on native <details> / <summary> — the trigger-to-panel relationship is implicit in the DOM and communicated to assistive technology without aria-controls. aria-controls is also set explicitly as a defensive measure for older AT.",
+        "Built on native <details> / <summary>: the trigger-to-panel relationship is implicit in the DOM and communicated to assistive technology without aria-controls. aria-controls is also set explicitly as a defensive measure for older AT.",
     },
     {
       wcag: "1.3.3",
@@ -232,7 +232,7 @@ export const meta: ComponentMeta = {
     {
       code: `<Accordion.Trigger>{""}</Accordion.Trigger>`,
       reason:
-        "Empty string is not an accessible name. Compile error — AccessibleText rejects placeholder values.",
+        "Empty string is not an accessible name. Compile error: AccessibleText rejects placeholder values.",
     },
     {
       code: `<Accordion.Trigger>image</Accordion.Trigger>`,

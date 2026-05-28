@@ -107,7 +107,7 @@
     cursor: grabbing;
   }
 
-  /* Expanded hit area (WCAG 2.5.8 — 24px minimum, recommended 44px). */
+  /* Expanded hit area (WCAG 2.5.8: 24px minimum, recommended 44px). */
   &::before {
     content: "";
     position: absolute;

@@ -5,7 +5,7 @@ import { findComponent, loadRegistry } from './registry-loader';
 
 /**
  * Tools from §2.2.2 Table 8 of the thesis. All six tools read from a single
- * registry.json (re-loaded per request — simpler than caching, and the file
+ * registry.json (re-loaded per request; simpler than caching, and the file
  * is small).
  *
  * Each tool returns a `content` array with one text entry whose payload is a

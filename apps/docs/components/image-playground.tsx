@@ -95,7 +95,7 @@ export function ImagePlayground() {
             hint={
               isInvalidAlt ? (
                 <p className="text-xs text-amber-600 dark:text-amber-400">
-                  &#9888; Forbidden alt — the error overlay appears in development
+                  &#9888; Forbidden alt: the error overlay appears in development
                 </p>
               ) : undefined
             }

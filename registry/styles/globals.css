@@ -2,7 +2,7 @@
 
 /*
  * artui design tokens. Consumers extend or override these via `@theme`.
- * Keep this file small — components rely on Tailwind utilities, not on
+ * Keep this file small: components rely on Tailwind utilities, not on
  * heavy custom CSS.
  */
 

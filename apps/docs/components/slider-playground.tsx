@@ -123,7 +123,7 @@ export function SliderPlayground() {
       codeNote={
         <p className="mt-2 text-xs text-fd-muted-foreground">
           The preview above is controlled (<code>value</code> / <code>onValueChange</code>) so it
-          stays live. The snippet shows the simpler uncontrolled <code>defaultValue</code> form —
+          stays live. The snippet shows the simpler uncontrolled <code>defaultValue</code> form;
           production usage can use either.
         </p>
       }

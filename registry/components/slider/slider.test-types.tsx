@@ -1,5 +1,5 @@
 /**
- * Type-only test file. Run with `tsc --noEmit` — the @ts-expect-error lines
+ * Type-only test file. Run with `tsc --noEmit`: the @ts-expect-error lines
  * MUST produce errors. If TypeScript ever stops flagging them, the safety net
  * is broken and this file fails to compile.
  */
@@ -117,7 +117,7 @@ export function InvalidUses(): ReactNode {
       {/* @ts-expect-error single-thumb with no accessible name */}
       <Slider min={0} max={100} onValueChange={noop} />
 
-      {/* thumbs slot with empty descriptors — error is on the thumbs prop itself */}
+      {/* thumbs slot with empty descriptors: error is on the thumbs prop itself */}
       <Slider
         min={0}
         max={100}
@@ -127,7 +127,7 @@ export function InvalidUses(): ReactNode {
         onValueChange={noop}
       />
 
-      {/* Second thumb has no accessible name — error on the thumbs prop line */}
+      {/* Second thumb has no accessible name: error on the thumbs prop line */}
       <Slider
         min={0}
         max={100}

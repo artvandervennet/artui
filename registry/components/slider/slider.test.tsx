@@ -32,7 +32,7 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Rendering & ARIA — single-thumb
+  // Rendering & ARIA: single-thumb
   // -------------------------------------------------------------------------
 
   describe("single-thumb rendering", () => {
@@ -145,7 +145,7 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Rendering & ARIA — range slider
+  // Rendering & ARIA: range slider
   // -------------------------------------------------------------------------
 
   describe("range slider rendering", () => {
@@ -292,7 +292,7 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Keyboard contract — single-thumb
+  // Keyboard contract: single-thumb
   // -------------------------------------------------------------------------
 
   describe("single-thumb keyboard", () => {
@@ -416,7 +416,7 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Keyboard contract — range slider
+  // Keyboard contract: range slider
   // -------------------------------------------------------------------------
 
   describe("range slider keyboard", () => {
@@ -497,10 +497,10 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Thumb swap — keyboard
+  // Thumb swap: keyboard
   // -------------------------------------------------------------------------
 
-  describe("thumb swap — keyboard", () => {
+  describe("thumb swap: keyboard", () => {
     it("ArrowRight on lower thumb swaps when proposed crosses upper thumb value", () => {
       // Equal start + step=10: proposed=60 strictly crosses other=50 after sanitize
       render(
@@ -569,7 +569,7 @@ describe("Slider", () => {
       expect(document.activeElement).toBe(getThumb("Min"));
     });
 
-    it("swap at equal values — ArrowRight advances then swaps", () => {
+    it("swap at equal values: ArrowRight advances then swaps", () => {
       render(
         <Slider
           min={0}
@@ -676,10 +676,10 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Thumb swap — pointer drag
+  // Thumb swap: pointer drag
   // -------------------------------------------------------------------------
 
-  describe("thumb swap — pointer drag", () => {
+  describe("thumb swap: pointer drag", () => {
     it("drag lower thumb past upper transfers capture and commits swapped tuple", () => {
       const handler = vi.fn();
       const { container } = render(
@@ -924,7 +924,7 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Dev guards — overlay assertions
+  // Dev guards: overlay assertions
   //
   // withErrorOverlay wraps the element in:
   //   <span style="position:relative;display:inline-block">
@@ -1244,7 +1244,7 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Guard dedup — console.error fires once, overlay still renders on re-render
+  // Guard dedup: console.error fires once, overlay still renders on re-render
   // -------------------------------------------------------------------------
 
   describe("guard deduplication", () => {
@@ -1266,7 +1266,7 @@ describe("Slider", () => {
       const hits = errorSpy.mock.calls.filter((c: unknown[]) =>
         String(c[0]).includes("Slider:range-without-group-name"),
       );
-      // withErrorOverlay deduplicates via the reported Set — console.error fires exactly once.
+      // withErrorOverlay deduplicates via the reported Set: console.error fires exactly once.
       expect(hits).toHaveLength(1);
     });
 

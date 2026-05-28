@@ -184,7 +184,7 @@ export function ToastProvider({
       if (isDev) {
         console.error(
           "[artui] <ToastProvider>: Multiple <ToastProvider> instances detected. " +
-            "Mount exactly one — duplicate regions duplicate live-region announcements.",
+            "Mount exactly one: duplicate regions duplicate live-region announcements.",
         );
       }
     }
@@ -217,7 +217,7 @@ export function ToastProvider({
       if (!pending.drained) {
         pending.drained = true;
         // Actual show is triggered via the api, which was already called.
-        // The pending entry contains the resolved options — we add to state here.
+        // The pending entry contains the resolved options: we add to state here.
         addToast(pending.opts);
       }
     }
@@ -225,7 +225,7 @@ export function ToastProvider({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted]);
 
-  // document.visibilitychange listener — broadcast hidden/visible.
+  // document.visibilitychange listener: broadcast hidden/visible.
   useEffect(() => {
     const handler = () => {
       const hidden = document.visibilityState !== "visible";
@@ -409,7 +409,7 @@ export function ToastProvider({
   }, []);
 
   // ---------------------------------------------------------------------------
-  // addToast — internal, called after mount gate
+  // addToast: internal, called after mount gate
   // ---------------------------------------------------------------------------
 
   const addToast = useCallback(
@@ -665,7 +665,7 @@ export function ToastProvider({
       key: "Toast:duplicate-provider",
       component: "ToastProvider",
       message:
-        "Multiple <ToastProvider> instances detected. Mount exactly one — duplicate regions duplicate live-region announcements.",
+        "Multiple <ToastProvider> instances detected. Mount exactly one: duplicate regions duplicate live-region announcements.",
     });
   }
 

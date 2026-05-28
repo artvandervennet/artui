@@ -1,6 +1,6 @@
 ---
 title: Datepicker
-description: Accessible date input with calendar popup. Text input and calendar are first-class entry paths. Passes all 9 WCAG criteria where peer libraries fail.
+description: Accessible date input with calendar popup. Text input and calendar are both first-class entry paths.
 ---
 
 ```bash
@@ -51,7 +51,7 @@ Every Datepicker needs exactly one of `label`, `aria-label`, or `aria-labelledby
 />
 ```
 
-Days outside `[min, max]` are rendered with `aria-disabled="true"` and the `disabled` attribute. They are not focusable and cannot be selected.
+Days outside `[min, max]` render with `aria-disabled="true"` and the `disabled` attribute. They are not focusable and cannot be selected.
 
 ### Disable specific dates
 
@@ -77,7 +77,7 @@ Returning `true` from `isDateDisabled` blocks that date.
 />
 ```
 
-The `error` prop renders below the input and is referenced by `aria-describedby`.
+The `error` prop renders below the input and connects via `aria-describedby`.
 
 ### Non-visible label
 

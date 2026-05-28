@@ -33,7 +33,7 @@ describe("Dialog", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Accessible name — title prop
+  // Accessible name: title prop
   // -------------------------------------------------------------------------
 
   it("renders an h2 heading when title prop is provided", () => {
@@ -57,7 +57,7 @@ describe("Dialog", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Accessible name — aria-labelledby prop
+  // Accessible name: aria-labelledby prop
   // -------------------------------------------------------------------------
 
   it("uses the provided aria-labelledby value when title is absent", () => {
@@ -126,7 +126,7 @@ describe("Dialog", () => {
         <p>Content</p>
       </Dialog>,
     );
-    // The <dialog> is always in the DOM — a closed native <dialog> (no `open`
+    // The <dialog> is always in the DOM: a closed native <dialog> (no `open`
     // attribute) is display:none per the UA stylesheet and AT-invisible, so
     // the external contract is unchanged. We must keep it mounted so that
     // dialog.close() can fire before any unmount, preventing NVDA from getting

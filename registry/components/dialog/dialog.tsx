@@ -16,7 +16,7 @@ const isDev =
   typeof process !== "undefined" && process.env.NODE_ENV !== "production";
 
 // ---------------------------------------------------------------------------
-// Props — discriminated union: exactly one label source required
+// Props: discriminated union: exactly one label source required
 // ---------------------------------------------------------------------------
 
 type DialogLabelProps =
@@ -94,10 +94,10 @@ export function Dialog(props: DialogProps): ReactElement {
   // Lifecycle
   // -------------------------------------------------------------------------
 
-  // Effect A — open transition: showModal, initial focus, event wiring.
+  // Effect A: open transition: showModal, initial focus, event wiring.
   // Cleanup only removes listeners. dialog.close() is deliberately NOT called
   // here because this effect's cleanup fires after React has already committed
-  // the re-render — by that point the <dialog> could have been removed from
+  // the re-render: by that point the <dialog> could have been removed from
   // the DOM (in a conditional-render pattern), making close() a no-op and
   // leaving NVDA's virtual buffer stranded in modal mode. close() is handled
   // exclusively by Effect B, which runs while the element is still mounted.
@@ -143,7 +143,7 @@ export function Dialog(props: DialogProps): ReactElement {
     };
   }, [open, initialFocusRef, returnFocusRef, onClose, closeOnBackdropClick]);
 
-  // Effect B — close transition: dialog.close() then focus restore.
+  // Effect B: close transition: dialog.close() then focus restore.
   // Running close() here (while the element is still in the DOM) ensures the
   // browser receives the close signal before any potential unmount, preventing
   // NVDA from getting stuck in a modal context with no dialog to read.
@@ -160,7 +160,7 @@ export function Dialog(props: DialogProps): ReactElement {
   }, [open, returnFocusRef]);
 
   // Lock body scroll while open. Native <dialog> + showModal() does not prevent
-  // background scrolling on its own (WCAG 2.4.11 — focused element not obscured).
+  // background scrolling on its own (WCAG 2.4.11: focused element not obscured).
   useEffect(() => {
     if (!open || typeof document === "undefined") return;
     const body = document.body;
@@ -176,7 +176,7 @@ export function Dialog(props: DialogProps): ReactElement {
     if (!isDev || !open || !dialogRef.current) return;
     const dialog = dialogRef.current;
 
-    // Dialog:labelledby-missing (4.1.2) — aria-labelledby points at a nonexistent element.
+    // Dialog:labelledby-missing (4.1.2): aria-labelledby points at a nonexistent element.
     if (ariaLabelledBy) {
       const target = document.getElementById(ariaLabelledBy);
       if (!target) {
@@ -186,7 +186,7 @@ export function Dialog(props: DialogProps): ReactElement {
       }
     }
 
-    // Dialog:no-focusable (2.1.1) — no focusable elements in the dialog body.
+    // Dialog:no-focusable (2.1.1): no focusable elements in the dialog body.
     // We check only the body slot, not the header close button.
     const body = dialog.querySelector(".artui-dialog-body");
     const bodyFocusable = body ? body.querySelectorAll(FOCUSABLE) : [];
@@ -201,7 +201,7 @@ export function Dialog(props: DialogProps): ReactElement {
   // Render
   // -------------------------------------------------------------------------
 
-  // Always render the <dialog> element — never conditionally unmount it.
+  // Always render the <dialog> element: never conditionally unmount it.
   // A closed native <dialog> (no `open` attribute) is display:none per the
   // browser UA stylesheet and invisible to the accessibility tree, so there
   // is no observable difference for users. Keeping it mounted ensures
@@ -257,7 +257,7 @@ export function Dialog(props: DialogProps): ReactElement {
     </dialog>
   );
 
-  // Dialog:empty-children (1.3.1) — only meaningful when the dialog is open.
+  // Dialog:empty-children (1.3.1): only meaningful when the dialog is open.
   if (open && !hasChildren) {
     return withErrorOverlay(element, {
       key: "Dialog:empty-children",

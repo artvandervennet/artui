@@ -47,7 +47,7 @@ import { Slider } from '@/components/slider';
 />
 ```
 
-Each thumb in `thumbs` must carry an accessible name — omitting both `aria-label` and `aria-labelledby` is a TypeScript compile error.
+Each thumb in `thumbs` must carry an accessible name. Omitting both `aria-label` and `aria-labelledby` is a TypeScript compile error.
 
 ### Controlled
 
@@ -119,7 +119,7 @@ import { Slider } from '@/components/slider';
     { name: 'value', type: 'number (single) | readonly [number, number] (range)', description: 'Controlled value. Pair with onValueChange.' },
     { name: 'defaultValue', type: 'number (single) | readonly [number, number] (range)', description: 'Uncontrolled initial value.' },
     { name: 'onValueChange', type: '(value: number) => void (single) | (value: readonly [number, number]) => void (range)', description: 'Called whenever the value changes.' },
-    { name: 'thumbs', type: 'readonly [SliderThumbDescriptor, SliderThumbDescriptor]', description: 'Activates range mode. Each descriptor must carry an accessible name — omitting aria-label, aria-labelledby, and children is a compile error.' },
+    { name: 'thumbs', type: 'readonly [SliderThumbDescriptor, SliderThumbDescriptor]', description: 'Activates range mode. Each descriptor must carry an accessible name; omitting aria-label, aria-labelledby, and children is a compile error.' },
     { name: 'aria-label', type: 'string', description: 'Single mode: accessible name on the thumb. Range mode: accessible name on the group wrapper.' },
     { name: 'aria-labelledby', type: 'string', description: 'Single mode: ID of an element labelling the thumb. Range mode: ID of the element labelling the group. A dev overlay fires when the ID does not resolve in the DOM.' },
     { name: 'className', type: 'string', description: 'Additional CSS class applied to the slider root element.' },
@@ -141,12 +141,12 @@ Descriptor for each thumb in range mode. Exactly one of `aria-label`, `aria-labe
 
 ### Range thumb swap
 
-When a range thumb is dragged or moved by keyboard past the other thumb's current value, the component performs a swap: focus and pointer capture transfer seamlessly to the other thumb so the gesture continues without interruption. No step is lost and no re-press is required.
+When a range thumb is dragged or moved by keyboard past the other thumb's current value, the component swaps focus and pointer capture to the other thumb so the gesture continues without interruption. No step is lost and no re-press is required.
 
-Guarantees of the swap:
+What the swap guarantees:
 
-- Focus follows the moving value — the thumb that is now in motion receives focus automatically.
-- The full step is always applied — the value does not freeze at the crossing point.
+- Focus follows the moving value: the thumb now in motion receives focus automatically.
+- The full step is always applied: the value does not freeze at the crossing point.
 - Screen readers announce the new thumb on focus change, so AT users hear "Minimum price: €300" rather than silence.
 - `aria-valuemin` and `aria-valuemax` recompute on every render based on current value ordering, so each thumb always reports an accurate range boundary.
 
@@ -165,7 +165,7 @@ Guarantees of the swap:
   ]}
 />
 
-In range mode, when any key would push a thumb past the other thumb's value, focus transfers automatically to the other thumb and the full step is applied — the gesture continues without interruption. Tab order between the two thumbs always follows DOM order (`thumbs[0]` first, `thumbs[1]` second), regardless of which has the lower value at that moment.
+In range mode, when any key would push a thumb past the other thumb's value, focus transfers automatically to the other thumb and the full step is applied. Tab order between the two thumbs always follows DOM order (`thumbs[0]` first, `thumbs[1]` second), regardless of which has the lower value at that moment.
 
 ## Do
 
@@ -271,7 +271,7 @@ A dev overlay fires with WCAG 4.1.2 `[Slider:value-out-of-range]` and the value 
 
 <Dont title="Assume thumbs[0] always holds the lower value after a swap">
 ```tsx
-// incorrect — assumes slot 0 is always the lower bound
+// incorrect: assumes slot 0 is always the lower bound
 const [range, setRange] = useState<readonly [number, number]>([20, 80]);
 
 <Slider
@@ -289,5 +289,5 @@ const [range, setRange] = useState<readonly [number, number]>([20, 80]);
 const lowerBound = range[0]; // wrong after a cross-over
 ```
 
-After a swap, value identity travels with focus while slot identity stays put — `thumbs[0]` may hold the higher value. Sort in `onValueChange` if you need a guaranteed `[lo, hi]` tuple downstream.
+After a swap, value identity travels with focus while slot identity stays put, so `thumbs[0]` may hold the higher value. Sort in `onValueChange` if you need a guaranteed `[lo, hi]` tuple downstream.
 </Dont>

@@ -8,7 +8,7 @@ import { __resetDevOverlayCache } from "../../lib/dev-overlay";
 import { ToastProvider, useToast } from "./toast";
 
 // ---------------------------------------------------------------------------
-// matchMedia stub — jsdom does not implement it
+// matchMedia stub: jsdom does not implement it
 // ---------------------------------------------------------------------------
 
 function stubMatchMedia(matches = false) {
@@ -146,14 +146,14 @@ afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
   // RTL cleanup() handles unmounting React trees (including portals).
-  // Do NOT manually remove portal nodes — React already does it during unmount.
+  // Do NOT manually remove portal nodes: React already does it during unmount.
 });
 
 // ---------------------------------------------------------------------------
-// 4.1.3 — Status messages / live regions
+// 4.1.3: Status messages / live regions
 // ---------------------------------------------------------------------------
 
-describe("4.1.3 — live regions", () => {
+describe("4.1.3: live regions", () => {
   it("renders polite region on provider mount before any toast is shown", () => {
     render(<Wrapper />);
     flush();
@@ -182,7 +182,7 @@ describe("4.1.3 — live regions", () => {
   });
 
   it("does not call showPopover when popover API is unsupported (fallback class applied)", () => {
-    // jsdom does not support popover by default — the region is still rendered.
+    // jsdom does not support popover by default: the region is still rendered.
     render(<Wrapper />);
     flush();
     expect(document.getElementById("artui-toast-region-polite")).toBeInTheDocument();
@@ -266,10 +266,10 @@ describe("4.1.3 — live regions", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 2.2.1 — Auto-dismiss and pause
+// 2.2.1: Auto-dismiss and pause
 // ---------------------------------------------------------------------------
 
-describe("2.2.1 — timing adjustable", () => {
+describe("2.2.1: timing adjustable", () => {
   it("auto-dismisses after configured duration with no pause condition", () => {
     render(<Wrapper defaultDuration={1000}><ToastButton /></Wrapper>);
     flush();
@@ -428,10 +428,10 @@ describe("2.2.1 — timing adjustable", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 2.1.1 — Keyboard accessible
+// 2.1.1: Keyboard accessible
 // ---------------------------------------------------------------------------
 
-describe("2.1.1 — keyboard accessible", () => {
+describe("2.1.1: keyboard accessible", () => {
   it("does not move focus to toast on render", () => {
     render(
       <Wrapper>
@@ -496,10 +496,10 @@ describe("2.1.1 — keyboard accessible", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 2.4.3 — Focus order
+// 2.4.3: Focus order
 // ---------------------------------------------------------------------------
 
-describe("2.4.3 — focus order", () => {
+describe("2.4.3: focus order", () => {
   it("Tab order in main document unchanged after toast shown", async () => {
     // Use real timers for userEvent tab navigation.
     vi.useRealTimers();
@@ -597,10 +597,10 @@ describe("2.4.3 — focus order", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 1.4.1 — Use of color
+// 1.4.1: Use of color
 // ---------------------------------------------------------------------------
 
-describe("1.4.1 — use of color", () => {
+describe("1.4.1: use of color", () => {
   it("prefixes title with 'Success: ' visually-hidden for success", () => {
     render(<Wrapper><TypeButton type="success" /></Wrapper>);
     flush();
@@ -654,10 +654,10 @@ describe("1.4.1 — use of color", () => {
 });
 
 // ---------------------------------------------------------------------------
-// 2.4.7 — Focus visible
+// 2.4.7: Focus visible
 // ---------------------------------------------------------------------------
 
-describe("2.4.7 — focus visible", () => {
+describe("2.4.7: focus visible", () => {
   it("applies outline (not box-shadow) to action button focus", () => {
     render(<Wrapper><ToastButton duration={null} actionLabel="Undo" /></Wrapper>);
     flush();

@@ -80,7 +80,7 @@ describe("DropdownMenu", () => {
   });
 
   // -------------------------------------------------------------------------
-  // ARIA wiring — trigger
+  // ARIA wiring: trigger
   // -------------------------------------------------------------------------
 
   it("renders a button with aria-haspopup=menu and aria-expanded=false when closed", () => {
@@ -171,7 +171,7 @@ describe("DropdownMenu", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Keyboard — ArrowDown / ArrowUp navigation
+  // Keyboard: ArrowDown / ArrowUp navigation
   // -------------------------------------------------------------------------
 
   it("moves focus to the next item with ArrowDown", async () => {
@@ -225,7 +225,7 @@ describe("DropdownMenu", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Keyboard — Escape
+  // Keyboard: Escape
   // -------------------------------------------------------------------------
 
   it("closes the menu on Escape", async () => {
@@ -263,7 +263,7 @@ describe("DropdownMenu", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Keyboard — Typeahead
+  // Keyboard: Typeahead
   // -------------------------------------------------------------------------
 
   it("jumps to the first item matching the typed character", async () => {
@@ -364,7 +364,7 @@ describe("DropdownMenu", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Submenu — ARIA
+  // Submenu: ARIA
   // -------------------------------------------------------------------------
 
   it("sub-trigger has aria-haspopup=menu and aria-expanded=false when sub is closed", async () => {
@@ -474,7 +474,7 @@ describe("DropdownMenu", () => {
         <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
         <DropdownMenu.Content>
           <DropdownMenu.Sub>
-            {/* SubTrigger intentionally absent — guard fires after SubContent mount */}
+            {/* SubTrigger intentionally absent: guard fires after SubContent mount */}
             <DropdownMenu.SubContent>
               <DropdownMenu.Item onSelect={vi.fn()}>Item</DropdownMenu.Item>
             </DropdownMenu.SubContent>
@@ -516,7 +516,7 @@ describe("DropdownMenu", () => {
   });
 
   // -------------------------------------------------------------------------
-  // SubContent viewport overflow — flip and clamp
+  // SubContent viewport overflow: flip and clamp
   // -------------------------------------------------------------------------
 
   it("flips SubContent to the left when the right edge would overflow the viewport", async () => {

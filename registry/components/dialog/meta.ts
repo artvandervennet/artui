@@ -13,7 +13,7 @@ export const meta: ComponentMeta = {
       type: "AccessibleText",
       required: false,
       description:
-        "Visible dialog heading rendered as an <h2>. Exactly one of title or aria-labelledby is required — passing neither or both is a compile error.",
+        "Visible dialog heading rendered as an <h2>. Exactly one of title or aria-labelledby is required: passing neither or both is a compile error.",
     },
     {
       name: "aria-labelledby",
@@ -176,7 +176,7 @@ export const meta: ComponentMeta = {
   <p>Content</p>
 </Dialog>`,
       reason:
-        "Missing label source. Compile error — every Dialog must have title or aria-labelledby so screen reader users know what the dialog is about.",
+        "Missing label source. Compile error: every Dialog must have title or aria-labelledby so screen reader users know what the dialog is about.",
     },
     {
       code: `<Dialog
@@ -188,7 +188,7 @@ export const meta: ComponentMeta = {
   <p>Content</p>
 </Dialog>`,
       reason:
-        "Two label sources at once. Compile error — pass exactly one of title or aria-labelledby.",
+        "Two label sources at once. Compile error: pass exactly one of title or aria-labelledby.",
     },
     {
       code: `<Dialog open={open} onClose={() => setOpen(false)} title="Empty">{false}</Dialog>`,

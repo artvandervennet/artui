@@ -125,7 +125,7 @@ export function DialogPlayground() {
             closeOnBackdropClick={closeOnBackdrop}
           >
             <p className="m-0">
-              You are about to delete your account. This is a playground — no real action is
+              You are about to delete your account. This is a playground; no real action is
               performed.
             </p>
             <div className="flex justify-end gap-2 mt-4">

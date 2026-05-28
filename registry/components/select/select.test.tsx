@@ -7,7 +7,7 @@ import { __resetDevOverlayCache } from "../../lib/dev-overlay";
 import { Select } from "./select";
 
 // ---------------------------------------------------------------------------
-// Helpers — multi mode
+// Helpers: multi mode
 // ---------------------------------------------------------------------------
 
 function BasicSelect({
@@ -65,7 +65,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC5 — trigger aria-haspopup="listbox"
+  // AC5: trigger aria-haspopup="listbox"
   // -------------------------------------------------------------------------
 
   it("AC5: trigger has aria-haspopup=listbox", () => {
@@ -77,7 +77,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC6 — trigger aria-expanded
+  // AC6: trigger aria-expanded
   // -------------------------------------------------------------------------
 
   it("AC6: trigger has aria-expanded=false when listbox is closed", () => {
@@ -99,7 +99,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC7 — listbox role + aria-multiselectable
+  // AC7: listbox role + aria-multiselectable
   // -------------------------------------------------------------------------
 
   it("AC7: listbox container has role=listbox and aria-multiselectable=true", async () => {
@@ -111,7 +111,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC8 — each option has role=option + aria-selected
+  // AC8: each option has role=option + aria-selected
   // -------------------------------------------------------------------------
 
   it("AC8: each option has role=option", async () => {
@@ -153,7 +153,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC9 — chip remove buttons have accessible names
+  // AC9: chip remove buttons have accessible names
   // -------------------------------------------------------------------------
 
   it("AC9: remove button has aria-label naming the option being removed", () => {
@@ -183,7 +183,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC1 — selection communicated outside the listbox
+  // AC1: selection communicated outside the listbox
   // -------------------------------------------------------------------------
 
   it("AC1: selected chips are rendered in the control when listbox is closed", () => {
@@ -217,7 +217,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC2 — keyboard: Arrow Up/Down + Space/Enter toggle without closing
+  // AC2: keyboard: Arrow Up/Down + Space/Enter toggle without closing
   // -------------------------------------------------------------------------
 
   it("AC2: ArrowDown moves focus to next option", async () => {
@@ -300,7 +300,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC3 — Escape closes + returns focus to trigger
+  // AC3: Escape closes + returns focus to trigger
   // -------------------------------------------------------------------------
 
   it("AC3: Escape closes the listbox", async () => {
@@ -321,7 +321,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // AC4 — visible focus indicators (structural check via CSS classes)
+  // AC4: visible focus indicators (structural check via CSS classes)
   // -------------------------------------------------------------------------
 
   it("AC4: trigger has artui-select-trigger class for styling focus-visible", () => {
@@ -1020,7 +1020,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Group — multi mode
+  // Group: multi mode
   // -------------------------------------------------------------------------
 
   it("Group renders with role=group in the custom panel", async () => {
@@ -1121,7 +1121,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Clear-all — multi mode (via Control)
+  // Clear-all: multi mode (via Control)
   // -------------------------------------------------------------------------
 
   it("clear-all button is not rendered when showClearAll is absent", () => {
@@ -1197,7 +1197,7 @@ describe("Select", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Hidden native select sync — multi mode
+  // Hidden native select sync: multi mode
   // -------------------------------------------------------------------------
 
   it("hidden select in multi mode has aria-hidden=true", () => {

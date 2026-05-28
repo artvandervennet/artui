@@ -358,7 +358,7 @@ function AccordionItem({
   }, [registerItem, value]);
 
   // In controlled mode, sync details.open to the externally-driven isOpen value.
-  // In uncontrolled mode, the native toggle event is the source of truth — we
+  // In uncontrolled mode, the native toggle event is the source of truth: we
   // must NOT write back to details.open or we create a feedback loop via the
   // toggle event listener.
   useEffect(() => {
@@ -488,7 +488,7 @@ function AccordionItem({
 }
 
 // ---------------------------------------------------------------------------
-// PanelRegionContext — passes panelGetsRegionRole from Item to Panel
+// PanelRegionContext: passes panelGetsRegionRole from Item to Panel
 // ---------------------------------------------------------------------------
 
 const PanelRegionContext = createContext<boolean>(true);
@@ -572,7 +572,7 @@ function AccordionPanel({ children, className }: AccordionPanelProps) {
   // Announce the panel's text content via the root's polite live region on
   // user-initiated expand. Focus stays on the summary so Space / Enter still
   // toggle the disclosure on subsequent presses. Programmatic opens (controlled
-  // value, defaultValue on mount) do not announce — the user did not ask.
+  // value, defaultValue on mount) do not announce: the user did not ask.
   useEffect(() => {
     if (!isOpen) return;
     if (!lastOpenWasUserInitiated.current) return;

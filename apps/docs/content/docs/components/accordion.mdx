@@ -123,7 +123,7 @@ Programmatic value changes do not move focus. Only user interactions do.
   ]}
 />
 
-Renders as `<h2>` through `<h6>` inside the `<summary>`, at the level set by `headingLevel` on the root.
+Renders as `<h2>` through `<h6>` inside the `<summary>`, at the level `headingLevel` sets on the root.
 
 ### Accordion.Trigger
 
@@ -147,7 +147,7 @@ Requires exactly one of `children`, `aria-label`, or `aria-labelledby`.
   ]}
 />
 
-Receives `role="region"` when the accordion has 6 or fewer items, `aria-labelledby` pointing at the header, and `tabIndex={-1}` so it can receive focus on expand.
+Gets `role="region"` when the accordion has 6 or fewer items, `aria-labelledby` pointing at the header, and `tabIndex={-1}` so it can receive focus on expand.
 
 ## Keyboard
 
@@ -188,7 +188,7 @@ On user-initiated expand, focus moves into the panel so screen readers announce 
 <Accordion.Trigger>Shipping and delivery policy</Accordion.Trigger>
 ```
 
-The name should describe the panel content at a glance.
+The name describes the panel content at a glance.
 </Do>
 
 <Do title="Use disabled to signal unavailable sections">

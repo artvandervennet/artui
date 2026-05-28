@@ -3,7 +3,7 @@ import type { ComponentMeta } from "../../lib/meta-types";
 export const meta: ComponentMeta = {
   name: "Select",
   description:
-    "Accessible dual-mode select control built on native HTML elements. Single mode renders a real styled <select> — platform provides all a11y for free. Multi mode renders a hidden <select multiple> as the form/value source of truth, paired with a unified Control field: chips (inline), a disclosure trigger button, an optional clear-all button, and a decorative caret — all siblings inside one bordered container. Selection is communicated via removable chips and aria-live announcements. Full keyboard contract per APG Listbox, compile-time accessible-name enforcement via AccessibleNameProps, and dev-overlay runtime guards for empty content, empty labels, and duplicate values.",
+    "Accessible dual-mode select control built on native HTML elements. Single mode renders a real styled <select>: platform provides all a11y for free. Multi mode renders a hidden <select multiple> as the form/value source of truth, paired with a unified Control field: chips (inline), a disclosure trigger button, an optional clear-all button, and a decorative caret: all siblings inside one bordered container. Selection is communicated via removable chips and aria-live announcements. Full keyboard contract per APG Listbox, compile-time accessible-name enforcement via AccessibleNameProps, and dev-overlay runtime guards for empty content, empty labels, and duplicate values.",
   status: "stable",
   files: ["select.tsx", "select.css"],
   registryDependencies: ["lib/a11y-types.ts", "lib/dev-overlay.tsx"],
@@ -69,7 +69,7 @@ export const meta: ComponentMeta = {
       type: "AccessibleText",
       required: false,
       description:
-        "Single mode only. Accessible name for the native <select>. Exactly one of aria-label or aria-labelledby is required — compile error otherwise.",
+        "Single mode only. Accessible name for the native <select>. Exactly one of aria-label or aria-labelledby is required: compile error otherwise.",
     },
     {
       name: "aria-labelledby",
@@ -83,7 +83,7 @@ export const meta: ComponentMeta = {
       type: "AccessibleText",
       required: false,
       description:
-        "Accessible name for the trigger button inside the field. Exactly one of aria-label, aria-labelledby, or children is required — compile error otherwise.",
+        "Accessible name for the trigger button inside the field. Exactly one of aria-label, aria-labelledby, or children is required: compile error otherwise.",
     },
     {
       name: "Control.aria-labelledby",
@@ -229,12 +229,12 @@ export const meta: ComponentMeta = {
     {
       wcag: "3.2.2",
       description:
-        "Toggling an option in multi mode never causes an unexpected context change — onValueChange is a local state update only and the panel stays open.",
+        "Toggling an option in multi mode never causes an unexpected context change: onValueChange is a local state update only and the panel stays open.",
     },
     {
       wcag: "4.1.2",
       description:
-        "Single mode: the native <select> carries role, name, and value automatically. Accessible name enforced at compile time. Multi mode: the trigger inside Control carries aria-haspopup=listbox, aria-expanded, aria-controls; accessible name enforced at compile time via AccessibleNameProps on Control. Custom panel carries role=listbox, aria-multiselectable=true, aria-labelledby. Each custom Option carries role=option and explicit aria-selected (true or false, never omitted). Hidden <select multiple> stays in sync for form submission. The Control container is a presentational div — no interactive nesting violations. Dev overlays fire for duplicate option values and empty content.",
+        "Single mode: the native <select> carries role, name, and value automatically. Accessible name enforced at compile time. Multi mode: the trigger inside Control carries aria-haspopup=listbox, aria-expanded, aria-controls; accessible name enforced at compile time via AccessibleNameProps on Control. Custom panel carries role=listbox, aria-multiselectable=true, aria-labelledby. Each custom Option carries role=option and explicit aria-selected (true or false, never omitted). Hidden <select multiple> stays in sync for form submission. The Control container is a presentational div: no interactive nesting violations. Dev overlays fire for duplicate option values and empty content.",
     },
     {
       wcag: "4.1.3",
@@ -261,7 +261,7 @@ export const meta: ComponentMeta = {
 </Select>`,
     },
     {
-      name: "Multi mode — basic uncontrolled",
+      name: "Multi mode: basic uncontrolled",
       description: "Unified control field with removable chips and a custom listbox.",
       code: `<Select multiple defaultValue={["be"]} onValueChange={setCountries}>
   <Select.Control aria-label="Countries" />
@@ -273,7 +273,7 @@ export const meta: ComponentMeta = {
 </Select>`,
     },
     {
-      name: "Multi mode — with groups",
+      name: "Multi mode: with groups",
       description: "Options organised into accessible groups.",
       code: `<Select multiple defaultValue={["be"]} onValueChange={setCountries}>
   <Select.Control aria-label="Countries" />
@@ -291,7 +291,7 @@ export const meta: ComponentMeta = {
 </Select>`,
     },
     {
-      name: "Multi mode — with clear-all",
+      name: "Multi mode: with clear-all",
       description: "Clear-all button lets users remove all chips at once.",
       code: `<Select multiple defaultValue={["be", "nl"]} onValueChange={setCountries}>
   <Select.Control aria-label="Countries" showClearAll clearAllLabel="Clear all countries" />
@@ -303,7 +303,7 @@ export const meta: ComponentMeta = {
 </Select>`,
     },
     {
-      name: "Multi mode — controlled",
+      name: "Multi mode: controlled",
       description: "External state manages the selection.",
       code: `const [countries, setCountries] = useState<readonly string[]>(['be']);
 
@@ -316,7 +316,7 @@ export const meta: ComponentMeta = {
 </Select>`,
     },
     {
-      name: "Multi mode — custom remove label (i18n)",
+      name: "Multi mode: custom remove label (i18n)",
       description: "Override the remove-button accessible name for localisation.",
       code: `<Select multiple defaultValue={["be"]} onValueChange={setCountries}>
   <Select.Control
@@ -336,12 +336,12 @@ export const meta: ComponentMeta = {
   <Select.Option value="be">Belgium</Select.Option>
 </Select>`,
       reason:
-        "Single mode with no accessible name. Compile error — aria-label or aria-labelledby is required so screen reader users know what the control is for.",
+        "Single mode with no accessible name. Compile error: aria-label or aria-labelledby is required so screen reader users know what the control is for.",
     },
     {
       code: `<Select.Control />`,
       reason:
-        "No accessible name on Control. Compile error — every multi-mode Control must have aria-label, aria-labelledby, or children.",
+        "No accessible name on Control. Compile error: every multi-mode Control must have aria-label, aria-labelledby, or children.",
     },
     {
       code: `<Select.Content>{false}</Select.Content>`,

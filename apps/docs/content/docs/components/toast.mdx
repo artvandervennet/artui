@@ -137,7 +137,7 @@ Returns a `ToastApi`. Must be called inside a `ToastProvider`.
     { keys: ['Alt', 'T'], action: 'Move focus into the newest visible toast (action → close → toast)' },
     { keys: ['Escape'], action: 'Dismiss the focused toast and return focus to the element that was active when it was shown' },
     { keys: ['Tab'], action: 'Move focus between the action and close buttons within a toast' },
-    { keys: ['F6'], action: 'Cycle through page landmarks (browser native — reaches the toast region as a landmark)' },
+    { keys: ['F6'], action: 'Cycle through page landmarks (browser native; reaches the toast region as a landmark)' },
     { keys: ['Enter'], action: 'Activate the focused action or close button' },
     { keys: ['Space'], action: 'Activate the focused action or close button' },
   ]}
@@ -174,7 +174,7 @@ toast.error('Payment declined. Please check your card details.', {
 <Do title="Use shortcut helpers for common severity levels">
 ```tsx
 toast.success('Invitation sent.');
-toast.warning('Draft autosaved — manual save recommended before closing.');
+toast.warning('Draft autosaved. Manual save recommended before closing.');
 ```
 </Do>
 

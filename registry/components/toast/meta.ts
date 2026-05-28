@@ -98,7 +98,7 @@ export const meta: ComponentMeta = {
     {
       wcag: "2.4.3",
       description:
-        "Toasts do not steal focus on render. Focus returns to the element that was focused when show() was called, when the toast is dismissed via close/action/Esc — unless the user has already moved focus elsewhere.",
+        "Toasts do not steal focus on render. Focus returns to the element that was focused when show() was called, when the toast is dismissed via close/action/Esc: unless the user has already moved focus elsewhere.",
     },
     {
       wcag: "1.4.1",
@@ -138,7 +138,7 @@ toast.error("Upload failed.", {
     {
       code: `toast.show({ title: "" })`,
       reason:
-        "Empty title is not an accessible name. Compile error — AccessibleText rejects empty strings.",
+        "Empty title is not an accessible name. Compile error: AccessibleText rejects empty strings.",
     },
     {
       code: `toast.error("Deleted.", { duration: 3000 })`,

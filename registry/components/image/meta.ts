@@ -27,7 +27,7 @@ export const meta: ComponentMeta = {
     {
       wcag: '1.1.1',
       description:
-        'Every <img> has either a meaningful text alternative or is explicitly marked decorative — the two valid choices under WCAG Non-text Content.',
+        'Every <img> has either a meaningful text alternative or is explicitly marked decorative. Those are the two valid choices under WCAG Non-text Content.',
     },
     {
       wcag: '4.1.2',
@@ -38,12 +38,12 @@ export const meta: ComponentMeta = {
   examples: [
     {
       name: 'Meaningful image',
-      description: 'Standard case — describe what the image shows.',
+      description: 'Standard case: describe what the image shows.',
       code: `<Image src="/team.jpg" alt="The engineering team in the Ghent office, May 2026" />`,
     },
     {
       name: 'Decorative image',
-      description: 'Background photo that adds no information — opt out explicitly.',
+      description: 'Background photo that adds no information; opt out explicitly.',
       code: `<Image src="/hero-pattern.svg" decorative />`,
     },
   ],
@@ -57,7 +57,7 @@ export const meta: ComponentMeta = {
     {
       code: `<Image src="/team.jpg" alt="" />`,
       reason:
-        'An empty alt without `decorative` is ambiguous — was it left empty on purpose or forgotten? Pass `decorative` to make the intent explicit.',
+        'An empty alt without `decorative` is ambiguous: was it left empty on purpose or forgotten? Pass `decorative` to make the intent explicit.',
     },
   ],
 };

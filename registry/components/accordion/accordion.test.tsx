@@ -439,7 +439,7 @@ describe("Accordion", () => {
   it("closed panel is not visible to queries that respect hidden state", () => {
     render(<BasicAccordion />);
     // jsdom does not implement the UA stylesheet for <details>, so we verify
-    // via the details.open attribute — the panel is rendered but the closed
+    // via the details.open attribute: the panel is rendered but the closed
     // state is communicated through the native attribute to the AT.
     const details = document.querySelectorAll<HTMLDetailsElement>("details");
     expect(details[0]!.open).toBe(false);
@@ -550,7 +550,7 @@ describe("Accordion", () => {
 
   it("type system rejects empty string as trigger children", () => {
     const emptyStr = "" as const;
-    // @ts-expect-error — empty string is not an AccessibleText; never is not assignable to string
+    // @ts-expect-error: empty string is not an AccessibleText; never is not assignable to string
     const _unused: typeof Accordion.Trigger extends (props: { children: infer C }) => unknown ? C : never = emptyStr;
     expect(true).toBe(true);
   });
@@ -561,7 +561,7 @@ describe("Accordion", () => {
 
   it("type system rejects placeholder string 'image' as trigger children", () => {
     const placeholder = "image" as const;
-    // @ts-expect-error — "image" is a PlaceholderAltText; never is not assignable to string
+    // @ts-expect-error: "image" is a PlaceholderAltText; never is not assignable to string
     const _unused: typeof Accordion.Trigger extends (props: { children: infer C }) => unknown ? C : never = placeholder;
     expect(true).toBe(true);
   });
@@ -623,7 +623,7 @@ describe("Accordion", () => {
   // -------------------------------------------------------------------------
 
   it("aria-expanded on summary mirrors the open state", async () => {
-    // Use controlled mode to test aria-expanded — controlled re-render is
+    // Use controlled mode to test aria-expanded: controlled re-render is
     // deterministic and avoids reliance on jsdom's toggle event handling.
     const { rerender } = render(<BasicAccordion type="single" value={undefined} />);
     const summary = getSummaries()[0]!;

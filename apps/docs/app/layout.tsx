@@ -4,8 +4,8 @@ import type { ReactNode } from 'react';
 import './global.css';
 
 export const metadata = {
-  title: 'artui, accessibility-first React components',
-  description: 'A React component library that makes inaccessibility a compile-time error.',
+  title: 'artui: accessibility-first React components',
+  description: 'React components that treat inaccessibility as a compile-time error.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

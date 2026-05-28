@@ -1,5 +1,5 @@
 /**
- * Type-only test file. Run with `tsc --noEmit` — the @ts-expect-error lines
+ * Type-only test file. Run with `tsc --noEmit`: the @ts-expect-error lines
  * MUST be errors. If TypeScript ever stops flagging them, the safety net
  * is broken and this file fails to compile (because @ts-expect-error
  * without an error is itself an error).
@@ -14,10 +14,10 @@ import { Image } from './image';
 export function ValidUses(): ReactNode {
   return (
     <>
-      {/* Real alt text — fine. */}
+      {/* Real alt text: fine. */}
       <Image src="/x.jpg" alt="Engineering team photo from May 2026" />
 
-      {/* Explicit decorative opt-out — fine. */}
+      {/* Explicit decorative opt-out: fine. */}
       <Image src="/x.jpg" decorative />
     </>
   );

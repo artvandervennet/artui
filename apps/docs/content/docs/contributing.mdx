@@ -46,7 +46,7 @@ pnpm typecheck # tsc --noEmit across the workspace
 ```
 
 Registry components live under [registry/](https://github.com/artvandervennet/artui/tree/main/registry).
-They must not depend on anything in `packages/` or `apps/` — anything
+They must not depend on anything in `packages/` or `apps/`: anything
 imported by a registry component ships into the consumer's project.
 
 ## Roadmap

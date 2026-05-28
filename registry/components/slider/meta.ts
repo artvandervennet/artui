@@ -82,7 +82,7 @@ export const meta: ComponentMeta = {
       type: "readonly [SliderThumbDescriptor, SliderThumbDescriptor]",
       required: false,
       description:
-        "Range mode: exactly two thumb descriptors. Each must satisfy AccessibleNameProps — passing neither children, aria-label, nor aria-labelledby is a compile error.",
+        "Range mode: exactly two thumb descriptors. Each must satisfy AccessibleNameProps: passing neither children, aria-label, nor aria-labelledby is a compile error.",
     },
     {
       name: "aria-label",
@@ -144,7 +144,7 @@ export const meta: ComponentMeta = {
     {
       wcag: "3.2.2",
       description:
-        "Adjusting the value never causes a context change — onValueChange is a local state update only.",
+        "Adjusting the value never causes a context change: onValueChange is a local state update only.",
     },
     {
       wcag: "4.1.2",
@@ -234,7 +234,7 @@ export const meta: ComponentMeta = {
   thumbs={[{}, {}]}
 />`,
       reason:
-        "Empty thumb descriptors. Compile error — each SliderThumbDescriptor must satisfy AccessibleNameProps (aria-label, aria-labelledby, or children required).",
+        "Empty thumb descriptors. Compile error: each SliderThumbDescriptor must satisfy AccessibleNameProps (aria-label, aria-labelledby, or children required).",
     },
     {
       code: `<Slider

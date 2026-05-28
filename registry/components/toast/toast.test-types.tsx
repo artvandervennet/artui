@@ -1,5 +1,5 @@
 /**
- * Type-only test file. Run with `tsc --noEmit` — the @ts-expect-error lines
+ * Type-only test file. Run with `tsc --noEmit`: the @ts-expect-error lines
  * MUST be errors. If TypeScript ever stops flagging them, the safety net
  * is broken and this file fails to compile.
  */
@@ -23,7 +23,7 @@ export function ValidApiCalls(): void {
   // Shortcut with valid title.
   toast.success("Saved.");
 
-  // Error with action — valid.
+  // Error with action: valid.
   toast.error("Upload failed.", {
     duration: null,
     action: { label: "Retry", onAction: () => {} },

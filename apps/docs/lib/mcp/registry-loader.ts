@@ -45,11 +45,11 @@ export interface Registry {
  * Resolves the registry. Default is the JSON bundled at build time from
  * `apps/docs/public/registry.json` (placed there by `scripts/copy-registry.mjs`
  * during the docs site's `prebuild`). The static import keeps Vercel's
- * file tracing tight — no runtime fs scan, no whole-project bundling.
+ * file tracing tight (no runtime fs scan, no whole-project bundling).
  *
  * `ARTUI_REGISTRY` is honored only in dev: it may point to an http(s) URL
  * or an absolute file path so you can iterate against an unbuilt registry
- * workspace. In production the env var is ignored — the bundled JSON is
+ * workspace. In production the env var is ignored; the bundled JSON is
  * always served. Gating on NODE_ENV also lets Turbopack tree-shake the
  * dev branch out, which keeps NFT from tracing the whole project.
  */

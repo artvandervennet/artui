@@ -8,7 +8,7 @@
 
 /**
  * Strings that look like alt text but communicate nothing to a screenreader.
- * Authors using these have not actually written alt text — they have written
+ * Authors using these have not actually written alt text; they have written
  * a placeholder. The Image component rejects these at compile time.
  */
 export type PlaceholderAltText =

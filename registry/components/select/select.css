@@ -81,7 +81,7 @@
     pointer-events: none;
   }
 
-  /* Focus ring on the field when the trigger button receives keyboard focus —
+  /* Focus ring on the field when the trigger button receives keyboard focus,
      scoped to :has(:focus-visible) so mouse clicks don't show the ring. */
   &:has(.artui-select-trigger:focus-visible) {
     outline: var(--artui-focus-ring);
@@ -89,7 +89,7 @@
   }
 }
 
-/* Field — chips + label/placeholder. Takes remaining space and wraps; min-width:0
+/* Field: chips + label/placeholder. Takes remaining space and wraps; min-width:0
    lets it shrink so the pinned actions region never gets pushed off the row. */
 .artui-select-field {
   flex: 1 1 auto;
@@ -100,7 +100,7 @@
   gap: var(--artui-select-tag-gap);
 }
 
-/* Actions — clear-all + caret, pinned to the right. Never wraps or shrinks, so
+/* Actions: clear-all + caret, pinned to the right. Never wraps or shrinks, so
    it stays in place no matter how many chip rows the field wraps to. */
 .artui-select-actions {
   flex: 0 0 auto;
@@ -156,7 +156,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* No border or background — visual border lives on the parent control. */
+  /* No border or background: visual border lives on the parent control. */
   background: transparent;
   border: none;
   padding: 0;
@@ -164,7 +164,7 @@
   color: inherit;
   font: inherit;
 
-  /* Suppress the native focus ring — the control's :has(:focus-visible) shows it instead. */
+  /* Suppress the native focus ring: the control's :has(:focus-visible) shows it instead. */
   &:focus-visible {
     outline: none;
   }
@@ -230,7 +230,7 @@
   max-height: var(--artui-select-content-max-height);
   overflow-y: auto;
   overflow-x: hidden;
-  /* Floating overlay — position:fixed + coordinates are applied inline (JS) when
+  /* Floating overlay: position:fixed + coordinates are applied inline (JS) when
      open so the panel sits above the page without reflowing it. */
   z-index: var(--artui-select-content-z, 50);
 }
@@ -278,7 +278,7 @@
   background: var(--artui-selected-bg);
 }
 
-/* Checkmark column — fixed width on the trailing edge so the icon sits flush
+/* Checkmark column: fixed width on the trailing edge so the icon sits flush
    right and rows stay aligned regardless of selection state. */
 .artui-select-option-check {
   flex-shrink: 0;

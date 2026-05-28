@@ -10,7 +10,7 @@ const FORBIDDEN_ALTS = ['', 'img', 'image', 'photo', 'picture', 'icon'] as const
 type ForbiddenAlt = (typeof FORBIDDEN_ALTS)[number];
 
 // ---------------------------------------------------------------------------
-// Props — discriminated union: meaningful alt OR explicit decorative flag
+// Props: discriminated union: meaningful alt OR explicit decorative flag
 // ---------------------------------------------------------------------------
 
 type SafeAlt<T extends string> =

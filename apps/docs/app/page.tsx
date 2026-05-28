@@ -66,7 +66,7 @@ export default function HomePage() {
           million homepages.
         </p>
         <p className="mt-4 max-w-2xl text-base text-fd-muted-foreground">
-          The same six categories appear every year — missing alt text, unlabelled inputs, empty
+          The same six categories show up every year: missing alt text, unlabelled inputs, empty
           buttons, low contrast. A library can prevent them.
         </p>
       </section>

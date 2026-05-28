@@ -422,7 +422,7 @@ export function Slider(props: SliderProps): ReactElement {
   }
 
   // ---------------------------------------------------------------------------
-  // Slider:range-without-group-name — labelledby-target-missing variant
+  // Slider:range-without-group-name: labelledby-target-missing variant
   // Cannot be checked in render body because sibling DOM isn't committed yet.
   // Fires console.error only (no overlay) when aria-labelledby resolves to null.
   // ---------------------------------------------------------------------------
@@ -496,7 +496,7 @@ export function Slider(props: SliderProps): ReactElement {
   }
 
   // ---------------------------------------------------------------------------
-  // Render — single
+  // Render: single
   // ---------------------------------------------------------------------------
 
   if (!isRange) {
@@ -563,7 +563,7 @@ export function Slider(props: SliderProps): ReactElement {
       });
     }
 
-    // Slider:value-out-of-range (4.1.2) — value prop
+    // Slider:value-out-of-range (4.1.2): value prop
     if (
       isDev &&
       sp.value !== undefined &&
@@ -577,7 +577,7 @@ export function Slider(props: SliderProps): ReactElement {
       });
     }
 
-    // Slider:value-out-of-range (4.1.2) — defaultValue prop
+    // Slider:value-out-of-range (4.1.2): defaultValue prop
     if (
       isDev &&
       sp.defaultValue !== undefined &&
@@ -595,7 +595,7 @@ export function Slider(props: SliderProps): ReactElement {
   }
 
   // ---------------------------------------------------------------------------
-  // Render — range
+  // Render: range
   // ---------------------------------------------------------------------------
 
   const rp = props as SliderRangeProps;
@@ -652,7 +652,7 @@ export function Slider(props: SliderProps): ReactElement {
     });
   }
 
-  // Slider:value-out-of-range (4.1.2) — range value prop
+  // Slider:value-out-of-range (4.1.2): range value prop
   if (isDev && rp.value !== undefined) {
     const vals: readonly number[] = rp.value;
     for (let i = 0; i < vals.length; i++) {
@@ -668,7 +668,7 @@ export function Slider(props: SliderProps): ReactElement {
     }
   }
 
-  // Slider:value-out-of-range (4.1.2) — range defaultValue prop
+  // Slider:value-out-of-range (4.1.2): range defaultValue prop
   if (isDev && rp.defaultValue !== undefined) {
     const dvals: readonly number[] = rp.defaultValue;
     for (let i = 0; i < dvals.length; i++) {
@@ -684,7 +684,7 @@ export function Slider(props: SliderProps): ReactElement {
     }
   }
 
-  // Slider:thumb-count-mismatch (4.1.2) — JS consumers can bypass the tuple type
+  // Slider:thumb-count-mismatch (4.1.2): JS consumers can bypass the tuple type
   if (isDev && rp.value !== undefined && rp.value.length !== 2) {
     return withErrorOverlay(rangeElement, {
       key: "Slider:thumb-count-mismatch",
@@ -694,7 +694,7 @@ export function Slider(props: SliderProps): ReactElement {
     });
   }
 
-  // Slider:range-without-group-name (1.3.1) — no label at all
+  // Slider:range-without-group-name (1.3.1): no label at all
   if (isDev && !rp["aria-label"] && !rp["aria-labelledby"]) {
     return withErrorOverlay(rangeElement, {
       key: "Slider:range-without-group-name",

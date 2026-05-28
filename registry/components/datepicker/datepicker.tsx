@@ -15,7 +15,7 @@ import { withErrorOverlay } from "../../lib/dev-overlay";
 import "./datepicker.css";
 
 // ---------------------------------------------------------------------------
-// Label prop — exactly one source required; combinations are compile errors
+// Label prop: exactly one source required; combinations are compile errors
 // ---------------------------------------------------------------------------
 
 type DatepickerLabelProps =
@@ -262,7 +262,7 @@ export function Datepicker(props: DatepickerProps): ReactElement {
     ...labelRest
   } = props;
 
-  // Resolve locale — fall back to navigator.language (or 'en' in SSR)
+  // Resolve locale, fall back to navigator.language (or 'en' in SSR)
   const resolvedLocale = useMemo(() => {
     const candidate =
       localeProp ??
@@ -480,7 +480,7 @@ export function Datepicker(props: DatepickerProps): ReactElement {
   //
   // Driven by `change`/`input` events rather than `keydown` so voice-control
   // dictation (Dragon, Windows Speech Recognition), IME composition, browser
-  // autofill, and paste all work — they all set value but never synthesise
+  // autofill, and paste all work; they all set value but never synthesise
   // keydown.
 
   function handleInputChange(e: ChangeEvent<HTMLInputElement>): void {
@@ -489,7 +489,7 @@ export function Datepicker(props: DatepickerProps): ReactElement {
     const raw = e.target.value;
     const caret = e.target.selectionStart ?? raw.length;
 
-    // Count how many digits appear before the caret in the user's raw input —
+    // Count how many digits appear before the caret in the user's raw input;
     // that's where we want the caret to land in the masked result.
     let digitsBeforeCaret = 0;
     for (let i = 0; i < caret && i < raw.length; i++) {

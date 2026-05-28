@@ -1,6 +1,6 @@
 ---
 title: DropdownMenu
-description: Accessible dropdown menu following the WAI-ARIA APG Menu Button pattern. Single-level submenus, typeahead, full keyboard navigation, compile-time enforcement of accessible names.
+description: Accessible dropdown menu following the WAI-ARIA APG Menu Button pattern. Supports single-level submenus, typeahead, full keyboard navigation, and compile-time enforcement of accessible names.
 ---
 
 ```bash
@@ -87,7 +87,7 @@ const [open, setOpen] = useState(false);
 </DropdownMenu>
 ```
 
-Disabled items get `aria-disabled="true"` and are skipped by keyboard navigation.
+Disabled items get `aria-disabled="true"` and keyboard navigation skips them.
 
 ## API
 
@@ -246,5 +246,5 @@ Both are TypeScript compile errors.
 <DropdownMenu.Content>{false}</DropdownMenu.Content>
 ```
 
-Fires a dev overlay with WCAG 1.3.1.
+This fires a dev overlay with WCAG 1.3.1.
 </Dont>

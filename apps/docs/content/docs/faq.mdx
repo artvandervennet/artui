@@ -7,7 +7,7 @@ description: Common questions about distribution, versioning, and scope.
 
 No. There is no `npm install artui`. The `artui` CLI is a one-off installer
 that copies component source into your repo. After that the components are
-yours — you import them from your own paths, you bundle them with your own
+yours: you import them from your own paths, you bundle them with your own
 build, and updates are opt-in via re-running `artui add`.
 
 ## Which React versions are supported?
@@ -20,10 +20,10 @@ not pin to a minor version.
 - **Radix** ships runtime primitives. It is exhaustive, headless, and you
   receive its components as compiled dependencies.
 - **shadcn/ui** copies styled components into your repo on top of Radix.
-- **artui** copies *unstyled* accessibility-first primitives — built on
+- **artui** copies *unstyled* accessibility-first primitives, built on
   native elements where possible (`<details>`, `<dialog>`, `<input
   type="date">`) and falling back to ARIA only when the platform genuinely
-  lacks a primitive. The compile-time + dev-overlay enforcement is the
+  lacks a primitive. The compile-time and dev-overlay enforcement is the
   differentiator.
 
 ## Where do runtime warnings go in production?
@@ -34,7 +34,7 @@ bundler. Production bundles do not pay the cost.
 
 ## Can I edit a copied component?
 
-Yes — that is the model. The copied file is yours. The trade-off is that
+Yes, that is the model. The copied file is yours. The trade-off is that
 upstream improvements do not flow into your repo automatically; re-run
 `artui add accordion` and reconcile the diff when you want them.
 
@@ -48,4 +48,4 @@ describe. Major bumps are accompanied by a migration note in the changelog.
 
 Not directly. Components do not ship strings. Where a string would be
 required (e.g. a default close-button label), the component requires the
-consumer to provide it via props — usually enforced at compile time.
+consumer to provide it via props, usually enforced at compile time.

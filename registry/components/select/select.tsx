@@ -20,7 +20,7 @@ import { withErrorOverlay } from "../../lib/dev-overlay";
 import "./select.css";
 
 // ---------------------------------------------------------------------------
-// Slot context — tells Option/Group which render pass they're in
+// Slot context: tells Option/Group which render pass they're in
 // ---------------------------------------------------------------------------
 
 type RenderSlot = "native" | "custom";
@@ -91,7 +91,7 @@ function focusOption(el: HTMLElement | undefined): void {
 }
 
 // ---------------------------------------------------------------------------
-// Root — single mode
+// Root: single mode
 // ---------------------------------------------------------------------------
 
 type SingleAccessibleName =
@@ -110,7 +110,7 @@ type SelectSingleProps = SingleAccessibleName & {
 };
 
 // ---------------------------------------------------------------------------
-// Root — multi mode
+// Root: multi mode
 // ---------------------------------------------------------------------------
 
 interface SelectMultiProps {
@@ -126,7 +126,7 @@ interface SelectMultiProps {
 }
 
 // ---------------------------------------------------------------------------
-// Root — combined props type
+// Root: combined props type
 // ---------------------------------------------------------------------------
 
 type SelectRootProps = SelectSingleProps | SelectMultiProps;
@@ -257,7 +257,7 @@ function MultiRoot({
   return (
     <RootContext.Provider value={ctx}>
       {children}
-      {/* Visually-hidden live region — always in DOM, updated on selection change (WCAG 4.1.3). */}
+      {/* Visually-hidden live region: always in DOM, updated on selection change (WCAG 4.1.3). */}
       <span
         role="status"
         aria-live="polite"
@@ -266,7 +266,7 @@ function MultiRoot({
       >
         {announcement}
       </span>
-      {/* Hidden native select — form participation source of truth (WCAG 4.1.2).
+      {/* Hidden native select: form participation source of truth (WCAG 4.1.2).
           Options are rendered into Content's native slot, not here, because
           Content holds the user's Option/Group children. */}
       <select
@@ -285,7 +285,7 @@ function MultiRoot({
 }
 
 // ---------------------------------------------------------------------------
-// Root — dispatcher
+// Root: dispatcher
 // ---------------------------------------------------------------------------
 
 function SelectRoot(props: SelectRootProps): ReactElement {
@@ -296,7 +296,7 @@ function SelectRoot(props: SelectRootProps): ReactElement {
 }
 
 // ---------------------------------------------------------------------------
-// Control (multi mode only) — unified field: chips + trigger + clear + caret
+// Control (multi mode only): unified field: chips + trigger + clear + caret
 // ---------------------------------------------------------------------------
 
 type ControlProps = AccessibleNameProps & {
@@ -422,7 +422,7 @@ function Control({
       return;
     }
     // Prevent default to stop focus from moving away from the trigger, then
-    // toggle — clicking the field again closes an open listbox.
+    // toggle: clicking the field again closes an open listbox.
     e.preventDefault();
     triggerRef.current?.focus();
     setOpen(!open);
@@ -449,10 +449,10 @@ function Control({
       data-open={open ? "true" : undefined}
       onPointerDown={handleFieldPointerDown}
     >
-      {/* Field — chips + label/placeholder. Grows and wraps; the actions region
+      {/* Field: chips + label/placeholder. Grows and wraps; the actions region
           stays pinned so the clear button and caret never move as chips wrap. */}
       <div className="artui-select-field">
-        {/* Chips — DOM order is source order, so Tab visits remove buttons first. */}
+        {/* Chips: DOM order is source order, so Tab visits remove buttons first. */}
         {selected.map((value) => {
           const label = optionLabels[value] ?? value;
           const removeBtnLabel = getRemoveLabel(label);
@@ -467,7 +467,7 @@ function Control({
                 disabled={disabled}
                 onClick={() => handleRemove(value)}
               >
-                {/* Decorative X icon — screen readers use aria-label on the button. */}
+                {/* Decorative X icon: screen readers use aria-label on the button. */}
                 <svg
                   aria-hidden="true"
                   focusable="false"
@@ -493,16 +493,16 @@ function Control({
             {nameProps.children}
           </span>
         )}
-        {/* Placeholder — only when nothing is selected and there's no visible label. */}
+        {/* Placeholder: only when nothing is selected and there's no visible label. */}
         {!hasVisibleLabel && selected.length === 0 && (
           <span className="artui-select-placeholder">{placeholder}</span>
         )}
       </div>
 
-      {/* Actions — pinned to the right, never wrap. Clear-all precedes the trigger
+      {/* Actions: pinned to the right, never wrap. Clear-all precedes the trigger
           in the DOM so Tab reaches it before the open/close control. */}
       <div className="artui-select-actions">
-        {/* Clear all — opt-in, only rendered when selection is non-empty. */}
+        {/* Clear all: opt-in, only rendered when selection is non-empty. */}
         {showClearAll && selected.length > 0 && (
           <button
             type="button"
@@ -511,7 +511,7 @@ function Control({
             disabled={disabled}
             onClick={handleClearAll}
           >
-            {/* Decorative clear-all icon (circled X) — distinct from the per-chip
+            {/* Decorative clear-all icon (circled X): distinct from the per-chip
                 remove icon; screen readers use aria-label on the button. */}
             <svg
               aria-hidden="true"
@@ -531,7 +531,7 @@ function Control({
           </button>
         )}
 
-        {/* Trigger — the open/close control. Holds the decorative caret. */}
+        {/* Trigger: the open/close control. Holds the decorative caret. */}
         <button
           ref={triggerRef}
           id={triggerId}
@@ -545,7 +545,7 @@ function Control({
           onKeyDown={handleTriggerKeyDown}
           {...triggerNameProps}
         >
-          {/* Caret — same chevron path as the single-mode native <select>. */}
+          {/* Caret: same chevron path as the single-mode native <select>. */}
           <span aria-hidden="true" className="artui-select-caret">
             <svg
               aria-hidden="true"
@@ -569,7 +569,7 @@ function Control({
 }
 
 // ---------------------------------------------------------------------------
-// Content (multi mode only) — dual-slot render
+// Content (multi mode only): dual-slot render
 // ---------------------------------------------------------------------------
 
 interface ContentProps {
@@ -682,7 +682,7 @@ function Content({ children, className }: ContentProps): ReactElement {
     };
   }, [open, setOpen, triggerRef]);
 
-  // Duplicate-value dev guard — scans the custom panel DOM after all Options mount.
+  // Duplicate-value dev guard: scans the custom panel DOM after all Options mount.
   // setTimeout(0) ensures all sibling Option registration effects have run first.
   useEffect(() => {
     if (!isDev || !listboxRef.current) return;
@@ -718,7 +718,7 @@ function Content({ children, className }: ContentProps): ReactElement {
     switch (e.key) {
       case "ArrowDown": {
         e.preventDefault();
-        // No wrap — APG Listbox pattern.
+        // No wrap: APG Listbox pattern.
         focusOption(items[Math.min(idx + 1, items.length - 1)]);
         break;
       }
@@ -749,7 +749,7 @@ function Content({ children, className }: ContentProps): ReactElement {
       }
       default: {
         // Typeahead: jump to first option starting with the typed character.
-        // Space is excluded — it toggles the focused option, not typeahead.
+        // Space is excluded: it toggles the focused option, not typeahead.
         if (e.key.length === 1 && e.key !== " ") {
           const ch = e.key.toLowerCase();
           const match = items.find((item) =>
@@ -796,14 +796,14 @@ function Content({ children, className }: ContentProps): ReactElement {
       style={overlayStyle}
       onKeyDown={handleKeyDown}
     >
-      {/* Custom slot — Options/Groups render their accessible div/group markup here. */}
+      {/* Custom slot: Options/Groups render their accessible div/group markup here. */}
       <SlotContext.Provider value="custom">{children}</SlotContext.Provider>
     </div>
   );
 
   return (
     <>
-      {/* Native slot — hidden <select multiple> for form submission (WCAG 4.1.2). */}
+      {/* Native slot: hidden <select multiple> for form submission (WCAG 4.1.2). */}
       <SlotContext.Provider value="native">
         <select
           multiple
@@ -854,7 +854,7 @@ function Option({ value, children, disabled, className }: OptionProps): ReactEle
   // In custom slot: render the interactive div.
   // In single mode (no RootContext): render native <option> directly.
 
-  // Label registration — only in the native slot (or single mode) to avoid double-registration.
+  // Label registration: only in the native slot (or single mode) to avoid double-registration.
   const registerOption = ctx?.registerOption;
   const unregisterOption = ctx?.unregisterOption;
 
@@ -875,7 +875,7 @@ function Option({ value, children, disabled, className }: OptionProps): ReactEle
     );
   }
 
-  // Custom slot — render the accessible interactive div.
+  // Custom slot: render the accessible interactive div.
   const { selected, commit, setAnnouncement, optionLabels } = ctx;
   const isSelected = selected.includes(value);
 
@@ -923,7 +923,7 @@ function Option({ value, children, disabled, className }: OptionProps): ReactEle
       onKeyDown={handleKeyDown}
     >
       <span className="artui-select-option-label">{children}</span>
-      {/* Checkmark on the right — selection conveyed by icon, not colour alone (WCAG 1.4.1). */}
+      {/* Checkmark on the right: selection conveyed by icon, not colour alone (WCAG 1.4.1). */}
       <span className="artui-select-option-check" aria-hidden="true">
         {isSelected && (
           <svg
@@ -962,7 +962,7 @@ function Option({ value, children, disabled, className }: OptionProps): ReactEle
 // ---------------------------------------------------------------------------
 
 interface GroupProps {
-  /** Group label — required. Used as aria-label on role=group and as optgroup label. */
+  /** Group label: required. Used as aria-label on role=group and as optgroup label. */
   label: string;
   disabled?: boolean;
   children: ReactNode;
@@ -982,14 +982,14 @@ function Group({ label, disabled, children, className }: GroupProps): ReactEleme
     );
   }
 
-  // Custom slot — render accessible group container.
+  // Custom slot: render accessible group container.
   let element = (
     <div
       role="group"
       aria-label={label}
       className={["artui-select-group", className].filter(Boolean).join(" ")}
     >
-      {/* Visual group header — aria-hidden so the group's accessible name
+      {/* Visual group header: aria-hidden so the group's accessible name
           comes from aria-label on the role=group element (WCAG 1.3.1). */}
       <div aria-hidden="true" className="artui-select-group-label">
         {label}
@@ -1019,15 +1019,15 @@ function Group({ label, disabled, children, className }: GroupProps): ReactEleme
 /**
  * Accessible select control with two modes:
  *
- * **Single mode** (default) — renders a real, styled native `<select>`.
+ * **Single mode** (default): renders a real, styled native `<select>`.
  * Platform provides full a11y. Use `aria-label` or `aria-labelledby` for the
  * accessible name. `Option` and `Group` children map directly to `<option>` /
  * `<optgroup>`.
  *
- * **Multi mode** (`multiple`) — a hidden `<select multiple>` stays in the DOM
+ * **Multi mode** (`multiple`): a hidden `<select multiple>` stays in the DOM
  * as the form/value source of truth. The visible UI is a unified Control field
  * containing chips, a disclosure trigger, an optional clear-all button, and a
- * decorative caret — all siblings inside one bordered container. Supports
+ * decorative caret: all siblings inside one bordered container. Supports
  * option groups (Group) and live-region announcements on every selection change.
  *
  * @example Single mode

@@ -92,7 +92,7 @@ function getItems(menu: HTMLElement): HTMLElement[] {
   // nested SubContent (which is a DOM descendant) are not included in the
   // parent menu's item list. The :scope pseudo-class anchors the selector to
   // the element itself, and > limits the match to immediate children of *that*
-  // element — child submenus have their own wrapper div so their menuitem
+  // element: child submenus have their own wrapper div so their menuitem
   // descendants don't match.
   return Array.from(
     menu.querySelectorAll<HTMLElement>(`:scope > ${FOCUSABLE_ITEM}`),
@@ -154,7 +154,7 @@ function DropdownMenuRoot({
     setTriggerCount((n) => Math.max(0, n - 1));
   }, []);
 
-  // Close on any scroll or resize — compute rect only once on open.
+  // Close on any scroll or resize: compute rect only once on open.
   useEffect(() => {
     if (!open) return;
 
@@ -632,7 +632,7 @@ function SubContent({ children, className }: SubContentProps): ReactElement | nu
     const id = setTimeout(() => {
       if (!hasSubTriggerRef.current) {
         console.error(
-          "[artui] <DropdownMenu.SubContent>: subtrigger-without-subcontent — " +
+          "[artui] <DropdownMenu.SubContent>: subtrigger-without-subcontent: " +
             "SubContent rendered without a matching SubTrigger inside the same Sub. " +
             "Every Sub must contain exactly one SubTrigger and one SubContent.",
         );
@@ -691,7 +691,7 @@ function SubContent({ children, className }: SubContentProps): ReactElement | nu
         break;
       }
       case "Tab": {
-        // Stop propagation — Tab already closes everything; parent handler
+        // Stop propagation: Tab already closes everything; parent handler
         // must not also run and attempt to move focus a second time.
         e.stopPropagation();
         setSubOpen(false);
@@ -729,7 +729,7 @@ function SubContent({ children, className }: SubContentProps): ReactElement | nu
 
   if (!subOpen || !subTriggerRect) return null;
 
-  // Compute placement side before first render — no state or layout effect needed.
+  // Compute placement side before first render: no state or layout effect needed.
   // MIN_MENU_WIDTH matches the CSS min-width on .artui-dropdown-content so the
   // flip fires whenever there isn't room for even the narrowest possible menu.
   const MIN_MENU_WIDTH = 160;

@@ -116,9 +116,9 @@ Each chip's remove button reads `Remove {label}` by default. Override `removeLab
 
 ## API
 
-### Select — single mode
+### Select: single mode
 
-Renders a styled native `<select>`. You must pass `aria-label` or `aria-labelledby` — leaving both off is a compile error.
+Renders a styled native `<select>`. You must pass `aria-label` or `aria-labelledby`; leaving both off is a compile error.
 
 <PropsTable
   rows={[
@@ -135,7 +135,7 @@ Renders a styled native `<select>`. You must pass `aria-label` or `aria-labelled
   ]}
 />
 
-### Select — multi mode
+### Select: multi mode
 
 Renders a hidden `<select multiple>` for form submission alongside the custom listbox UI.
 
@@ -155,7 +155,7 @@ Renders a hidden `<select multiple>` for form submission alongside the custom li
 
 ### Select.Control
 
-Multi mode only. The field holding chips, the trigger, an optional clear-all button, and the caret. Needs an accessible name via `aria-label`, `aria-labelledby`, or `children` — a compile error otherwise.
+Multi mode only. The field holding chips, the trigger, an optional clear-all button, and the caret. Needs an accessible name via `aria-label`, `aria-labelledby`, or `children`; omitting all three is a compile error.
 
 <PropsTable
   rows={[
@@ -291,7 +291,7 @@ Multi-mode values submit as repeated fields, the same as a native `<select multi
 
 <Dont title="Skip the accessible name in single mode">
 ```tsx
-{/* compile error — aria-label or aria-labelledby required */}
+{/* compile error: aria-label or aria-labelledby required */}
 <Select onValueChange={setCountry}>
   <Select.Option value="be">Belgium</Select.Option>
 </Select>
@@ -300,7 +300,7 @@ Multi-mode values submit as repeated fields, the same as a native `<select multi
 
 <Dont title="Use Control or Content in single mode">
 ```tsx
-{/* wrong — these belong to multi mode */}
+{/* wrong: these belong to multi mode */}
 <Select aria-label="Country" onValueChange={setCountry}>
   <Select.Control aria-label="Country" />
   <Select.Content>

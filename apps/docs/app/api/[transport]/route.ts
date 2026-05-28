@@ -9,7 +9,7 @@ export const maxDuration = 60;
 /**
  * Hosted MCP endpoint served at `https://artui.vandervennet.art/api/mcp`.
  *
- * Streamable HTTP (2025-03-26 spec) — stateless, one transport per request.
+ * Streamable HTTP (2025-03-26 spec), stateless, one transport per request.
  * Handles GET (SSE subscription), POST (JSON-RPC), and DELETE (session close).
  *
  * Consumers add the server with:

@@ -33,7 +33,7 @@ export function WcagTable({ rows }: { rows: WcagTableRow[] }) {
           <tr>
             <th className="w-32 px-4 py-2 font-medium">Criterion</th>
             <th className="w-60 px-4 py-2 font-medium">Name</th>
-            <th className="px-4 py-2 font-medium">How it is satisfied</th>
+            <th className="px-4 py-2 font-medium">How the component satisfies it</th>
           </tr>
         </thead>
         <tbody>

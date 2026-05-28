@@ -34,7 +34,7 @@ export const meta: ComponentMeta = {
       type: "AccessibleText",
       required: false,
       description:
-        "Visible label text. Exactly one of children, aria-label, or aria-labelledby is required — compile error otherwise.",
+        "Visible label text. Exactly one of children, aria-label, or aria-labelledby is required: compile error otherwise.",
     },
     {
       name: "Trigger.aria-label",
@@ -210,7 +210,7 @@ export const meta: ComponentMeta = {
     },
     {
       name: "Icon-only trigger",
-      description: "Trigger with no visible text — aria-label provides the accessible name.",
+      description: "Trigger with no visible text: aria-label provides the accessible name.",
       code: `<DropdownMenu>
   <DropdownMenu.Trigger aria-label="User menu">
     <UserIcon aria-hidden="true" />
@@ -237,17 +237,17 @@ export const meta: ComponentMeta = {
     {
       code: `<DropdownMenu.Trigger />`,
       reason:
-        "No accessible name. Compile error — every Trigger must have children, aria-label, or aria-labelledby so screen reader users know what the menu is for.",
+        "No accessible name. Compile error: every Trigger must have children, aria-label, or aria-labelledby so screen reader users know what the menu is for.",
     },
     {
       code: `<DropdownMenu.Trigger>{""}</DropdownMenu.Trigger>`,
       reason:
-        "Empty string is not an accessible name. Compile error — the AccessibleText type rejects placeholder values.",
+        "Empty string is not an accessible name. Compile error: the AccessibleText type rejects placeholder values.",
     },
     {
       code: `<DropdownMenu.Item>Profile</DropdownMenu.Item>`,
       reason:
-        "Missing onSelect. Compile error — every Item must declare what happens when it is selected.",
+        "Missing onSelect. Compile error: every Item must declare what happens when it is selected.",
     },
     {
       code: `<DropdownMenu.Content>{false}</DropdownMenu.Content>`,

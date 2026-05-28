@@ -1,5 +1,5 @@
 /**
- * Type-only test file. Run with `tsc --noEmit` — the @ts-expect-error lines
+ * Type-only test file. Run with `tsc --noEmit`: the @ts-expect-error lines
  * MUST be errors. If TypeScript ever stops flagging them, the safety net
  * is broken and this file fails to compile.
  */
