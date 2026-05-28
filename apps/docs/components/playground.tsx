@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useState } from "react";
 
 // --- Syntax highlighter -------------------------------------------------------
 
 type TokenKind =
-  | 'keyword'
-  | 'component'
-  | 'element'
-  | 'punct'
-  | 'string'
-  | 'comment'
-  | 'number'
-  | 'plain';
+  | "keyword"
+  | "component"
+  | "element"
+  | "punct"
+  | "string"
+  | "comment"
+  | "number"
+  | "plain";
 
 interface Token {
   kind: TokenKind;
@@ -20,47 +20,47 @@ interface Token {
 }
 
 const KEYWORDS = new Set([
-  'import',
-  'from',
-  'export',
-  'default',
-  'const',
-  'let',
-  'var',
-  'function',
-  'return',
-  'class',
-  'type',
-  'interface',
-  'extends',
-  'implements',
-  'if',
-  'else',
-  'for',
-  'of',
-  'in',
-  'while',
-  'new',
-  'true',
-  'false',
-  'null',
-  'undefined',
-  'async',
-  'await',
-  'try',
-  'catch',
-  'throw',
+  "import",
+  "from",
+  "export",
+  "default",
+  "const",
+  "let",
+  "var",
+  "function",
+  "return",
+  "class",
+  "type",
+  "interface",
+  "extends",
+  "implements",
+  "if",
+  "else",
+  "for",
+  "of",
+  "in",
+  "while",
+  "new",
+  "true",
+  "false",
+  "null",
+  "undefined",
+  "async",
+  "await",
+  "try",
+  "catch",
+  "throw",
 ]);
 
 const TOKEN_CLASS: Record<TokenKind, string> = {
-  keyword: 'text-violet-500 dark:text-violet-400',
-  component: 'text-teal-600 dark:text-teal-400',
-  element: 'text-sky-600 dark:text-sky-400',
-  punct: 'text-fd-muted-foreground',
-  string: 'text-orange-500 dark:text-orange-400',
-  comment: 'text-green-600 dark:text-green-500 italic',
-  number: 'text-amber-500 dark:text-amber-400',
-  plain: 'text-fd-foreground',
+  keyword: "text-violet-500 dark:text-violet-400",
+  component: "text-teal-600 dark:text-teal-400",
+  element: "text-sky-600 dark:text-sky-400",
+  punct: "text-fd-muted-foreground",
+  string: "text-orange-500 dark:text-orange-400",
+  comment: "text-green-600 dark:text-green-500 italic",
+  number: "text-amber-500 dark:text-amber-400",
+  plain: "text-fd-foreground",
 };
 
 function tokenize(code: string): Token[] {
@@ -69,19 +69,19 @@ function tokenize(code: string): Token[] {
 
   while (i < code.length) {
     // Single-line comment
-    if (code[i] === '/' && code[i + 1] === '/') {
-      const end = code.indexOf('\n', i);
+    if (code[i] === "/" && code[i + 1] === "/") {
+      const end = code.indexOf("\n", i);
       const text = end === -1 ? code.slice(i) : code.slice(i, end);
-      tokens.push({ kind: 'comment', text });
+      tokens.push({ kind: "comment", text });
       i = end === -1 ? code.length : end;
       continue;
     }
 
     // Block comment
-    if (code[i] === '/' && code[i + 1] === '*') {
-      const end = code.indexOf('*/', i + 2);
+    if (code[i] === "/" && code[i + 1] === "*") {
+      const end = code.indexOf("*/", i + 2);
       const text = end === -1 ? code.slice(i) : code.slice(i, end + 2);
-      tokens.push({ kind: 'comment', text });
+      tokens.push({ kind: "comment", text });
       i = end === -1 ? code.length : end + 2;
       continue;
     }
@@ -90,10 +90,10 @@ function tokenize(code: string): Token[] {
     if (code[i] === '"') {
       let j = i + 1;
       while (j < code.length && code[j] !== '"') {
-        if (code[j] === '\\') j++;
+        if (code[j] === "\\") j++;
         j++;
       }
-      tokens.push({ kind: 'string', text: code.slice(i, j + 1) });
+      tokens.push({ kind: "string", text: code.slice(i, j + 1) });
       i = j + 1;
       continue;
     }
@@ -102,67 +102,70 @@ function tokenize(code: string): Token[] {
     if (code[i] === "'") {
       let j = i + 1;
       while (j < code.length && code[j] !== "'") {
-        if (code[j] === '\\') j++;
+        if (code[j] === "\\") j++;
         j++;
       }
-      tokens.push({ kind: 'string', text: code.slice(i, j + 1) });
+      tokens.push({ kind: "string", text: code.slice(i, j + 1) });
       i = j + 1;
       continue;
     }
 
     // Template literal
-    if (code[i] === '`') {
+    if (code[i] === "`") {
       let j = i + 1;
-      while (j < code.length && code[j] !== '`') {
-        if (code[j] === '\\') j++;
+      while (j < code.length && code[j] !== "`") {
+        if (code[j] === "\\") j++;
         j++;
       }
-      tokens.push({ kind: 'string', text: code.slice(i, j + 1) });
+      tokens.push({ kind: "string", text: code.slice(i, j + 1) });
       i = j + 1;
       continue;
     }
 
     // JSX tag: </TagName or <TagName
-    if (code[i] === '<') {
+    if (code[i] === "<") {
       const next = code[i + 1];
-      if (next === '/' || (next !== undefined && /[A-Za-z]/.test(next))) {
+      if (next === "/" || (next !== undefined && /[A-Za-z]/.test(next))) {
         let j = i + 1;
-        if (code[j] === '/') j++;
+        if (code[j] === "/") j++;
         const nameStart = j;
         while (j < code.length && /[A-Za-z0-9._-]/.test(code.charAt(j))) j++;
         const tagName = code.slice(nameStart, j);
         const isPascal = tagName.length > 0 && /^[A-Z]/.test(tagName);
         tokens.push({
-          kind: isPascal ? 'component' : 'element',
+          kind: isPascal ? "component" : "element",
           text: code.slice(i, j),
         });
         i = j;
         continue;
       }
-      tokens.push({ kind: 'punct', text: '<' });
+      tokens.push({ kind: "punct", text: "<" });
       i++;
       continue;
     }
 
     // Self-closing />
-    if (code[i] === '/' && code[i + 1] === '>') {
-      tokens.push({ kind: 'punct', text: '/>' });
+    if (code[i] === "/" && code[i + 1] === ">") {
+      tokens.push({ kind: "punct", text: "/>" });
       i += 2;
       continue;
     }
 
     // >
-    if (code[i] === '>') {
-      tokens.push({ kind: 'punct', text: '>' });
+    if (code[i] === ">") {
+      tokens.push({ kind: "punct", text: ">" });
       i++;
       continue;
     }
 
     // Number (not preceded by identifier chars)
-    if (/[0-9]/.test(code.charAt(i)) && (i === 0 || !/[A-Za-z_$]/.test(code.charAt(i - 1)))) {
+    if (
+      /[0-9]/.test(code.charAt(i)) &&
+      (i === 0 || !/[A-Za-z_$]/.test(code.charAt(i - 1)))
+    ) {
       let j = i;
       while (j < code.length && /[0-9._]/.test(code.charAt(j))) j++;
-      tokens.push({ kind: 'number', text: code.slice(i, j) });
+      tokens.push({ kind: "number", text: code.slice(i, j) });
       i = j;
       continue;
     }
@@ -173,7 +176,7 @@ function tokenize(code: string): Token[] {
       while (j < code.length && /[A-Za-z0-9_$]/.test(code.charAt(j))) j++;
       const word = code.slice(i, j);
       tokens.push({
-        kind: KEYWORDS.has(word) ? 'keyword' : 'plain',
+        kind: KEYWORDS.has(word) ? "keyword" : "plain",
         text: word,
       });
       i = j;
@@ -181,7 +184,7 @@ function tokenize(code: string): Token[] {
     }
 
     // Everything else (whitespace, punctuation, operators)
-    tokens.push({ kind: 'plain', text: code.charAt(i) });
+    tokens.push({ kind: "plain", text: code.charAt(i) });
     i++;
   }
 
@@ -212,8 +215,14 @@ interface PlaygroundProps {
   codeNote?: ReactNode;
 }
 
-export function Playground({ preview, code, controls, previewClass, codeNote }: PlaygroundProps) {
-  const [tab, setTab] = useState<'controls' | 'code'>('controls');
+export function Playground({
+  preview,
+  code,
+  controls,
+  previewClass,
+  codeNote,
+}: PlaygroundProps) {
+  const [tab, setTab] = useState<"controls" | "code">("controls");
   const [copied, setCopied] = useState(false);
 
   function handleCopy() {
@@ -228,7 +237,7 @@ export function Playground({ preview, code, controls, previewClass, codeNote }: 
       <div className="flex flex-col md:flex-row">
         {/* Preview — always visible, grows to fill its half */}
         <div
-          className={`md:flex-1 ${previewClass ?? 'bg-fd-card p-8 min-h-[200px] flex items-center justify-center'}`}
+          className={`md:flex-1 ${previewClass ?? "bg-fd-card p-8 min-h-[200px] flex items-center justify-center"}`}
         >
           {preview}
         </div>
@@ -237,25 +246,25 @@ export function Playground({ preview, code, controls, previewClass, codeNote }: 
         <div className="border-t md:border-t-0 md:border-l md:flex-1 md:min-w-0 bg-fd-muted/50 flex flex-col">
           {/* Tab bar — bg-fd-card header, visually distinct from the control rows below */}
           <div className="flex shrink-0 items-center bg-fd-card border-b border-fd-border px-4 gap-2">
-            {(['controls', 'code'] as const).map((t) => (
+            {(["controls", "code"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTab(t)}
                 className={[
-                  'py-2.5 px-1 text-xs font-medium border-b-2 -mb-px transition-colors focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-1',
+                  "py-2.5 px-1 text-xs font-medium border-b-2 -mb-px transition-colors focus-visible:outline-none focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-1",
                   tab === t
-                    ? 'border-fd-primary text-fd-foreground'
-                    : 'border-transparent text-fd-muted-foreground hover:text-fd-foreground',
-                ].join(' ')}
+                    ? "border-fd-primary text-fd-foreground"
+                    : "border-transparent text-fd-muted-foreground hover:text-fd-foreground",
+                ].join(" ")}
               >
-                {t === 'controls' ? 'Controls' : 'Code'}
+                {t === "controls" ? "Controls" : "Code"}
               </button>
             ))}
           </div>
 
           {/* Tab content */}
-          {tab === 'controls' ? (
+          {tab === "controls" ? (
             <div className="divide-y divide-fd-border">{controls}</div>
           ) : (
             <div className="px-4 py-3">
@@ -269,7 +278,7 @@ export function Playground({ preview, code, controls, previewClass, codeNote }: 
                   aria-label="Copy code"
                   className="absolute right-2 top-2 rounded px-2 py-1 text-xs font-medium transition-colors bg-fd-muted-foreground/10 text-fd-muted-foreground hover:bg-fd-muted-foreground/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary"
                 >
-                  {copied ? 'Copied!' : 'Copy'}
+                  {copied ? "Copied!" : "Copy"}
                 </button>
               </div>
               {codeNote}
@@ -299,13 +308,15 @@ export function PlaygroundToggle<T extends string>({
   return (
     <div
       className={[
-        'flex items-center gap-4 px-4 py-3',
-        disabled ? 'opacity-50 pointer-events-none select-none' : '',
+        "flex items-center gap-4 px-4 py-3",
+        disabled ? "opacity-50 pointer-events-none select-none" : "",
       ]
-        .join(' ')
+        .join(" ")
         .trim()}
     >
-      <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">{label}</span>
+      <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
+        {label}
+      </span>
       <div className="flex rounded-md border border-fd-border text-xs">
         {options.map((opt) => (
           <button
@@ -313,11 +324,11 @@ export function PlaygroundToggle<T extends string>({
             type="button"
             onClick={() => onChange(opt)}
             className={[
-              'px-3 py-1.5 transition-colors relative first:rounded-l-[5px] last:rounded-r-[5px] focus-visible:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-1',
+              "px-3 py-1.5 transition-colors relative first:rounded-l-[5px] last:rounded-r-[5px] focus-visible:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-1",
               value === opt
-                ? 'bg-fd-primary text-fd-primary-foreground font-medium'
-                : 'bg-fd-card text-fd-muted-foreground hover:bg-fd-accent',
-            ].join(' ')}
+                ? "bg-fd-primary text-fd-primary-foreground font-medium"
+                : "bg-fd-card text-fd-muted-foreground hover:bg-fd-accent",
+            ].join(" ")}
           >
             {opt}
           </button>
@@ -345,10 +356,10 @@ export function PlaygroundTextField({
   return (
     <div
       className={[
-        'flex items-start gap-4 px-4 py-3',
-        disabled ? 'opacity-40 pointer-events-none select-none' : '',
+        "flex items-start gap-4 px-4 py-3",
+        disabled ? "opacity-40 pointer-events-none select-none" : "",
       ]
-        .join(' ')
+        .join(" ")
         .trim()}
     >
       <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground pt-1.5">
@@ -391,13 +402,15 @@ export function PlaygroundSlider({
   return (
     <div
       className={[
-        'flex items-center gap-4 px-4 py-3',
-        disabled ? 'opacity-50 pointer-events-none select-none' : '',
+        "flex items-center gap-4 px-4 py-3",
+        disabled ? "opacity-50 pointer-events-none select-none" : "",
       ]
-        .join(' ')
+        .join(" ")
         .trim()}
     >
-      <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">{label}</span>
+      <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
+        {label}
+      </span>
       <div className="flex flex-1 items-center gap-3">
         <input
           type="range"
@@ -408,7 +421,7 @@ export function PlaygroundSlider({
           onChange={(e) => onChange(Number(e.target.value))}
           disabled={disabled}
           className="flex-1 h-1.5 cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-1"
-          style={{ accentColor: 'var(--color-fd-primary)' }}
+          style={{ accentColor: "var(--color-fd-primary)" }}
         />
         <span className="w-16 shrink-0 text-right font-mono text-xs text-fd-foreground">
           {format ? format(value) : String(value)}
