@@ -6,6 +6,7 @@ const withMDX = createMDX();
 const config = {
   reactStrictMode: true,
   transpilePackages: ['@artui/registry'],
+  serverExternalPackages: ['@modelcontextprotocol/sdk'],
 };
 
 export default withMDX(config);
