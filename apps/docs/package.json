@@ -2,7 +2,6 @@
   "name": "@artui/docs",
   "version": "0.3.1",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
     "copy-registry": "node scripts/copy-registry.mjs",
