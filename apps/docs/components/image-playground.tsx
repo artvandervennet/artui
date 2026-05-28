@@ -3,6 +3,8 @@
 import { Image } from '@artui/registry';
 import { useState } from 'react';
 
+import { Playground, PlaygroundTextField, PlaygroundToggle } from '@/components/playground';
+
 const SRC = 'https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=640&h=360&fit=crop';
 
 // Mirrors the (unexported) FORBIDDEN_ALTS constant in the Image component so the
@@ -19,36 +21,6 @@ const IMG_STYLE: React.CSSProperties = {
   display: 'block',
 };
 
-function Toggle<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: readonly T[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex rounded-md border border-fd-border overflow-hidden text-xs">
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onChange(opt)}
-          className={[
-            'px-3 py-1.5 transition-colors',
-            value === opt
-              ? 'bg-fd-primary text-fd-primary-foreground font-medium'
-              : 'bg-fd-card text-fd-muted-foreground hover:bg-fd-accent',
-          ].join(' ')}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 export function ImagePlayground() {
   const [decorative, setDecorative] = useState(false);
   const [alt, setAlt] = useState('A mountain lake at dawn with mist rising off the still water');
@@ -61,7 +33,6 @@ export function ImagePlayground() {
       ? 'Alt text is empty or contains only whitespace.'
       : `'${alt}' is not meaningful alt text. Describe what the image shows.`;
 
-  // Build live code string that matches what the preview renders
   const codeLines = ['<Image', `  src="${SRC}"`];
   if (decorative) {
     codeLines.push('  decorative');
@@ -75,10 +46,10 @@ export function ImagePlayground() {
   const code = codeLines.join('\n');
 
   return (
-    <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
-      {/* Preview */}
-      <div className="flex items-center justify-center bg-fd-card p-8 min-h-[240px]">
-        {decorative ? (
+    <Playground
+      previewClass="bg-fd-card p-8 min-h-[240px] flex items-center justify-center"
+      preview={
+        decorative ? (
           <Image
             src={SRC}
             decorative
@@ -104,72 +75,46 @@ export function ImagePlayground() {
           </span>
         ) : (
           <Image src={SRC} alt={alt} loading={loading} width={480} height={270} style={IMG_STYLE} />
-        )}
-      </div>
-
-      {/* Controls */}
-      <div className="border-t bg-fd-muted/50 divide-y divide-fd-border">
-        {/* decorative */}
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-24 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            decorative
-          </span>
-          <Toggle
+        )
+      }
+      code={code}
+      controls={
+        <>
+          <PlaygroundToggle
+            label="decorative"
             options={['false', 'true'] as const}
             value={decorative ? 'true' : 'false'}
             onChange={(v) => setDecorative(v === 'true')}
           />
-        </div>
-
-        {/* alt */}
-        <div
-          className={[
-            'flex items-start gap-4 px-4 py-3',
-            decorative ? 'opacity-40 pointer-events-none select-none' : '',
-          ].join(' ')}
-        >
-          <span className="w-24 shrink-0 font-mono text-xs text-fd-muted-foreground pt-1.5">
-            alt
-          </span>
-          <div className="flex-1 flex flex-col gap-1.5">
-            <input
-              type="text"
-              value={alt}
-              onChange={(e) => setAlt(e.target.value)}
-              disabled={decorative}
-              className="w-full rounded-md border border-fd-border bg-fd-card px-3 py-1.5 font-mono text-xs text-fd-foreground focus:outline-none focus:ring-2 focus:ring-fd-primary disabled:cursor-not-allowed"
-              placeholder="Describe what the image shows…"
-            />
-            {isInvalidAlt && (
-              <p className="text-xs text-amber-600 dark:text-amber-400">
-                &#9888; Forbidden alt — the error overlay appears in development
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* loading */}
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-24 shrink-0 font-mono text-xs text-fd-muted-foreground">loading</span>
-          <Toggle options={['lazy', 'eager'] as const} value={loading} onChange={setLoading} />
-        </div>
-
-        {/* Simulated console.error */}
-        {isInvalidAlt && (
-          <div className="px-4 py-3">
-            <div className="rounded-md border border-red-900/40 bg-red-950/20 px-3 py-2 font-mono text-xs text-red-400">
-              &#x2715;&nbsp;[artui] &lt;Image&gt; [WCAG&nbsp;1.1.1]:&nbsp;{consoleError}
+          <PlaygroundTextField
+            label="alt"
+            value={alt}
+            onChange={setAlt}
+            disabled={decorative}
+            placeholder="Describe what the image shows…"
+            hint={
+              isInvalidAlt ? (
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  &#9888; Forbidden alt — the error overlay appears in development
+                </p>
+              ) : undefined
+            }
+          />
+          <PlaygroundToggle
+            label="loading"
+            options={['lazy', 'eager'] as const}
+            value={loading}
+            onChange={setLoading}
+          />
+          {isInvalidAlt && (
+            <div className="px-4 py-3">
+              <div className="rounded-md border border-red-900/40 bg-red-950/20 px-3 py-2 font-mono text-xs text-red-400">
+                &#x2715;&nbsp;[artui] &lt;Image&gt; [WCAG&nbsp;1.1.1]:&nbsp;{consoleError}
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Code */}
-        <div className="px-4 py-3">
-          <pre className="rounded-md bg-fd-muted p-4 text-xs font-mono text-fd-foreground overflow-x-auto whitespace-pre">
-            {code}
-          </pre>
-        </div>
-      </div>
-    </div>
+          )}
+        </>
+      }
+    />
   );
 }
