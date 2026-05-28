@@ -65,7 +65,11 @@
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  text-decoration-color: color-mix(in oklch, var(--color-fd-primary) 40%, transparent);
+  text-decoration-color: color-mix(
+    in oklch,
+    var(--color-fd-primary) 40%,
+    transparent
+  );
   transition: text-decoration-color 150ms ease;
 }
 
@@ -92,8 +96,8 @@
   }
 }
 
-*:focus-visible,
-*:focus {
-  outline: 2px solid var(--color-fd-ring);
+*:focus-visible {
+  outline: 2px dotted var(--color-fd-ring);
   outline-offset: 2px;
+  border-radius: 4px;
 }

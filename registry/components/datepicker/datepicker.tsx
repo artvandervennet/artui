@@ -404,8 +404,27 @@ export function Datepicker(props: DatepickerProps): ReactElement {
       if (!inputRef.current) return;
       const rect = inputRef.current.getBoundingClientRect();
       dialog.style.margin = "0";
-      dialog.style.top = `${rect.bottom + 4}px`;
-      dialog.style.left = `${rect.left}px`;
+
+      // Clamp horizontally so the dialog never overflows the right edge.
+      const desiredLeft = rect.left;
+      const left = Math.max(
+        4,
+        Math.min(desiredLeft, window.innerWidth - dialog.offsetWidth - 4),
+      );
+
+      // Flip above the input when the dialog would overflow the bottom AND there
+      // is enough room above. Fall back to below and clamp to at least 4px.
+      let top = rect.bottom + 4;
+      if (
+        top + dialog.offsetHeight > window.innerHeight &&
+        rect.top - dialog.offsetHeight - 4 >= 0
+      ) {
+        top = rect.top - dialog.offsetHeight - 4;
+      }
+      top = Math.max(4, top);
+
+      dialog.style.top = `${top}px`;
+      dialog.style.left = `${left}px`;
     };
 
     reposition();

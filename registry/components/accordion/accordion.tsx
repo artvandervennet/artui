@@ -473,6 +473,7 @@ function AccordionItem({
           className="artui-accordion-summary"
           onPointerDown={handlePointerDown}
           onKeyDown={handleSummaryKeyDown}
+          onClick={(e) => { if (disabled) e.preventDefault(); }}
         >
           {summaryChildren}
           <span aria-hidden="true" className="artui-accordion-chevron" />

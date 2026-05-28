@@ -599,6 +599,24 @@ function Content({ children, className }: ContentProps): ReactElement {
     const r = anchor.getBoundingClientRect();
     // Flip above the field when there isn't room below and there's more above.
     const panelHeight = panel.offsetHeight;
+
+    // If height is 0 the panel hasn't been laid out yet (panel just became
+    // visible in the same layout cycle). Place below as a safe default so
+    // visibility:hidden is lifted, then re-measure next frame for the flip
+    // calculation once the browser has real dimensions.
+    if (panelHeight === 0) {
+      setPosition((prev) => {
+        const top = r.bottom;
+        const left = r.left;
+        const width = r.width;
+        return prev && prev.top === top && prev.left === left && prev.width === width
+          ? prev
+          : { top, left, width };
+      });
+      requestAnimationFrame(updatePosition);
+      return;
+    }
+
     const spaceBelow = window.innerHeight - r.bottom;
     const placeAbove = spaceBelow < panelHeight && r.top > spaceBelow;
     const top = placeAbove ? Math.max(0, r.top - panelHeight) : r.bottom;
@@ -749,16 +767,18 @@ function Content({ children, className }: ContentProps): ReactElement {
   const hasItems = children !== null && children !== undefined && children !== false;
 
   // Floating overlay: position:fixed anchored to the field so opening the panel
-  // never reflows the page. Coordinates are applied only when open and measured.
-  const overlayStyle: React.CSSProperties | undefined =
-    open && position
-      ? {
-          position: "fixed",
-          top: position.top,
-          left: position.left,
-          minWidth: position.width,
-        }
-      : undefined;
+  // never reflows the page. When open but not yet measured (position===null) we
+  // place the panel off-screen and hide it so the layout engine can measure its
+  // height without a visible flash in the wrong position.
+  const overlayStyle: React.CSSProperties | undefined = open
+    ? {
+        position: "fixed",
+        top: position?.top ?? -9999,
+        left: position?.left ?? -9999,
+        minWidth: position?.width,
+        ...(position === null ? { visibility: "hidden" } : {}),
+      }
+    : undefined;
 
   // The listbox is always in the DOM so Options always mount and can register labels.
   // When closed it is visually hidden (aria-hidden + hidden) and excluded from the AT tree.

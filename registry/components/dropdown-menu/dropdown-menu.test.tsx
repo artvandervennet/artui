@@ -514,4 +514,71 @@ describe("DropdownMenu", () => {
     const items = screen.getAllByRole("menuitem");
     expect(items[0]).toHaveClass("artui-dropdown-item");
   });
+
+  // -------------------------------------------------------------------------
+  // SubContent viewport overflow — flip and clamp
+  // -------------------------------------------------------------------------
+
+  it("flips SubContent to the left when the right edge would overflow the viewport", async () => {
+    // Trigger rect: left=300, width=120, subOffset=4 → rightSpace = 400-(300+120+4) = -24 < 160.
+    // Flip left: max(4, 300 - 4 - 160) = 136.
+    const user = userEvent.setup();
+
+    const triggerRect = { top: 100, left: 300, width: 120, height: 40, bottom: 140, right: 420 };
+
+    Element.prototype.getBoundingClientRect = vi.fn().mockReturnValue(triggerRect);
+
+    // Viewport: narrow so rightSpace < MIN_MENU_WIDTH.
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 400 });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 800 });
+
+    render(<MenuWithSub />);
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    await user.click(screen.getByRole("menuitem", { name: /Preferences/i }));
+
+    const subMenus = screen.getAllByRole("menu");
+    const subPanel = subMenus[subMenus.length - 1]!;
+    expect(subPanel).toHaveStyle({ left: "136px" });
+  });
+
+  it("keeps SubContent to the right when the viewport has enough space", async () => {
+    // Trigger rect: left=50, width=120, subOffset=4 → rightSpace = 1024-(50+120+4) = 850 ≥ 160.
+    // Keep right: left = 50 + 120 + 4 = 174.
+    const user = userEvent.setup();
+
+    const triggerRect = { top: 100, left: 50, width: 120, height: 40, bottom: 140, right: 170 };
+
+    Element.prototype.getBoundingClientRect = vi.fn().mockReturnValue(triggerRect);
+
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 768 });
+
+    render(<MenuWithSub />);
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    await user.click(screen.getByRole("menuitem", { name: /Preferences/i }));
+
+    const subMenus = screen.getAllByRole("menu");
+    const subPanel = subMenus[subMenus.length - 1]!;
+    expect(subPanel).toHaveStyle({ left: "174px" });
+  });
+
+  it("positions SubContent top aligned with the sub-trigger", async () => {
+    // top = subTriggerRect.top - contentPadding = 100 - 4 = 96.
+    const user = userEvent.setup();
+
+    const triggerRect = { top: 100, left: 50, width: 120, height: 40, bottom: 140, right: 170 };
+
+    Element.prototype.getBoundingClientRect = vi.fn().mockReturnValue(triggerRect);
+
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 1024 });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 768 });
+
+    render(<MenuWithSub />);
+    await user.click(screen.getByRole("button", { name: "Open menu" }));
+    await user.click(screen.getByRole("menuitem", { name: /Preferences/i }));
+
+    const subMenus = screen.getAllByRole("menu");
+    const subPanel = subMenus[subMenus.length - 1]!;
+    expect(subPanel).toHaveStyle({ top: "96px" });
+  });
 });
