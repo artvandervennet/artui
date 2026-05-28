@@ -3,6 +3,8 @@
 import { Select } from '@artui/registry';
 import { useState } from 'react';
 
+import { Playground, PlaygroundToggle } from '@/components/playground';
+
 type SelectMode = 'single' | 'multi';
 type GroupMode = 'flat' | 'grouped';
 type ClearAll = 'off' | 'on';
@@ -12,45 +14,6 @@ const SELECT_MODES: SelectMode[] = ['single', 'multi'];
 const GROUP_MODES: GroupMode[] = ['flat', 'grouped'];
 const CLEAR_ALL_MODES: ClearAll[] = ['off', 'on'];
 const DISABLED_MODES: Disabled[] = ['off', 'on'];
-
-function Toggle<T extends string>({
-  options,
-  value,
-  onChange,
-  disabled,
-}: {
-  options: readonly T[];
-  value: T;
-  onChange: (v: T) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <div
-      className={[
-        'flex rounded-md border border-fd-border overflow-hidden text-xs',
-        disabled ? 'opacity-50 pointer-events-none' : '',
-      ]
-        .join(' ')
-        .trim()}
-    >
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onChange(opt)}
-          className={[
-            'px-3 py-1.5 transition-colors',
-            value === opt
-              ? 'bg-fd-primary text-fd-primary-foreground font-medium'
-              : 'bg-fd-card text-fd-muted-foreground hover:bg-fd-accent',
-          ].join(' ')}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 const FLAT_OPTIONS = [
   { value: 'react', label: 'React' },
@@ -159,72 +122,69 @@ export function SelectPlayground() {
   }
 
   return (
-    <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
-      <div className="flex flex-col items-start justify-center bg-fd-card p-8 min-h-[220px] gap-4">
-        {isMulti ? (
-          <Select multiple value={multiValue} onValueChange={setMultiValue} disabled={isDisabled}>
-            <Select.Control
-              aria-label="Frameworks"
-              placeholder="Select frameworks"
-              showClearAll={hasClearAll}
-              clearAllLabel="Clear all"
-            />
-            <Select.Content>{renderOptions()}</Select.Content>
-          </Select>
-        ) : (
-          <Select
-            aria-label="Framework"
-            value={singleValue}
-            onValueChange={setSingleValue}
-            disabled={isDisabled}
-          >
-            {renderOptions()}
-          </Select>
-        )}
-
-        {isMulti && (
-          <p className="text-xs text-fd-muted-foreground">
-            Try <kbd className="font-mono">Space</kbd> / <kbd className="font-mono">Enter</kbd> to
-            toggle, <kbd className="font-mono">Backspace</kbd> on the trigger to remove the last
-            tag, <kbd className="font-mono">Escape</kbd> to close.
-          </p>
-        )}
-      </div>
-
-      <div className="border-t bg-fd-muted/50 divide-y divide-fd-border">
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">mode</span>
-          <Toggle options={SELECT_MODES} value={selectMode} onChange={setSelectMode} />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">groups</span>
-          <Toggle options={GROUP_MODES} value={groupMode} onChange={setGroupMode} />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            clear-all
-          </span>
-          <Toggle
+    <Playground
+      previewClass="bg-fd-card p-8 min-h-[220px] flex flex-col items-start justify-center gap-4"
+      preview={
+        <>
+          {isMulti ? (
+            <Select multiple value={multiValue} onValueChange={setMultiValue} disabled={isDisabled}>
+              <Select.Control
+                aria-label="Frameworks"
+                placeholder="Select frameworks"
+                showClearAll={hasClearAll}
+                clearAllLabel="Clear all"
+              />
+              <Select.Content>{renderOptions()}</Select.Content>
+            </Select>
+          ) : (
+            <Select
+              aria-label="Framework"
+              value={singleValue}
+              onValueChange={setSingleValue}
+              disabled={isDisabled}
+            >
+              {renderOptions()}
+            </Select>
+          )}
+          {isMulti && (
+            <p className="text-xs text-fd-muted-foreground">
+              Try <kbd className="font-mono">Space</kbd> / <kbd className="font-mono">Enter</kbd> to
+              toggle, <kbd className="font-mono">Backspace</kbd> on the trigger to remove the last
+              tag, <kbd className="font-mono">Escape</kbd> to close.
+            </p>
+          )}
+        </>
+      }
+      code={buildCode()}
+      controls={
+        <>
+          <PlaygroundToggle
+            label="mode"
+            options={SELECT_MODES}
+            value={selectMode}
+            onChange={setSelectMode}
+          />
+          <PlaygroundToggle
+            label="groups"
+            options={GROUP_MODES}
+            value={groupMode}
+            onChange={setGroupMode}
+          />
+          <PlaygroundToggle
+            label="clear-all"
             options={CLEAR_ALL_MODES}
             value={clearAll}
             onChange={setClearAll}
             disabled={!isMulti}
           />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">disabled</span>
-          <Toggle options={DISABLED_MODES} value={disabled} onChange={setDisabled} />
-        </div>
-
-        <div className="px-4 py-3">
-          <pre className="rounded-md bg-fd-muted p-4 text-xs font-mono text-fd-foreground overflow-x-auto whitespace-pre">
-            {buildCode()}
-          </pre>
-        </div>
-      </div>
-    </div>
+          <PlaygroundToggle
+            label="disabled"
+            options={DISABLED_MODES}
+            value={disabled}
+            onChange={setDisabled}
+          />
+        </>
+      }
+    />
   );
 }

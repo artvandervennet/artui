@@ -3,6 +3,8 @@
 import { Datepicker } from '@artui/registry';
 import { useState } from 'react';
 
+import { Playground, PlaygroundToggle } from '@/components/playground';
+
 type LocaleOption = 'nl-BE' | 'en-US' | 'ja-JP';
 type RangeOption = 'none' | 'this-year' | 'future-only';
 type DisabledOption = 'none' | 'weekends' | 'odd-days';
@@ -16,36 +18,6 @@ const ERRORS: ErrorOption[] = ['none', 'shown'];
 const REQUIREDS: RequiredOption[] = ['no', 'yes'];
 
 const SAMPLE_ERROR = 'Please choose a date.';
-
-function Toggle<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: readonly T[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex rounded-md border border-fd-border overflow-hidden text-xs">
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onChange(opt)}
-          className={[
-            'px-3 py-1.5 transition-colors',
-            value === opt
-              ? 'bg-fd-primary text-fd-primary-foreground font-medium'
-              : 'bg-fd-card text-fd-muted-foreground hover:bg-fd-accent',
-          ].join(' ')}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export function DatepickerPlayground() {
   const [date, setDate] = useState<Date | null>(null);
@@ -105,70 +77,55 @@ export function DatepickerPlayground() {
     : 'No date selected';
 
   return (
-    <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
-      {/* Preview */}
-      <div className="flex flex-col items-center justify-center bg-fd-card p-8 min-h-[220px] gap-4">
-        <Datepicker
-          label="Appointment date"
-          value={date}
-          onChange={setDate}
-          locale={locale}
-          min={min}
-          max={max}
-          isDateDisabled={isDateDisabled}
-          required={required}
-          error={error}
-        />
-        <p className="text-xs text-fd-muted-foreground mt-2">
-          Selected: <span className="font-mono text-fd-foreground">{displayValue}</span>
-        </p>
-        <p className="text-xs text-fd-muted-foreground">
-          The selected day uses the themeable <span className="font-mono">--artui-accent</span>{' '}
-          color.
-        </p>
-      </div>
-
-      {/* Controls */}
-      <div className="border-t bg-fd-muted/50 divide-y divide-fd-border">
-        {/* locale */}
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-28 shrink-0 font-mono text-xs text-fd-muted-foreground">locale</span>
-          <Toggle options={LOCALES} value={locale} onChange={setLocale} />
-        </div>
-
-        {/* range */}
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-28 shrink-0 font-mono text-xs text-fd-muted-foreground">min/max</span>
-          <Toggle options={RANGES} value={range} onChange={setRange} />
-        </div>
-
-        {/* isDateDisabled */}
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-28 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            isDateDisabled
-          </span>
-          <Toggle options={DISABLED} value={disabledRule} onChange={setDisabledRule} />
-        </div>
-
-        {/* required */}
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-28 shrink-0 font-mono text-xs text-fd-muted-foreground">required</span>
-          <Toggle options={REQUIREDS} value={requiredRule} onChange={setRequiredRule} />
-        </div>
-
-        {/* error */}
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-28 shrink-0 font-mono text-xs text-fd-muted-foreground">error</span>
-          <Toggle options={ERRORS} value={errorRule} onChange={setErrorRule} />
-        </div>
-
-        {/* Code */}
-        <div className="px-4 py-3">
-          <pre className="rounded-md bg-fd-muted p-4 text-xs font-mono text-fd-foreground overflow-x-auto whitespace-pre">
-            {code}
-          </pre>
-        </div>
-      </div>
-    </div>
+    <Playground
+      previewClass="bg-fd-card p-8 min-h-[220px] flex flex-col items-center justify-center gap-4"
+      preview={
+        <>
+          <Datepicker
+            label="Appointment date"
+            value={date}
+            onChange={setDate}
+            locale={locale}
+            min={min}
+            max={max}
+            isDateDisabled={isDateDisabled}
+            required={required}
+            error={error}
+          />
+          <p className="text-xs text-fd-muted-foreground mt-2">
+            Selected: <span className="font-mono text-fd-foreground">{displayValue}</span>
+          </p>
+          <p className="text-xs text-fd-muted-foreground">
+            The selected day uses the themeable <span className="font-mono">--artui-accent</span>{' '}
+            color.
+          </p>
+        </>
+      }
+      code={code}
+      controls={
+        <>
+          <PlaygroundToggle label="locale" options={LOCALES} value={locale} onChange={setLocale} />
+          <PlaygroundToggle label="min/max" options={RANGES} value={range} onChange={setRange} />
+          <PlaygroundToggle
+            label="isDateDisabled"
+            options={DISABLED}
+            value={disabledRule}
+            onChange={setDisabledRule}
+          />
+          <PlaygroundToggle
+            label="required"
+            options={REQUIREDS}
+            value={requiredRule}
+            onChange={setRequiredRule}
+          />
+          <PlaygroundToggle
+            label="error"
+            options={ERRORS}
+            value={errorRule}
+            onChange={setErrorRule}
+          />
+        </>
+      }
+    />
   );
 }

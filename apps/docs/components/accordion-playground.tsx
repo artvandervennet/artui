@@ -3,41 +3,13 @@
 import { Accordion } from '@artui/registry';
 import { useState } from 'react';
 
+import { Playground, PlaygroundToggle } from '@/components/playground';
+
 type AccordionMode = 'single' | 'multiple';
 type HeadingLevelOption = '2' | '3' | '4' | '5' | '6';
 
 const ACCORDION_MODES: AccordionMode[] = ['single', 'multiple'];
 const HEADING_LEVELS: HeadingLevelOption[] = ['2', '3', '4', '5', '6'];
-
-function Toggle<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: readonly T[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex rounded-md border border-fd-border overflow-hidden text-xs">
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onChange(opt)}
-          className={[
-            'px-3 py-1.5 transition-colors',
-            value === opt
-              ? 'bg-fd-primary text-fd-primary-foreground font-medium'
-              : 'bg-fd-card text-fd-muted-foreground hover:bg-fd-accent',
-          ].join(' ')}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 const ITEMS = [
   {
@@ -78,7 +50,7 @@ export function AccordionPlayground() {
     codeLines.push('    <Accordion.Header>');
     codeLines.push(`      <Accordion.Trigger>${item.label}</Accordion.Trigger>`);
     codeLines.push('    </Accordion.Header>');
-    codeLines.push(`    <Accordion.Panel>`);
+    codeLines.push('    <Accordion.Panel>');
     codeLines.push(`      <p>${item.content}</p>`);
     codeLines.push('    </Accordion.Panel>');
     codeLines.push('  </Accordion.Item>');
@@ -102,47 +74,40 @@ export function AccordionPlayground() {
   ));
 
   return (
-    <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
-      <div className="bg-fd-card p-6 min-h-[180px]">
-        {mode === 'single' ? (
+    <Playground
+      previewClass="bg-fd-card p-6 min-h-[180px]"
+      preview={
+        mode === 'single' ? (
           <Accordion headingLevel={level}>{items}</Accordion>
         ) : (
           <Accordion type="multiple" headingLevel={level}>
             {items}
           </Accordion>
-        )}
-      </div>
-
-      <div className="border-t bg-fd-muted/50 divide-y divide-fd-border">
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">type</span>
-          <Toggle options={ACCORDION_MODES} value={mode} onChange={setMode} />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            headingLevel
-          </span>
-          <Toggle options={HEADING_LEVELS} value={headingLevel} onChange={setHeadingLevel} />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            disabled item
-          </span>
-          <Toggle
+        )
+      }
+      code={code}
+      controls={
+        <>
+          <PlaygroundToggle
+            label="type"
+            options={ACCORDION_MODES}
+            value={mode}
+            onChange={setMode}
+          />
+          <PlaygroundToggle
+            label="headingLevel"
+            options={HEADING_LEVELS}
+            value={headingLevel}
+            onChange={setHeadingLevel}
+          />
+          <PlaygroundToggle
+            label="disabled item"
             options={['off', 'on'] as const}
             value={disableLast ? 'on' : 'off'}
             onChange={(v) => setDisableLast(v === 'on')}
           />
-        </div>
-
-        <div className="px-4 py-3">
-          <pre className="rounded-md bg-fd-muted p-4 text-xs font-mono text-fd-foreground overflow-x-auto whitespace-pre">
-            {code}
-          </pre>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

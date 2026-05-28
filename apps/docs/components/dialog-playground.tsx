@@ -3,6 +3,8 @@
 import { Dialog } from '@artui/registry';
 import { useRef, useState } from 'react';
 
+import { Playground, PlaygroundToggle } from '@/components/playground';
+
 type LabelMode = 'title' | 'aria-labelledby';
 type DescriptionOption = 'none' | 'short' | 'long';
 type InitialFocusOption = 'default' | 'cancel-button';
@@ -20,36 +22,6 @@ const DESCRIPTION_TEXT: Record<DescriptionOption, string | undefined> = {
 };
 
 const LABEL_HEADING_ID = 'dialog-playground-heading';
-
-function Toggle<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: readonly T[];
-  value: T;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex rounded-md border border-fd-border overflow-hidden text-xs">
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          onClick={() => onChange(opt)}
-          className={[
-            'px-3 py-1.5 transition-colors',
-            value === opt
-              ? 'bg-fd-primary text-fd-primary-foreground font-medium'
-              : 'bg-fd-card text-fd-muted-foreground hover:bg-fd-accent',
-          ].join(' ')}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export function DialogPlayground() {
   const [open, setOpen] = useState(false);
@@ -118,110 +90,99 @@ export function DialogPlayground() {
       : { 'aria-labelledby': 'dialog-playground-heading' as const };
 
   return (
-    <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
-      {labelMode === 'aria-labelledby' && (
-        <h2 id={LABEL_HEADING_ID} className="sr-only">
-          Delete account
-        </h2>
-      )}
-
-      <div className="flex flex-col items-center justify-center bg-fd-card p-8 min-h-[220px] gap-4">
-        <button
-          ref={triggerRef}
-          type="button"
-          onClick={() => setOpen(true)}
-          className="px-4 py-2 rounded-md bg-fd-primary text-fd-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
-        >
-          Open dialog
-        </button>
-        <p className="text-xs text-fd-muted-foreground">
-          Try <kbd className="font-mono">Esc</kbd>, <kbd className="font-mono">Tab</kbd>, and
-          clicking the backdrop.
-        </p>
-        <p className="text-xs text-fd-muted-foreground">
-          The dialog now uses the shared artui tokens: a neutral surface, solid border, and the
-          lighter <code className="font-mono">--artui-shadow-lg</code> elevation.
-        </p>
-
-        <Dialog
-          {...dialogProps}
-          open={open}
-          onClose={() => setOpen(false)}
-          description={descriptionValue}
-          initialFocusRef={initialFocusRef}
-          returnFocusRef={returnFocusRef}
-          closeOnBackdropClick={closeOnBackdrop}
-        >
-          <p className="m-0">
-            You are about to delete your account. This is a playground — no real action is
-            performed.
+    <Playground
+      previewClass="bg-fd-card p-8 min-h-[220px] flex flex-col items-center justify-center gap-4"
+      preview={
+        <>
+          {labelMode === 'aria-labelledby' && (
+            <h2 id={LABEL_HEADING_ID} className="sr-only">
+              Delete account
+            </h2>
+          )}
+          <button
+            ref={triggerRef}
+            type="button"
+            onClick={() => setOpen(true)}
+            className="px-4 py-2 rounded-md bg-fd-primary text-fd-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
+          >
+            Open dialog
+          </button>
+          <p className="text-xs text-fd-muted-foreground">
+            Try <kbd className="font-mono">Esc</kbd>, <kbd className="font-mono">Tab</kbd>, and
+            clicking the backdrop.
           </p>
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              ref={cancelRef}
-              type="button"
-              onClick={() => setOpen(false)}
-              className="px-4 py-2 rounded-md border border-[var(--artui-border)] bg-[var(--artui-bg)] text-[var(--artui-fg)] cursor-pointer hover:bg-[var(--artui-hover-bg)] transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="px-4 py-2 rounded-md border-none bg-[var(--artui-color-error)] text-white cursor-pointer"
-            >
-              Delete
-            </button>
-          </div>
-        </Dialog>
-      </div>
-
-      <div className="border-t bg-fd-muted/50 divide-y divide-fd-border">
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            label source
-          </span>
-          <Toggle options={LABEL_MODES} value={labelMode} onChange={setLabelMode} />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            description
-          </span>
-          <Toggle options={DESCRIPTIONS} value={description} onChange={setDescription} />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            initialFocusRef
-          </span>
-          <Toggle options={INITIAL_FOCUS} value={initialFocus} onChange={setInitialFocus} />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            returnFocusRef
-          </span>
-          <Toggle options={RETURN_FOCUS} value={returnFocus} onChange={setReturnFocus} />
-        </div>
-
-        <div className="flex items-center gap-4 px-4 py-3">
-          <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">
-            closeOnBackdropClick
-          </span>
-          <Toggle
+          <p className="text-xs text-fd-muted-foreground">
+            The dialog now uses the shared artui tokens: a neutral surface, solid border, and the
+            lighter <code className="font-mono">--artui-shadow-lg</code> elevation.
+          </p>
+          <Dialog
+            {...dialogProps}
+            open={open}
+            onClose={() => setOpen(false)}
+            description={descriptionValue}
+            initialFocusRef={initialFocusRef}
+            returnFocusRef={returnFocusRef}
+            closeOnBackdropClick={closeOnBackdrop}
+          >
+            <p className="m-0">
+              You are about to delete your account. This is a playground — no real action is
+              performed.
+            </p>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                ref={cancelRef}
+                type="button"
+                onClick={() => setOpen(false)}
+                className="px-4 py-2 rounded-md border border-[var(--artui-border)] bg-[var(--artui-bg)] text-[var(--artui-fg)] cursor-pointer hover:bg-[var(--artui-hover-bg)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="px-4 py-2 rounded-md border-none bg-[var(--artui-color-error)] text-white cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </Dialog>
+        </>
+      }
+      code={code}
+      controls={
+        <>
+          <PlaygroundToggle
+            label="label source"
+            options={LABEL_MODES}
+            value={labelMode}
+            onChange={setLabelMode}
+          />
+          <PlaygroundToggle
+            label="description"
+            options={DESCRIPTIONS}
+            value={description}
+            onChange={setDescription}
+          />
+          <PlaygroundToggle
+            label="initialFocusRef"
+            options={INITIAL_FOCUS}
+            value={initialFocus}
+            onChange={setInitialFocus}
+          />
+          <PlaygroundToggle
+            label="returnFocusRef"
+            options={RETURN_FOCUS}
+            value={returnFocus}
+            onChange={setReturnFocus}
+          />
+          <PlaygroundToggle
+            label="closeOnBackdropClick"
             options={['true', 'false'] as const}
             value={closeOnBackdrop ? 'true' : 'false'}
             onChange={(v) => setCloseOnBackdrop(v === 'true')}
           />
-        </div>
-
-        <div className="px-4 py-3">
-          <pre className="rounded-md bg-fd-muted p-4 text-xs font-mono text-fd-foreground overflow-x-auto whitespace-pre">
-            {code}
-          </pre>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }
