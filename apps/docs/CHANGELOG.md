@@ -1,5 +1,18 @@
 # @artui/docs
 
+## 0.3.0
+
+### Minor Changes
+
+- bceb557: fixed some bugs
+
+### Patch Changes
+
+- 6cdfec7: fixed mcp
+- Updated dependencies [bceb557]
+- Updated dependencies [489fbc0]
+  - @artui/registry@0.8.0
+
 ## 0.2.3
 
 ### Patch Changes
