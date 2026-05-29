@@ -1,5 +1,11 @@
 # @artui/registry
 
+## 0.8.1
+
+### Patch Changes
+
+- 25780fc: refactor code structure for improved readability and maintainability
+
 ## 0.8.0
 
 ### Minor Changes

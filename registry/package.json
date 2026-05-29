@@ -1,6 +1,6 @@
 {
   "name": "@artui/registry",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "type": "module",
   "description": "Source-of-truth for artui components. Files here are copied verbatim into consumer projects by the CLI.",

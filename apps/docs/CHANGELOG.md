@@ -1,5 +1,17 @@
 # @artui/docs
 
+## 0.4.0
+
+### Minor Changes
+
+- 5eed616: add principles and how-to sections for artui components
+
+### Patch Changes
+
+- 25780fc: refactor code structure for improved readability and maintainability
+- Updated dependencies [25780fc]
+  - @artui/registry@0.8.1
+
 ## 0.3.1
 
 ### Patch Changes
