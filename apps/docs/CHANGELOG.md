@@ -1,5 +1,11 @@
 # @artui/docs
 
+## 0.4.0
+
+### Minor Changes
+
+- 5eed616: add principles and how-to sections for artui components
+
 ## 0.3.1
 
 ### Patch Changes

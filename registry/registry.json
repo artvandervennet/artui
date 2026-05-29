@@ -1,7 +1,7 @@
 {
   "$schema": "https://artui.vandervennet.art/registry-schema.json",
   "version": "0.8.0",
-  "generatedAt": "2026-05-28T17:07:47.869Z",
+  "generatedAt": "2026-05-29T13:26:53.250Z",
   "components": [
     {
       "name": "Accordion",
