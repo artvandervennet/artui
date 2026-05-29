@@ -1244,6 +1244,153 @@ describe("Slider", () => {
   });
 
   // -------------------------------------------------------------------------
+  // showValues: value display feature
+  // -------------------------------------------------------------------------
+
+  describe("showValues", () => {
+    it("renders min bound text when showValues is true", () => {
+      render(
+        <Slider min={10} max={90} defaultValue={50} aria-label="Vol" showValues />,
+      );
+      expect(screen.getByText("10")).toBeInTheDocument();
+    });
+
+    it("renders max bound text when showValues is true", () => {
+      render(
+        <Slider min={10} max={90} defaultValue={50} aria-label="Vol" showValues />,
+      );
+      expect(screen.getByText("90")).toBeInTheDocument();
+    });
+
+    it("renders the current thumb value text when showValues is true (single mode)", () => {
+      render(
+        <Slider min={0} max={100} defaultValue={42} aria-label="Vol" showValues />,
+      );
+      expect(screen.getByText("42")).toBeInTheDocument();
+    });
+
+    it("formats min bound through formatValue when showValues is true", () => {
+      render(
+        <Slider
+          min={0}
+          max={1000}
+          defaultValue={250}
+          aria-label="Price"
+          showValues
+          formatValue={(v) => `€${v}`}
+        />,
+      );
+      expect(screen.getByText("€0")).toBeInTheDocument();
+    });
+
+    it("formats max bound through formatValue when showValues is true", () => {
+      render(
+        <Slider
+          min={0}
+          max={1000}
+          defaultValue={250}
+          aria-label="Price"
+          showValues
+          formatValue={(v) => `€${v}`}
+        />,
+      );
+      expect(screen.getByText("€1000")).toBeInTheDocument();
+    });
+
+    it("formats thumb value through formatValue when showValues is true", () => {
+      render(
+        <Slider
+          min={0}
+          max={1000}
+          defaultValue={250}
+          aria-label="Price"
+          showValues
+          formatValue={(v) => `€${v}`}
+        />,
+      );
+      expect(screen.getByText("€250")).toBeInTheDocument();
+    });
+
+    it("min bound element is aria-hidden", () => {
+      render(
+        <Slider min={0} max={100} defaultValue={50} aria-label="Vol" showValues />,
+      );
+      // The "0" text node is the min label; assert its container is aria-hidden
+      const minEl = screen.getByText("0");
+      expect(minEl).toHaveAttribute("aria-hidden", "true");
+    });
+
+    it("max bound element is aria-hidden", () => {
+      render(
+        <Slider min={0} max={100} defaultValue={50} aria-label="Vol" showValues />,
+      );
+      const maxEl = screen.getByText("100");
+      expect(maxEl).toHaveAttribute("aria-hidden", "true");
+    });
+
+    it("thumb value bubble element is aria-hidden", () => {
+      render(
+        <Slider min={0} max={100} defaultValue={50} aria-label="Vol" showValues />,
+      );
+      const valueEl = screen.getByText("50");
+      expect(valueEl).toHaveAttribute("aria-hidden", "true");
+    });
+
+    it("does not render min/max bound text when showValues is false", () => {
+      render(
+        <Slider min={10} max={90} defaultValue={50} aria-label="Vol" />,
+      );
+      expect(screen.queryByText("10")).not.toBeInTheDocument();
+      expect(screen.queryByText("90")).not.toBeInTheDocument();
+    });
+
+    it("does not render thumb value bubble when showValues is false", () => {
+      render(
+        <Slider min={0} max={100} defaultValue={42} aria-label="Vol" />,
+      );
+      // aria-valuenow still carries 42 but no visible span with that text
+      expect(screen.queryByText("42")).not.toBeInTheDocument();
+    });
+
+    it("thumb value bubble updates when the value changes", () => {
+      render(
+        <Slider min={0} max={100} step={10} defaultValue={50} aria-label="Vol" showValues />,
+      );
+      fireEvent.keyDown(getThumb(), { key: "ArrowRight" });
+      expect(screen.getByText("60")).toBeInTheDocument();
+    });
+
+    it("renders a value bubble for each thumb in range mode", () => {
+      render(
+        <Slider
+          min={0}
+          max={100}
+          defaultValue={[20, 80]}
+          aria-label="Range"
+          showValues
+          thumbs={[{ "aria-label": "Min" }, { "aria-label": "Max" }]}
+        />,
+      );
+      expect(screen.getByText("20")).toBeInTheDocument();
+      expect(screen.getByText("80")).toBeInTheDocument();
+    });
+
+    it("adds data-show-values attribute to root when showValues is true", () => {
+      const { container } = render(
+        <Slider min={0} max={100} defaultValue={50} aria-label="Vol" showValues />,
+      );
+      expect(container.firstChild).toHaveAttribute("data-show-values", "true");
+    });
+
+    it("does not add data-show-values attribute when showValues is false", () => {
+      const { container } = render(
+        <Slider min={0} max={100} defaultValue={50} aria-label="Vol" />,
+      );
+      expect(container.firstChild).not.toHaveAttribute("data-show-values");
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Guard dedup: console.error fires once, overlay still renders on re-render
   // -------------------------------------------------------------------------
 

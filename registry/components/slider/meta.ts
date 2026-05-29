@@ -99,6 +99,14 @@ export const meta: ComponentMeta = {
         "Single-thumb: ID of an element that labels the thumb. Range: ID of the element that labels the group. A dev overlay fires when the ID does not resolve to a DOM element.",
     },
     {
+      name: "showValues",
+      type: "boolean",
+      required: false,
+      defaultValue: "false",
+      description:
+        "When true, visually displays the min/max bounds at the track ends and the live thumb value above each thumb. All visible text is aria-hidden; screen readers already receive the values via aria-valuenow and aria-valuetext on the thumb buttons. Formatted through formatValue when provided.",
+    },
+    {
       name: "className",
       type: "string",
       required: false,
@@ -223,6 +231,19 @@ export const meta: ComponentMeta = {
   onValueChange={setPrice}
   aria-label="Budget"
   formatValue={(v) => \`€\${v}\`}
+/>`,
+    },
+    {
+      name: "Show values",
+      description: "Display min/max bounds and the live thumb value visually. All visible text is aria-hidden; screen readers use aria-valuenow and aria-valuetext.",
+      code: `<Slider
+  min={0}
+  max={100}
+  step={1}
+  defaultValue={40}
+  aria-label="Volume"
+  showValues
+  formatValue={(v) => \`\${v}%\`}
 />`,
     },
   ],

@@ -135,6 +135,87 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+ * showValues: bound labels and thumb value bubble
+ * Activated via data-show-values="true" on the root; no change when absent.
+ * All visible text is aria-hidden so screen readers use aria-valuenow/text.
+ * --------------------------------------------------------------------------- */
+
+/* With showValues on, the inline min/max bound labels are flex siblings of the
+ * track. If the root keeps its fixed main-axis size, those labels steal space
+ * from the flex:1 track and shrink it. Instead, let the container size to
+ * content and pin the track to the configured length, so the track renders
+ * identically whether showValues is on or off and the labels grow the
+ * container outward. */
+.artui-slider[data-show-values="true"][data-orientation="horizontal"] {
+  width: auto;
+
+  & .artui-slider-track {
+    flex: none;
+    width: var(--artui-slider-length);
+  }
+}
+
+.artui-slider[data-show-values="true"][data-orientation="vertical"] {
+  height: auto;
+
+  & .artui-slider-track {
+    flex: none;
+    height: var(--artui-slider-vertical-length);
+  }
+}
+
+/* Shared label base */
+.artui-slider-min,
+.artui-slider-max {
+  font-size: 0.75em;
+  line-height: 1;
+  color: color-mix(in srgb, currentColor 55%, transparent);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+
+  [data-orientation="horizontal"] & {
+    align-self: center;
+  }
+
+  [data-orientation="vertical"] & {
+    /* Center the label horizontally relative to the track width */
+    text-align: center;
+    width: var(--artui-slider-thumb-hit-size);
+  }
+}
+
+/* Thumb value bubble: absolutely positioned, tracks the thumb's percent */
+.artui-slider-value {
+  position: absolute;
+  font-size: 0.75em;
+  line-height: 1;
+  /* Accent color matches the fill and thumb border */
+  color: var(--artui-accent, currentColor);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+
+  [data-orientation="horizontal"] & {
+    /* left is set by inline style; center over thumb, place above track.
+     * Offset clears the thumb disc (measured from the thin track edge, so add
+     * half the thumb size plus a gap) instead of nearly overlapping it. */
+    transform: translateX(-50%);
+    bottom: calc(100% + var(--artui-slider-thumb-size) / 2 + 0.4em);
+    top: unset;
+  }
+
+  [data-orientation="vertical"] & {
+    /* bottom is set by inline style; center beside thumb, place to the right.
+     * Offset clears the thumb disc (see horizontal note). */
+    transform: translateY(50%);
+    left: calc(100% + var(--artui-slider-thumb-size) / 2 + 0.4em);
+    right: unset;
+  }
+}
+
 @media (forced-colors: active) {
   .artui-slider-track {
     background: ButtonFace;
@@ -148,5 +229,11 @@
   .artui-slider-thumb {
     background: ButtonFace;
     border-color: ButtonText;
+  }
+
+  .artui-slider-min,
+  .artui-slider-max,
+  .artui-slider-value {
+    color: CanvasText;
   }
 }

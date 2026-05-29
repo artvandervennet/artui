@@ -10,3 +10,4 @@
 - [always-mounted-content-pattern](always-mounted-content-pattern.md) — hidden+aria-hidden keeps Options mounted for label registration when panel is closed
 - [label-registry-state-vs-ref](label-registry-state-vs-ref.md) — useState not useRef for child label registries so sibling Tags re-renders when labels arrive
 - [tag-label-test-query](tag-label-test-query.md) — always-mounted content duplicates text; query tag labels via CSS class not getByText
+- [aria-hidden-decorative-display](aria-hidden-decorative-display.md) — Visual text mirroring aria-valuenow/text must be aria-hidden; gate CSS with data-show-values attribute

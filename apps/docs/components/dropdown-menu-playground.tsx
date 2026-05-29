@@ -5,22 +5,15 @@ import { useState } from 'react';
 
 import { Playground, PlaygroundToggle } from '@/components/playground';
 
-type OpenMode = 'uncontrolled' | 'controlled';
 type DisabledItem = 'shown' | 'hidden';
 
-const OPEN_MODES: OpenMode[] = ['uncontrolled', 'controlled'];
 const DISABLED_ITEM: DisabledItem[] = ['shown', 'hidden'];
 
 export function DropdownMenuPlayground() {
-  const [openMode, setOpenMode] = useState<OpenMode>('uncontrolled');
   const [disabledItem, setDisabledItem] = useState<DisabledItem>('shown');
-  const [controlledOpen, setControlledOpen] = useState(false);
   const [lastAction, setLastAction] = useState<string | null>(null);
 
-  const isControlled = openMode === 'controlled';
   const showDisabled = disabledItem === 'shown';
-
-  const rootProps = isControlled ? { open: controlledOpen, onOpenChange: setControlledOpen } : {};
 
   const codeLines: string[] = [];
   codeLines.push("import { useState } from 'react';");
@@ -29,9 +22,6 @@ export function DropdownMenuPlayground() {
   codeLines.push('');
   codeLines.push('function AccountMenu() {');
   codeLines.push('  const router = useRouter();');
-  if (isControlled) {
-    codeLines.push('  const [open, setOpen] = useState(false);');
-  }
   codeLines.push('  const [theme, setTheme] = useState<"light" | "dark">("light");');
   codeLines.push('');
   codeLines.push('  const signOut = () => {');
@@ -40,16 +30,8 @@ export function DropdownMenuPlayground() {
   codeLines.push('  };');
   codeLines.push('');
   codeLines.push('  return (');
-  if (isControlled) {
-    codeLines.push('    <>');
-    codeLines.push('      <button type="button" onClick={() => setOpen(true)}>');
-    codeLines.push('        Open from outside');
-    codeLines.push('      </button>');
-    codeLines.push('      <DropdownMenu open={open} onOpenChange={setOpen}>');
-  } else {
-    codeLines.push('    <DropdownMenu>');
-  }
-  const ind = isControlled ? '        ' : '      ';
+  codeLines.push('    <DropdownMenu>');
+  const ind = '      ';
   codeLines.push(`${ind}<DropdownMenu.Trigger>Account</DropdownMenu.Trigger>`);
   codeLines.push(`${ind}<DropdownMenu.Content>`);
   codeLines.push(`${ind}  <DropdownMenu.Item onSelect={() => router.push('/profile')}>`);
@@ -80,12 +62,7 @@ export function DropdownMenuPlayground() {
   codeLines.push(`${ind}  <DropdownMenu.Separator />`);
   codeLines.push(`${ind}  <DropdownMenu.Item onSelect={signOut}>Sign out</DropdownMenu.Item>`);
   codeLines.push(`${ind}</DropdownMenu.Content>`);
-  if (isControlled) {
-    codeLines.push('      </DropdownMenu>');
-    codeLines.push('    </>');
-  } else {
-    codeLines.push('    </DropdownMenu>');
-  }
+  codeLines.push('    </DropdownMenu>');
   codeLines.push('  );');
   codeLines.push('}');
   const code = codeLines.join('\n');
@@ -95,7 +72,7 @@ export function DropdownMenuPlayground() {
       previewClass="bg-fd-card p-8 min-h-[220px] flex flex-col items-center justify-center gap-4"
       preview={
         <>
-          <DropdownMenu {...rootProps}>
+          <DropdownMenu>
             <DropdownMenu.Trigger>Account</DropdownMenu.Trigger>
             <DropdownMenu.Content>
               <DropdownMenu.Item onSelect={() => setLastAction('Navigated to profile')}>
@@ -144,20 +121,12 @@ export function DropdownMenuPlayground() {
       }
       code={code}
       controls={
-        <>
-          <PlaygroundToggle
-            label="open mode"
-            options={OPEN_MODES}
-            value={openMode}
-            onChange={setOpenMode}
-          />
-          <PlaygroundToggle
-            label="disabled item"
-            options={DISABLED_ITEM}
-            value={disabledItem}
-            onChange={setDisabledItem}
-          />
-        </>
+        <PlaygroundToggle
+          label="disabled item"
+          options={DISABLED_ITEM}
+          value={disabledItem}
+          onChange={setDisabledItem}
+        />
       }
     />
   );

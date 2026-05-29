@@ -30,6 +30,7 @@ type SliderCommonProps = {
   disabled?: boolean;
   orientation?: "horizontal" | "vertical";
   formatValue?: (value: number, thumbIndex: number) => string;
+  showValues?: boolean;
   className?: string;
 };
 
@@ -132,6 +133,7 @@ export function Slider(props: SliderProps): ReactElement {
     disabled = false,
     orientation = "horizontal",
     formatValue: rootFormatValue,
+    showValues = false,
     className,
   } = props;
 
@@ -509,12 +511,25 @@ export function Slider(props: SliderProps): ReactElement {
         ? { height: `${percent}%`, bottom: 0 }
         : { width: `${percent}%`, left: 0 };
 
+    // Format helpers for bound labels — reuse rootFormatValue so visible text matches aria-valuetext.
+    const minLabel = rootFormatValue ? rootFormatValue(minProp, 0) : String(minProp);
+    const maxLabel = rootFormatValue ? rootFormatValue(maxProp, 0) : String(maxProp);
+    const thumbLabel = valueText ?? String(singleValue);
+    const thumbValueStyle =
+      orientation === "vertical"
+        ? { bottom: `${percent}%` }
+        : { left: `${percent}%` };
+
     const element = (
       <div
         data-orientation={orientation}
         data-disabled={disabled ? "true" : undefined}
+        data-show-values={showValues ? "true" : undefined}
         className={["artui-slider", className].filter(Boolean).join(" ")}
       >
+        {showValues && (
+          <span aria-hidden="true" className="artui-slider-min">{minLabel}</span>
+        )}
         <div
           ref={trackRef}
           className="artui-slider-track"
@@ -545,7 +560,19 @@ export function Slider(props: SliderProps): ReactElement {
             onPointerUp={handleThumbPointerUp}
             onPointerCancel={handleThumbPointerUp}
           />
+          {showValues && (
+            <span
+              aria-hidden="true"
+              className="artui-slider-value"
+              style={thumbValueStyle}
+            >
+              {thumbLabel}
+            </span>
+          )}
         </div>
+        {showValues && (
+          <span aria-hidden="true" className="artui-slider-max">{maxLabel}</span>
+        )}
       </div>
     );
 
@@ -616,6 +643,22 @@ export function Slider(props: SliderProps): ReactElement {
 
   const groupId = `${uid}-group`;
 
+  // Format helpers for range bound labels — last thumb index is 1 for max bound.
+  const rangeMinLabel = rootFormatValue ? rootFormatValue(minProp, 0) : String(minProp);
+  const rangeMaxLabel = rootFormatValue ? rootFormatValue(maxProp, 1) : String(maxProp);
+  const v0Label =
+    (rp.thumbs[0].formatValue?.(v0) ?? rootFormatValue?.(v0, 0)) ?? String(v0);
+  const v1Label =
+    (rp.thumbs[1].formatValue?.(v1) ?? rootFormatValue?.(v1, 1)) ?? String(v1);
+  const v0ValueStyle =
+    orientation === "vertical"
+      ? { bottom: `${thumbPercent(v0, minProp, maxProp)}%` }
+      : { left: `${thumbPercent(v0, minProp, maxProp)}%` };
+  const v1ValueStyle =
+    orientation === "vertical"
+      ? { bottom: `${thumbPercent(v1, minProp, maxProp)}%` }
+      : { left: `${thumbPercent(v1, minProp, maxProp)}%` };
+
   const rangeElement = (
     <div
       id={groupId}
@@ -624,8 +667,12 @@ export function Slider(props: SliderProps): ReactElement {
       aria-labelledby={rp["aria-labelledby"]}
       data-orientation={orientation}
       data-disabled={disabled ? "true" : undefined}
+      data-show-values={showValues ? "true" : undefined}
       className={["artui-slider", className].filter(Boolean).join(" ")}
     >
+      {showValues && (
+        <span aria-hidden="true" className="artui-slider-min">{rangeMinLabel}</span>
+      )}
       <div
         ref={trackRef}
         className="artui-slider-track"
@@ -634,7 +681,28 @@ export function Slider(props: SliderProps): ReactElement {
         <div className="artui-slider-fill" style={fillStyle} />
         {renderThumb(0, v0, t0Min, t0Max, rp.thumbs[0], rp.thumbs[0].formatValue)}
         {renderThumb(1, v1, t1Min, t1Max, rp.thumbs[1], rp.thumbs[1].formatValue)}
+        {showValues && (
+          <span
+            aria-hidden="true"
+            className="artui-slider-value"
+            style={v0ValueStyle}
+          >
+            {v0Label}
+          </span>
+        )}
+        {showValues && (
+          <span
+            aria-hidden="true"
+            className="artui-slider-value"
+            style={v1ValueStyle}
+          >
+            {v1Label}
+          </span>
+        )}
       </div>
+      {showValues && (
+        <span aria-hidden="true" className="artui-slider-max">{rangeMaxLabel}</span>
+      )}
     </div>
   );
 

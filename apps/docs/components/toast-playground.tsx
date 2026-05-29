@@ -3,7 +3,7 @@
 import { ToastProvider, useToast } from '@artui/registry';
 import { useState } from 'react';
 
-import { Playground, PlaygroundToggle } from '@/components/playground';
+import { Playground, PlaygroundSlider, PlaygroundToggle } from '@/components/playground';
 
 type ToastVariant = 'info' | 'success' | 'warning' | 'error';
 type DurationMode = 'auto' | 'persistent';
@@ -29,7 +29,10 @@ const VARIANT_DESCRIPTIONS: Record<ToastVariant, string> = {
   error: 'The file exceeded the 25 MB size limit.',
 };
 
-function buildSnippet(
+// maxVisible defaults to Infinity in ToastProvider, so any finite value is a customization.
+const DEFAULT_MAX_VISIBLE = Number.POSITIVE_INFINITY;
+
+function buildToastCall(
   variant: ToastVariant,
   durationMode: DurationMode,
   actionMode: ActionMode,
@@ -66,7 +69,33 @@ function buildSnippet(
   ].join('\n');
 }
 
-function PlaygroundInner() {
+function buildSnippet(
+  variant: ToastVariant,
+  durationMode: DurationMode,
+  actionMode: ActionMode,
+  descriptionMode: DescriptionMode,
+  maxVisible: number,
+): string {
+  const toastCall = buildToastCall(variant, durationMode, actionMode, descriptionMode);
+
+  if (maxVisible === DEFAULT_MAX_VISIBLE) {
+    return toastCall;
+  }
+
+  return [
+    `<ToastProvider maxVisible={${maxVisible}}>`,
+    ...toastCall.split('\n').map((line) => `  ${line}`),
+    '</ToastProvider>',
+  ].join('\n');
+}
+
+function PlaygroundInner({
+  maxVisible,
+  onMaxVisibleChange,
+}: {
+  maxVisible: number;
+  onMaxVisibleChange: (v: number) => void;
+}) {
   const [variant, setVariant] = useState<ToastVariant>('info');
   const [durationMode, setDurationMode] = useState<DurationMode>('auto');
   const [actionMode, setActionMode] = useState<ActionMode>('none');
@@ -83,7 +112,7 @@ function PlaygroundInner() {
     toast.show({ title, description, type: variant, duration, action });
   };
 
-  const code = buildSnippet(variant, durationMode, actionMode, descriptionMode);
+  const code = buildSnippet(variant, durationMode, actionMode, descriptionMode, maxVisible);
 
   return (
     <Playground
@@ -131,6 +160,14 @@ function PlaygroundInner() {
             value={descriptionMode}
             onChange={setDescriptionMode}
           />
+          <PlaygroundSlider
+            label="maxVisible"
+            min={1}
+            max={5}
+            step={1}
+            value={maxVisible}
+            onChange={onMaxVisibleChange}
+          />
         </>
       }
     />
@@ -138,9 +175,12 @@ function PlaygroundInner() {
 }
 
 export function ToastPlayground() {
+  const [maxVisible, setMaxVisible] = useState(3);
+
   return (
-    <ToastProvider>
-      <PlaygroundInner />
+    // Remount the provider when maxVisible changes so the limit applies to the live stack.
+    <ToastProvider key={maxVisible} maxVisible={maxVisible}>
+      <PlaygroundInner maxVisible={maxVisible} onMaxVisibleChange={setMaxVisible} />
     </ToastProvider>
   );
 }

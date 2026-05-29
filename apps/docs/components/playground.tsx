@@ -223,20 +223,27 @@ export function Playground({ preview, code, controls, previewClass, codeNote }: 
     });
   }
 
+  // No overflow-hidden on the shell: preview content (e.g. slider value bubbles)
+  // may legitimately extend past the panels. The rounded-card look is preserved
+  // by rounding each inner panel's outer corners to match the shell radius.
   return (
-    <div className="not-prose rounded-xl border border-fd-border overflow-hidden">
+    <div className="not-prose rounded-xl border border-fd-border">
       <div className="flex flex-col md:flex-row">
-        {/* Preview: always visible, grows to fill its half */}
+        {/* Preview: always visible, grows to fill its half.
+         * Stacked (mobile) → top corners; side-by-side (desktop) → left corners. */}
         <div
-          className={`md:flex-1 ${previewClass ?? 'bg-fd-card p-8 min-h-[200px] flex items-center justify-center'}`}
+          className={`rounded-t-xl md:rounded-t-none md:rounded-l-xl md:flex-1 ${previewClass ?? 'bg-fd-card p-8 min-h-[200px] flex items-center justify-center'}`}
         >
           {preview}
         </div>
 
-        {/* Controls / Code panel */}
-        <div className="border-t md:border-t-0 md:border-l md:flex-1 md:min-w-0 bg-fd-muted/50 flex flex-col">
-          {/* Tab bar: bg-fd-card header, visually distinct from the control rows below */}
-          <div className="flex shrink-0 items-center bg-fd-card border-b border-fd-border px-4 gap-2">
+        {/* Controls / Code panel.
+         * Stacked (mobile) → bottom corners; side-by-side (desktop) → right corners. */}
+        <div className="rounded-b-xl md:rounded-b-none md:rounded-r-xl border-t md:border-t-0 md:border-l md:flex-1 md:min-w-0 bg-fd-muted/50 flex flex-col">
+          {/* Tab bar: bg-fd-card header, visually distinct from the control rows below.
+           * Without shell clipping, round the bar's top-right corner on desktop so
+           * its background doesn't bleed past the panel's rounded outer corner. */}
+          <div className="flex shrink-0 items-center bg-fd-card border-b border-fd-border px-4 gap-2 md:rounded-tr-xl">
             {(['controls', 'code'] as const).map((t) => (
               <button
                 key={t}
@@ -283,6 +290,33 @@ export function Playground({ preview, code, controls, previewClass, codeNote }: 
 
 // --- Control primitives -------------------------------------------------------
 
+/**
+ * Stacked control row: label on its own line, control on the line below,
+ * spanning the full panel width. Shared by every playground control so the
+ * label styling and row padding stay identical across primitives and any
+ * embedded non-primitive control (e.g. the registry Slider in the toast playground).
+ */
+export function PlaygroundField({
+  label,
+  children,
+  disabled,
+}: {
+  label: string;
+  children: ReactNode;
+  disabled?: boolean;
+}) {
+  return (
+    <div
+      className={['px-4 py-3', disabled ? 'opacity-50 pointer-events-none select-none' : '']
+        .join(' ')
+        .trim()}
+    >
+      <span className="mb-2 block font-mono text-xs text-fd-muted-foreground">{label}</span>
+      {children}
+    </div>
+  );
+}
+
 export function PlaygroundToggle<T extends string>({
   label,
   options,
@@ -297,16 +331,8 @@ export function PlaygroundToggle<T extends string>({
   disabled?: boolean;
 }) {
   return (
-    <div
-      className={[
-        'flex items-center gap-4 px-4 py-3',
-        disabled ? 'opacity-50 pointer-events-none select-none' : '',
-      ]
-        .join(' ')
-        .trim()}
-    >
-      <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">{label}</span>
-      <div className="flex rounded-md border border-fd-border text-xs">
+    <PlaygroundField label={label} disabled={disabled}>
+      <div className="inline-flex flex-wrap rounded-md border border-fd-border text-xs">
         {options.map((opt) => (
           <button
             key={opt}
@@ -323,7 +349,7 @@ export function PlaygroundToggle<T extends string>({
           </button>
         ))}
       </div>
-    </div>
+    </PlaygroundField>
   );
 }
 
@@ -343,18 +369,8 @@ export function PlaygroundTextField({
   hint?: ReactNode;
 }) {
   return (
-    <div
-      className={[
-        'flex items-start gap-4 px-4 py-3',
-        disabled ? 'opacity-40 pointer-events-none select-none' : '',
-      ]
-        .join(' ')
-        .trim()}
-    >
-      <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground pt-1.5">
-        {label}
-      </span>
-      <div className="flex-1 flex flex-col gap-1.5">
+    <PlaygroundField label={label} disabled={disabled}>
+      <div className="flex flex-col gap-1.5">
         <input
           type="text"
           value={value}
@@ -365,7 +381,7 @@ export function PlaygroundTextField({
         />
         {hint}
       </div>
-    </div>
+    </PlaygroundField>
   );
 }
 
@@ -389,16 +405,8 @@ export function PlaygroundSlider({
   format?: (v: number) => string;
 }) {
   return (
-    <div
-      className={[
-        'flex items-center gap-4 px-4 py-3',
-        disabled ? 'opacity-50 pointer-events-none select-none' : '',
-      ]
-        .join(' ')
-        .trim()}
-    >
-      <span className="w-36 shrink-0 font-mono text-xs text-fd-muted-foreground">{label}</span>
-      <div className="flex flex-1 items-center gap-3">
+    <PlaygroundField label={label} disabled={disabled}>
+      <div className="flex items-center gap-3">
         <input
           type="range"
           min={min}
@@ -407,13 +415,13 @@ export function PlaygroundSlider({
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
           disabled={disabled}
-          className="flex-1 h-1.5 cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-1"
+          className="flex-1 h-5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fd-primary focus-visible:ring-offset-1"
           style={{ accentColor: 'var(--color-fd-primary)' }}
         />
         <span className="w-16 shrink-0 text-right font-mono text-xs text-fd-foreground">
           {format ? format(value) : String(value)}
         </span>
       </div>
-    </div>
+    </PlaygroundField>
   );
 }

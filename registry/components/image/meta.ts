@@ -22,6 +22,20 @@ export const meta: ComponentMeta = {
       description:
         'Marks the image as purely decorative. Renders an empty alt and role="presentation". Mutually exclusive with `alt`.',
     },
+    {
+      name: 'src',
+      type: 'string',
+      required: false,
+      description:
+        'The image URL. Standard `<img>` attribute, forwarded as-is along with any other `ImgHTMLAttributes`.',
+    },
+    {
+      name: 'loading',
+      type: '"lazy" | "eager"',
+      required: false,
+      description:
+        'Native browser loading hint. Defaults to "lazy" when omitted, so below-the-fold images defer loading without extra configuration.',
+    },
   ],
   accessibility: [
     {
