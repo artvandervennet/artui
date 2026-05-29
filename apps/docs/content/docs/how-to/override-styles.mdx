@@ -1,0 +1,157 @@
+---
+title: Override component styles
+description: Safely restyle copied artui components by editing the CSS files the CLI installed into your repo, without breaking keyboard or screen-reader behaviour.
+---
+
+Because artui distributes source (shadcn-style), the component `.tsx` and `.css` files the CLI copied into your project are yours to edit directly. There is no runtime package to patch and no theming API to work around.
+
+## How styles are structured
+
+Each component ships as a pair of files:
+
+```
+components/
+  accordion/
+    accordion.tsx
+    accordion.css     ← yours to edit
+```
+
+The CSS file uses BEM-style class names (`artui-accordion`, `artui-accordion-summary`, and so on) scoped to the component. Component-specific layout tokens like `--artui-accordion-summary-padding` are declared in `:root` at the top of the file, above the class rules.
+
+## Changing a component-specific token
+
+The fastest override path is to redefine the component's own token in your global stylesheet. The Accordion, for example, ships with:
+
+```css
+:root {
+  --artui-accordion-summary-padding: 12px 16px;
+  --artui-accordion-panel-padding: 12px 16px 16px;
+}
+```
+
+To tighten the padding project-wide without touching the copied file:
+
+```css
+/* your globals.css, after importing artui-tokens.css */
+:root {
+  --artui-accordion-summary-padding: 8px 12px;
+  --artui-accordion-panel-padding: 8px 12px 12px;
+}
+```
+
+## Editing the copied CSS directly
+
+For changes that go beyond a token (rounding, spacing rhythm, animation curves), edit `accordion.css` in your `components/` folder directly:
+
+```css
+/* components/accordion/accordion.css */
+
+.artui-accordion {
+  border-radius: 12px;   /* was var(--artui-radius) */
+}
+
+.artui-accordion-summary {
+  gap: 12px;             /* was 8px */
+}
+```
+
+These edits stay in your repo. When you later re-run `artui add accordion` to pull upstream improvements, the CLI shows you the diff so you can reconcile only what changed upstream.
+
+## Scoping overrides without editing the copied file
+
+If you prefer not to touch the copied CSS at all, scope a selector in your own stylesheet:
+
+```css
+/* your-feature.module.css */
+.compactList .artui-accordion-summary {
+  min-block-size: 36px;
+  padding: 6px 12px;
+}
+```
+
+```tsx
+import styles from './your-feature.module.css';
+
+<div className={styles.compactList}>
+  <Accordion headingLevel={3}>…</Accordion>
+</div>
+```
+
+CSS Modules keep the class from leaking, and you own zero copied code.
+
+## Do
+
+<Do title="Edit component-specific tokens before touching class rules">
+```css
+/* globals.css */
+:root {
+  --artui-accordion-summary-padding: 8px 12px;
+}
+```
+
+A token change is easier to reconcile on future upgrades than a modified class rule.
+</Do>
+
+<Do title="Preserve every focus-visible rule when restyling">
+```css
+/* accordion.css */
+.artui-accordion-summary:focus-visible {
+  outline: var(--artui-focus-ring);   /* keep this */
+  outline-offset: -2px;
+}
+```
+
+You can change `outline-offset` or replace the outline value, but there must be a visible indicator. Removing it fails WCAG 2.4.7.
+</Do>
+
+<Do title="Keep aria-* wiring intact when editing the TSX">
+```tsx
+/* accordion.tsx */
+<summary
+  className="artui-accordion-summary"
+  aria-expanded={open}      /* keep */
+  aria-controls={panelId}   /* keep */
+>
+```
+
+`aria-expanded` and `aria-controls` are how screen readers announce state and navigate to the controlled region. Removing them silently breaks assistive technology, with no visible test failure to warn you.
+</Do>
+
+## Don't
+
+<Dont title="Remove the focus indicator while restyling">
+```css
+/* never */
+.artui-accordion-summary:focus-visible {
+  outline: none;
+}
+```
+
+This fails WCAG 2.4.7 (Focus Visible). Replace the outline style if you need to, but do not remove it.
+</Dont>
+
+<Dont title="Strip aria-* attributes from the copied TSX">
+```tsx
+/* never */
+<summary className="artui-accordion-summary">
+  {/* aria-expanded and aria-controls removed */}
+  {children}
+</summary>
+```
+
+Screen readers use `aria-expanded` to announce collapsed and expanded state. Removing it causes NVDA and VoiceOver to read the element as a static heading with no interactive affordance.
+</Dont>
+
+<Dont title="Override keyboard event handlers to remove navigation">
+```tsx
+/* never */
+<summary
+  onKeyDown={(e) => {
+    // intercepting all keys to suppress artui behaviour
+    e.preventDefault();
+  }}
+>
+```
+
+If you need to add a keyboard shortcut, call `e.stopPropagation()` only on the specific key you handle, and let the component's own handlers run. A blanket `preventDefault()` breaks Enter, Space, the arrow keys, and Home/End for keyboard-only users.
+</Dont>

@@ -1,0 +1,145 @@
+---
+title: Theme
+description: Customise artui's design tokens (colours, radius, focus ring, shadows) by redefining CSS custom properties after importing artui-tokens.css.
+---
+
+artui ships every visual decision as a single CSS custom-property file: `artui-tokens.css`. To override a token, redefine the property in your own global stylesheet after importing that file. No build step, no config object.
+
+## Importing the tokens
+
+Add the tokens file once, near the top of your entry stylesheet:
+
+```css
+@import 'artui-tokens.css';
+
+/* your overrides follow */
+```
+
+Components read these properties at paint time, so any override you write here applies everywhere.
+
+## Token reference
+
+### Colours
+
+| Token | Default (light) | Purpose |
+|---|---|---|
+| `--artui-bg` | `hsl(0 0% 100%)` | Surface background |
+| `--artui-fg` | `hsl(0 0% 3.9%)` | Primary text |
+| `--artui-border` | `hsl(0 0% 87%)` | Borders and dividers |
+| `--artui-hover-bg` | `hsl(0 0% 95%)` | Hover surface tint |
+| `--artui-surface-2` | `hsl(0 0% 93%)` | Elevated surface (popovers, dropdowns) |
+| `--artui-accent` | `oklch(0.58 0.13 200)` | Interactive accent (links, selected states) |
+| `--artui-accent-fg` | `hsl(0 0% 100%)` | Text on accent-coloured backgrounds |
+| `--artui-selected-bg` | `color-mix(in oklch, var(--artui-accent) 15%, transparent)` | Selected-item background |
+| `--artui-color-info` | `var(--artui-accent)` | Informational status colour |
+| `--artui-color-success` | `oklch(0.55 0.16 145)` | Success status colour |
+| `--artui-color-warning` | `oklch(0.65 0.12 65)` | Warning status colour |
+| `--artui-color-error` | `oklch(0.55 0.18 25)` | Error / destructive colour |
+
+### Focus
+
+| Token | Default | Purpose |
+|---|---|---|
+| `--artui-focus-ring` | `2px solid var(--artui-accent)` | Keyboard focus indicator applied via `outline` |
+
+### Shadows
+
+| Token | Default | Purpose |
+|---|---|---|
+| `--artui-shadow` | `0 2px 8px rgba(0,0,0,0.06)` | Subtle elevation |
+| `--artui-shadow-lg` | `0 4px 16px rgba(0,0,0,0.06)` | Stronger elevation (dialogs, toasts) |
+
+### Radius
+
+| Token | Default | Purpose |
+|---|---|---|
+| `--artui-radius-sm` | `4px` | Tight radius (buttons, small chips) |
+| `--artui-radius` | `6px` | Default component radius |
+| `--artui-radius-lg` | `8px` | Cards, dialogs |
+
+### Miscellaneous
+
+| Token | Default | Purpose |
+|---|---|---|
+| `--artui-disabled-opacity` | `0.45` | Opacity applied to disabled interactive elements |
+
+## Dark mode
+
+artui ships two dark-mode hooks.
+
+The first is a `.dark` class override. Add `class="dark"` to any wrapper element (or to `<html>`) to force dark mode.
+
+The second is a `@media (prefers-color-scheme: dark)` block scoped to `:root:not(.light)`. Dark mode then activates automatically when the OS preference is dark, unless you add `class="light"` to the root.
+
+You do not need to redeclare the media query yourself. Token overrides in `:root` apply to both modes. If you need mode-specific values, add them inside your own `.dark` or `:root:not(.light)` block after your base overrides.
+
+## Overriding tokens
+
+Redefine any token after the import. This example swaps the accent to a warm amber and rounds all components more aggressively:
+
+```css
+@import 'artui-tokens.css';
+
+:root {
+  --artui-accent:    oklch(0.72 0.18 65);
+  --artui-accent-fg: hsl(0 0% 10%);
+  --artui-radius-sm: 6px;
+  --artui-radius:    10px;
+  --artui-radius-lg: 14px;
+}
+```
+
+Accent colours use `oklch()`, a perceptually uniform colour space. When you replace `--artui-accent`, check that text rendered in `--artui-accent-fg` still meets 4.5:1 contrast against the new value (WCAG 1.4.3). The artui default passes at both its light and dark values, but a custom accent may not.
+
+## Do
+
+<Do title="Override tokens in a stylesheet that loads after artui-tokens.css">
+```css
+@import 'artui-tokens.css';
+
+:root {
+  --artui-accent:    oklch(0.65 0.20 300);
+  --artui-accent-fg: hsl(0 0% 100%);
+}
+```
+</Do>
+
+<Do title="Verify contrast when changing --artui-accent">
+```css
+/* Check: does --artui-accent-fg pass 4.5:1 against the new --artui-accent? */
+:root {
+  --artui-accent:    oklch(0.65 0.20 300);
+  --artui-accent-fg: hsl(0 0% 100%);   /* verify with a contrast tool */
+}
+```
+</Do>
+
+## Don't
+
+<Dont title="Remove or unset --artui-focus-ring">
+```css
+:root {
+  --artui-focus-ring: none; /* never */
+}
+```
+
+`--artui-focus-ring` is the visible keyboard indicator applied to every interactive component. Removing it fails WCAG 2.4.7 (Focus Visible) and leaves keyboard-only users with no way to track where they are on the page.
+</Dont>
+
+<Dont title="Hardcode raw values in component CSS instead of using tokens">
+```css
+/* don't: bypasses theming and dark mode */
+.artui-dialog {
+  background: #ffffff;
+  border-color: #e0e0e0;
+}
+
+/* do: redefine the token */
+:root {
+  --artui-bg:     hsl(210 20% 99%);
+  --artui-border: hsl(210 15% 88%);
+}
+```
+
+Hardcoded values do not respond to the `.dark` class or `prefers-color-scheme`, so they break dark mode for everyone.
+</Dont>

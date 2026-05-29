@@ -1,0 +1,92 @@
+---
+title: Enforcement hierarchy
+description: How artui makes accessibility violations impossible, then a compile-time error, then a visible dev overlay, in that order of preference.
+---
+
+artui uses three tiers of enforcement. Every component walks the list and stops at the first tier that applies. The point is to catch violations as early as possible, because an error you see in your editor is cheaper than one you find in production.
+
+## Tier 1: eliminate the failure mode via API shape
+
+The bad state is not representable in TypeScript. No prop combination lets you accidentally violate the constraint.
+
+**`Image`: alt is structurally required**
+
+`ImageProps` is a discriminated union, so you have to choose one branch:
+
+```tsx
+// Branch A: decorative, renders alt="" role="presentation"
+<Image decorative src="/hero-pattern.svg" />
+
+// Branch B: meaningful alt, the alt prop is required and must describe the image
+<Image src="/team-photo.jpg" alt="The artui core team at the 2025 offsite" />
+```
+
+There is no branch that renders a meaningful image without `alt`, and you cannot pass `decorative` and `alt` together, because `alt` is typed `never` on the decorative branch.
+
+**`Slider` in range mode: each thumb needs an accessible name**
+
+`SliderRangeProps` requires `thumbs` to be a 2-tuple of `SliderThumbDescriptor`, and each descriptor extends `AccessibleNameProps`. Both thumbs must carry exactly one of `children`, `aria-label`, or `aria-labelledby`:
+
+```tsx
+<Slider
+  thumbs={[
+    { 'aria-label': 'Minimum price' },
+    { 'aria-label': 'Maximum price' },
+  ]}
+  defaultValue={[20, 80]}
+/>
+```
+
+Omitting the tuple, or leaving the accessible name off either descriptor, is a TypeScript error before the code runs.
+
+## Tier 2: TypeScript error at the call site
+
+When the failure mode cannot be eliminated entirely through API shape, `registry/lib/a11y-types.ts` turns the violation into a type error.
+
+`AccessibleText<T>` resolves to `never` for any string that looks like alt text but communicates nothing: `''`, `' '`, `'image'`, `'Image'`, `'IMAGE'`, `'img'`, `'Img'`, `'IMG'`, `'photo'`, `'Photo'`, `'picture'`, `'Picture'`, `'icon'`, `'Icon'`, `'logo'`, `'Logo'`. Passing any of these as `alt` shows red squiggles before you run the code.
+
+```tsx
+<Image src="/logo.png" alt="logo" />
+//                          ^^^^^^^ Type '"logo"' is not assignable to type 'never'
+```
+
+`AccessibleNameProps` is a three-way discriminated union. Any interactive component that needs an accessible name uses this type, which forces exactly one of `children`, `aria-label`, or `aria-labelledby`. Providing none, or two at once, is a compile error.
+
+```tsx
+// All three are valid; only one may be present at a time
+<DropdownMenu.Trigger>Account</DropdownMenu.Trigger>
+<DropdownMenu.Trigger aria-label="User menu"><UserIcon /></DropdownMenu.Trigger>
+<DropdownMenu.Trigger aria-labelledby="header-user-id" />
+```
+
+## Tier 3: dev-only red overlay
+
+Some violations TypeScript cannot see: a dynamically-constructed string that happens to equal `"image"` at runtime, an `aria-labelledby` attribute whose target element does not exist in the DOM yet, a dialog rendered with no focusable children.
+
+For these, `registry/lib/dev-overlay.tsx` exports `withErrorOverlay()`. In development it wraps the element in a red `aria-hidden` overlay and emits a `console.error`, once per unique key, keyed by violation type. In production the function is a no-op and tree-shakes out completely.
+
+```tsx
+// From dialog.tsx: fires when open=true and children is empty [WCAG 1.3.1]
+return withErrorOverlay(element, {
+  key: 'Dialog:empty-children',
+  component: 'Dialog',
+  wcag: '1.3.1',
+  message: 'Dialog rendered with no children. Dialogs must contain content so screen reader users know what the dialog is about.',
+});
+```
+
+These are the conditions that trigger a dev overlay today:
+
+| Component | Condition | WCAG |
+|---|---|---|
+| `Image` | `alt` is empty or a placeholder string at runtime (dynamic values bypass Tier 2) | 1.1.1 |
+| `Slider` | `step` prop is `<= 0` or `> max - min` | 2.1.1 |
+| `Slider` | `value` or `defaultValue` outside `[min, max]` | 4.1.2 |
+| `Slider` (range) | No `aria-label` or `aria-labelledby` on the group | 1.3.1 |
+| `Slider` (range) | Any thumb descriptor has no accessible name | 4.1.2 |
+| `Slider` (range) | `aria-labelledby` target not found in DOM (console error, no overlay) | 1.3.1 |
+| `Dialog` | Open with no `children` | 1.3.1 |
+| `Dialog` | `aria-labelledby` target not found in DOM (console error, no overlay) | 4.1.2 |
+| `Dialog` | No focusable elements in dialog body (console error, no overlay) | 2.1.1 |
+
+There is intentionally no Tier 4 today. A fatal render block (returning nothing, or throwing) has come up as a possible escalation for the most catastrophic violations, but no component has needed it yet. If one ever ships, it will show up in this document.

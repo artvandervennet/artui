@@ -1,0 +1,54 @@
+---
+title: Native elements first
+description: artui builds on native HTML elements wherever the platform provides one, delegating keyboard behaviour, focus management, and semantics to the browser rather than reimplementing them.
+---
+
+The rule is simple. If the HTML spec or a browser UA stylesheet already implements the keyboard contract, use that element. Reach for ARIA only when the platform genuinely lacks a primitive.
+
+## Why it matters
+
+Every ARIA widget you build from `<div>` makes you reimplement something the browser already does:
+
+- Focus management. `<dialog>` confines focus to its content automatically through the top layer. A `<div role="dialog">` needs a manual focus trap.
+- Keyboard behaviour. `<details>` and `<summary>` respond to `Enter` and `Space` natively. `<div role="button" tabIndex={0}>` does not.
+- Semantics. `<dialog>` sets `role="dialog"` and `aria-modal` implicitly in the accessibility tree when it is opened with `showModal()`. You do not write those attributes; the browser inserts them.
+- State. `<details open>` reflects the expanded state in the DOM, and screen readers read it without any JavaScript.
+
+More code means more surface area to get wrong. Each reimplemented behaviour is another thing you have to test, maintain, and keep correct across every browser and AT combination.
+
+## What artui uses
+
+**Accordion** is built on `<details>` and `<summary>`. The browser handles `Enter` and `Space` toggling, the `open` attribute, and the disclosure triangle. artui adds only what the native element lacks: coordinated single-expand through the `name` attribute, the APG-specified Arrow/Home/End navigation across headers, and a polite live-region announcement when a panel expands.
+
+```tsx
+// From accordion.tsx: each item is a native <details>
+<details name={groupName} className="artui-accordion-item">
+  <summary aria-controls={panelId} aria-expanded={isOpen}>
+    {summaryChildren}
+  </summary>
+  {/* Panel renders outside <summary> as a sibling */}
+</details>
+```
+
+**Dialog** is built on the native `<dialog>` element, opened with `showModal()`. The browser enforces the top-layer modal context, traps focus inside the dialog, and exposes `Escape` through the native `cancel` event. artui intercepts `cancel` to control the close sequence, manages focus restoration, and locks body scroll, none of which the native element provides on its own.
+
+```tsx
+// From dialog.tsx: native <dialog> opened via showModal()
+<dialog
+  ref={dialogRef}
+  aria-modal="true"
+  aria-labelledby={labelledBy}
+>
+  {children}
+</dialog>
+```
+
+Note that `aria-modal="true"` is set explicitly in addition to using `showModal()`, because some screen reader and browser combinations do not infer `aria-modal` from the top-layer state alone.
+
+**Datepicker** uses `<input type="date">`. The browser renders a native date picker with full keyboard support and locale-aware formatting at no cost.
+
+## When ARIA is the right answer
+
+Not every interactive pattern has a native element. Combobox, listbox, tree, slider, and menu have no HTML equivalent. `<select>` is not a composable listbox, and `<input type="range">` does not expose the `role="slider"` and `aria-value*` attributes that assistive technologies read. For these, artui implements the [WAI-ARIA APG](https://www.w3.org/WAI/ARIA/apg/) pattern directly, with ARIA roles, states, and keyboard behaviour as specified.
+
+The principle is not "never use ARIA." It is "don't use ARIA to replace something the browser already provides."

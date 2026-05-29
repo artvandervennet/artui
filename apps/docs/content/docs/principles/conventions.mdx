@@ -1,0 +1,110 @@
+---
+title: Conventions
+description: The structural, export, and theming conventions every artui component follows, so the pattern is predictable once you have seen it in one component.
+---
+
+## Compound component structure
+
+Every multi-part component is a single self-contained file. `accordion.tsx` contains the root, `Item`, `Header`, `Trigger`, and `Panel`. Nothing is split across files, and nothing is imported from another component.
+
+The public API is a namespace export through `Object.assign`:
+
+```tsx
+// From accordion.tsx
+export const Accordion = Object.assign(AccordionRoot, {
+  Item: AccordionItem,
+  Header: AccordionHeader,
+  Trigger: AccordionTrigger,
+  Panel: AccordionPanel,
+});
+```
+
+This gives consumers a single named import with dot-notation access to every sub-component:
+
+```tsx
+import { Accordion } from '@/components/accordion';
+
+<Accordion headingLevel={3}>
+  <Accordion.Item value="shipping">
+    <Accordion.Header>
+      <Accordion.Trigger>Shipping and delivery</Accordion.Trigger>
+    </Accordion.Header>
+    <Accordion.Panel>
+      <p>Orders ship within 2 business days.</p>
+    </Accordion.Panel>
+  </Accordion.Item>
+</Accordion>
+```
+
+## Root context
+
+Each compound component's root creates a React context that carries shared state downward. Child components read from it through a hook that throws a descriptive error if it is called outside the correct parent:
+
+```tsx
+// Pattern used in accordion.tsx and dialog.tsx
+function useRoot(componentName: string): RootCtx {
+  const ctx = useContext(RootContext);
+  if (!ctx) {
+    throw new Error(
+      `[artui] <Accordion.${componentName}> must be rendered inside <Accordion>.`,
+    );
+  }
+  return ctx;
+}
+```
+
+The error message names both the child and the required parent, so the console output is actionable without reading source.
+
+## Child registration
+
+When a child component needs to signal its presence to the root (so the root can detect an empty accordion, or count items to decide whether panels get `role="region"`), it registers itself in a `useEffect` that calls a stable `registerItem` callback from the root context. The callback returns a cleanup function that deregisters on unmount.
+
+```tsx
+// Pattern used in accordion.tsx
+useEffect(() => {
+  return registerItem(value);
+}, [registerItem, value]);
+```
+
+This keeps registration in step with the commit phase and avoids imperative ref forwarding.
+
+## Theming
+
+Registry components do not use Tailwind. They ship plain CSS that reads from a set of CSS custom properties defined in `registry/styles/artui-tokens.css`:
+
+```css
+:root {
+  --artui-bg:       hsl(0 0% 100%);
+  --artui-fg:       hsl(0 0% 3.9%);
+  --artui-border:   hsl(0 0% 87%);
+  --artui-accent:   oklch(0.58 0.13 200);
+  --artui-radius:   6px;
+  /* ... */
+}
+
+.dark {
+  --artui-bg:     hsl(0 0% 9%);
+  --artui-accent: oklch(0.78 0.12 200);
+  /* ... */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --artui-bg:     hsl(0 0% 9%);
+    --artui-accent: oklch(0.78 0.12 200);
+    /* ... */
+  }
+}
+```
+
+Dark mode runs through both a `.dark` class, for explicit theme switching, and `prefers-color-scheme: dark`, for users who have not set a preference. Overriding a token is a one-line CSS change at the `:root` level, with no component file to touch.
+
+Motion and colour scheme are respected by the component CSS as well: transitions sit inside `@media (prefers-reduced-motion: no-preference)` blocks, and semantic colour tokens shift automatically in dark mode.
+
+## Named exports only
+
+Every component and type is a named export. The registry has no default exports. This follows `code-quality.md` and avoids the ambiguity that shows up when consumers rename a default import.
+
+## Dev guards
+
+Runtime violation detection sits behind `process.env.NODE_ENV !== 'production'` guards, both at the module level and inside `withErrorOverlay()`. Bundlers (Vite, webpack, Next.js) replace `process.env.NODE_ENV` statically at build time, so dead-code elimination removes every dev-only branch from production bundles on its own.

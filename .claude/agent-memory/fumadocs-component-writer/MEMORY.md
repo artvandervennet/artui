@@ -2,3 +2,5 @@
 - [Fumadocs conventions (detailed)](fumadocs-conventions.md) — page structure order, playground 3-step registration, nav manifest, WCAG table format, build command
 - [Image component API](project-registry-image-api.md) — props, forbidden alt values, compile-time/runtime enforcement, decorative rendering
 - [Multiselect docs pattern](multiselect-docs-pattern.md) — keyboard table split (Trigger vs Listbox), no-wrap APG note, live-region mention, playground toggles used
+- [Principles section](principles-section.md) — 4-page section structure, content sources, MDX component choices, no-touch rule for root meta.json
+- [How-to Guides pattern](how-to-guides-pattern.md) — folder layout, verified token names, dev-overlay API, "use client" requirement, voice conventions

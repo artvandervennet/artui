@@ -1,0 +1,174 @@
+---
+title: Framework setup
+description: Wire artui into Next.js App Router, Vite, or Remix, from initialisation through importing styles and handling React Server Components.
+---
+
+artui works in any project that understands TSX. The CLI copies component source into your repo, so there is no runtime package to install and no peer-dependency conflict to manage.
+
+## Step 1: initialise
+
+Run `init` once from your project root:
+
+```bash
+npx artui@latest init
+```
+
+This writes `components.json`, which pins the registry URL and a version. Every later `add` call reads from that file.
+
+## Step 2: add components
+
+```bash
+npx artui@latest add accordion dialog slider
+```
+
+Components land in the directory you configured (default: `components/`). Each one is a `.tsx` + `.css` pair, plus any shared lib files they depend on, such as `lib/dev-overlay.tsx` and `lib/a11y-types.ts`.
+
+## Step 3: import the styles
+
+artui ships its design tokens in a standalone CSS file. Import it once in your global stylesheet, before any of your own rules:
+
+```css
+/* globals.css or app/global.css */
+@import 'artui-tokens.css';
+```
+
+Each component's CSS is pulled in by the component file itself through a side-effect `import './accordion.css'` in the TSX, so you never import component CSS manually.
+
+## Next.js App Router
+
+artui components use React hooks (`useState`, `useEffect`, `useRef`), so they cannot run as React Server Components. The CLI does **not** add `"use client"` to the copied files. Add it yourself at the top of any copied component you intend to use in the App Router:
+
+```tsx
+'use client';
+// registry/components/accordion/accordion.tsx: add this as the first line
+```
+
+You can also wrap the component at the point of use:
+
+```tsx
+// app/faq/page.tsx
+import { Accordion } from '@/components/accordion';
+
+// Accordion is a Client Component; rendering it inside a Server Component page is fine.
+export default function FaqPage() {
+  return (
+    <main>
+      <h1>Frequently asked questions</h1>
+      <Accordion headingLevel={2}>
+        <Accordion.Item value="shipping">
+          <Accordion.Header>
+            <Accordion.Trigger>Shipping</Accordion.Trigger>
+          </Accordion.Header>
+          <Accordion.Panel>
+            <p>Orders ship within 2 business days.</p>
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>
+    </main>
+  );
+}
+```
+
+Next.js treats the subtree containing `Accordion` as a client boundary automatically. To avoid marking a whole page as a client boundary, create a thin wrapper:
+
+```tsx
+// components/faq-accordion.tsx
+'use client';
+export { Accordion } from '@/components/accordion';
+```
+
+Then import `FaqAccordion` into your server page.
+
+Import `artui-tokens.css` from your root `app/layout.tsx`:
+
+```tsx
+// app/layout.tsx
+import '@/app/globals.css';  /* globals.css imports artui-tokens.css */
+```
+
+## Vite
+
+No special configuration is needed. Add the import to your entry CSS:
+
+```css
+/* src/index.css */
+@import 'artui-tokens.css';
+```
+
+Then import that stylesheet from your entry point:
+
+```tsx
+// src/main.tsx
+import './index.css';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from './App';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+```
+
+The components are plain React, so no Vite plugin is required.
+
+## Remix
+
+Import styles in your `app/root.tsx` through Remix's `links` export:
+
+```tsx
+// app/root.tsx
+import type { LinksFunction } from '@remix-run/node';
+import artuiTokens from 'artui-tokens.css?url';
+
+export const links: LinksFunction = () => [
+  { rel: 'stylesheet', href: artuiTokens },
+];
+```
+
+Interactive components have to render inside a client boundary. In Remix every route component runs on both the server and the client by default, which is fine for artui components as long as you do not import anything browser-only at the module level. If you call `useEffect` directly in a route module and hit hydration errors, move the artui component into a separate file and lazy-load it with `React.lazy` or Remix's `ClientOnly` helper.
+
+## Do
+
+<Do title="Import artui-tokens.css once, before your own rules">
+```css
+/* globals.css */
+@import 'artui-tokens.css';
+
+:root {
+  --artui-accent: oklch(0.65 0.20 300);
+}
+```
+
+Importing it after your own rules lets the token defaults overwrite your overrides.
+</Do>
+
+<Do title="Add 'use client' to copied files you use in Next.js App Router">
+```tsx
+'use client';
+
+import { type ReactElement, useState, useEffect } from 'react';
+/* rest of dialog.tsx */
+```
+
+artui components use hooks. Without `'use client'`, Next.js throws a build error when it encounters a hook in a Server Component tree.
+</Do>
+
+## Don't
+
+<Dont title="Install artui as a runtime npm dependency">
+```bash
+npm install artui  # this is the CLI, not a component library
+```
+
+There is no runtime package. The CLI is a one-shot installer. Run it with `npx` and keep it out of `dependencies` and `devDependencies`.
+</Dont>
+
+<Dont title="Skip init and run add directly">
+```bash
+npx artui@latest add accordion  # without init
+```
+
+`add` reads `components.json` to learn where to install files and which registry version to target. Without that file the CLI has no install destination and errors out.
+</Dont>

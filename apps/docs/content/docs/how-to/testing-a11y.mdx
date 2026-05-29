@@ -1,0 +1,183 @@
+---
+title: Testing a11y
+description: Assert accessibility violations in vitest using artui's dev-overlay guards, with console.error spies, overlay span checks, and the __resetDevOverlayCache helper.
+---
+
+artui's runtime accessibility layer is a single function: `withErrorOverlay()`, exported from `lib/dev-overlay.tsx`. Once you understand it, the tests follow.
+
+## How withErrorOverlay works
+
+When a component detects a violation, it calls `withErrorOverlay(element, options)`.
+
+In development (`NODE_ENV !== 'production'`) it logs `[artui] <Component> [WCAG x.x.x]: message` to `console.error` once per `key`, then returns the element wrapped in a positioned `<span>` with a full-coverage red overlay (`aria-hidden="true"`, `pointerEvents: none`).
+
+In production it returns the element unchanged. There is no log, no overlay, and no bundle cost.
+
+De-duplication uses a module-level `Set`. The same `key` only emits once per page load, or once per test after you reset the cache.
+
+```ts
+// lib/dev-overlay.tsx (simplified)
+export function withErrorOverlay(
+  element: ReactElement,
+  { key, component, wcag, message }: DevOverlayOptions,
+): ReactElement
+
+/** Reset the de-duplication cache. Test-only. */
+export function __resetDevOverlayCache(): void
+```
+
+## Setting up a test
+
+Import `__resetDevOverlayCache` and call it in `beforeEach` so each test starts clean. Spy on `console.error` to capture the violation log without polluting your test output.
+
+```ts
+// dialog.test.tsx
+import { render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { __resetDevOverlayCache } from '@/lib/dev-overlay';
+import { Dialog } from '@/components/dialog';
+
+describe('Dialog a11y guards', () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    __resetDevOverlayCache();
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    errorSpy.mockRestore();
+  });
+});
+```
+
+## Asserting the console.error log
+
+Search the spy's call list for the WCAG criterion you expect. Asserting on the criterion number holds up better than asserting on the exact message string, which can change between releases.
+
+```ts
+it('fires WCAG 1.3.1 when Dialog has no children', () => {
+  render(
+    <Dialog open onClose={() => {}} title="Empty dialog">
+      {false}
+    </Dialog>,
+  );
+
+  const hit = errorSpy.mock.calls.find((args) =>
+    String(args[0]).includes('1.3.1'),
+  );
+  expect(hit).toBeDefined();
+});
+```
+
+## Asserting the overlay span
+
+`withErrorOverlay` wraps the element in a `<span>` that contains a child `<span aria-hidden="true">` with a `#d62828` background. Query for it through the inline style:
+
+```ts
+it('renders a red overlay span when Dialog has no children', () => {
+  render(
+    <Dialog open onClose={() => {}} title="Empty dialog">
+      {false}
+    </Dialog>,
+  );
+
+  const overlay = document.querySelector(
+    'span[aria-hidden="true"][style*="background"]',
+  );
+  expect(overlay).toBeInTheDocument();
+});
+```
+
+## Testing that a guard does NOT fire
+
+Cover the happy path too. Confirm that no overlay renders when the component is used correctly:
+
+```ts
+it('does not fire any overlay for a valid Dialog', () => {
+  render(
+    <Dialog open onClose={() => {}} title="Confirm deletion">
+      <p>Are you sure?</p>
+      <button type="button">Cancel</button>
+    </Dialog>,
+  );
+
+  expect(errorSpy).not.toHaveBeenCalled();
+  expect(
+    document.querySelector('span[aria-hidden="true"][style*="background"]'),
+  ).not.toBeInTheDocument();
+});
+```
+
+## JSDOM shims for native dialog
+
+JSDOM does not implement `HTMLDialogElement.showModal()` or `.close()`. Shim them in `beforeEach`:
+
+```ts
+beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = vi
+    .fn()
+    .mockImplementation(function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    });
+
+  HTMLDialogElement.prototype.close = vi
+    .fn()
+    .mockImplementation(function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+      this.dispatchEvent(new Event('close'));
+    });
+});
+```
+
+Without these shims, `Dialog` still mounts but its open/close lifecycle effects are no-ops, so focus-management and overlay tests never fire correctly.
+
+## Production builds
+
+Modern bundlers strip the guards by dead-code-eliminating the `process.env.NODE_ENV !== 'production'` branch. If you run your test suite against a production build, `withErrorOverlay` always returns the element unchanged and `console.error` never fires. Keep a11y overlay tests in a development-mode test run.
+
+## Do
+
+<Do title="Call __resetDevOverlayCache() in beforeEach">
+```ts
+beforeEach(() => {
+  __resetDevOverlayCache();
+  errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+});
+```
+
+The cache is module-level and persists across tests in the same worker. If you do not reset it, a violation tested in one case silently passes in the next because the key is already in the `Set`.
+</Do>
+
+<Do title="Assert on the WCAG criterion number, not the full message string">
+```ts
+const hit = errorSpy.mock.calls.find((args) =>
+  String(args[0]).includes('2.1.1'),
+);
+expect(hit).toBeDefined();
+```
+
+The human-readable message may be revised, but the WCAG criterion number is stable.
+</Do>
+
+## Don't
+
+<Dont title="Run overlay assertions against a production build">
+```ts
+// vitest.config.ts
+define: { 'process.env.NODE_ENV': '"production"' }
+// overlay tests will always pass vacuously: withErrorOverlay returns element unchanged
+```
+
+Always run a11y guard tests with `NODE_ENV=development`, which is vitest's default when you run `pnpm test` without a build step.
+</Dont>
+
+<Dont title="Forget to restore the console.error spy">
+```ts
+afterEach(() => {
+  // missing: errorSpy.mockRestore()
+});
+```
+
+Without `mockRestore()`, the spy keeps accumulating calls from previous tests. An assertion like `expect(errorSpy).not.toHaveBeenCalled()` then fails in tests that run after a violation test, even when the component under test is correct.
+</Dont>

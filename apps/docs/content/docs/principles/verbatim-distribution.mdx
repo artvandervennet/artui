@@ -1,0 +1,42 @@
+---
+title: Verbatim distribution
+description: artui ships component source directly into your repository through a CLI, so accessibility guards travel with the code and type-checking happens in your own build.
+---
+
+There is no `npm install artui`. When you run `npx artui@latest add accordion`, the CLI copies `accordion.tsx`, `accordion.css`, and any shared lib files (such as `a11y-types.ts` and `dev-overlay.tsx`) into your project. After that, those files are yours.
+
+## Why copy rather than publish a package?
+
+**The guards travel with the source.**
+
+The TypeScript types that make `alt=""` a compile error, and the `withErrorOverlay()` function that shows a red overlay in development, are part of the component source, not a separate runtime dependency. When the CLI copies the files, it copies the enforcement with them. Your TypeScript compiler checks the constraints against your own code in your own build pipeline, so the types and the implementation can never drift apart.
+
+**No version skew.**
+
+A published package introduces a gap: the types in `node_modules/@artui/ui/dist/types` may describe a different version of the component than the one you actually run. With verbatim distribution there is one artefact, the source file in your repo, and it is always self-consistent.
+
+**The file is yours to edit.**
+
+Once it is copied, you own the component. You can change the CSS tokens, add a prop, adjust the focus-management behaviour, or swap the underlying element. You do not have to wait for a pull request to land upstream. The trade-off is that upstream improvements are opt-in: re-run `npx artui@latest add accordion` and reconcile the diff when you want them.
+
+## What the CLI copies
+
+For a typical component, the CLI installs:
+
+- `components/accordion.tsx` and `components/accordion.css`, the component itself
+- `lib/a11y-types.ts`, the shared compile-time accessibility types
+- `lib/dev-overlay.tsx`, the shared dev-only overlay renderer
+
+Shared lib files are written once and reused across components. If they already exist from a previous `artui add` run, the CLI skips them unless the version has changed.
+
+## Constraints that follow from this model
+
+**No cross-component imports.** A registry component cannot import from another registry component. If `accordion.tsx` imported from `dialog.tsx`, the CLI would have to copy and track that dependency too, and anyone who wanted only the accordion would also receive the dialog. Every component is self-contained.
+
+**No dependencies on `packages/` or `apps/`.** The CLI copies the file verbatim, so any import in the file ends up in the consumer's repo. Importing from `packages/cli` or `apps/docs` would ship a broken import into their project.
+
+**Styling is framework-agnostic.** Registry components use plain CSS with custom properties from `artui-tokens.css`. They do not use Tailwind, so the copied files work in any project regardless of CSS framework.
+
+## Version pinning
+
+`npx artui@latest init` writes a `components.json` to your project root that records the registry URL and a version pin. Later `artui add` commands resolve against that version, so you get the same source today as six months from now. Re-running without a version bump will not silently upgrade a component you have already customised.
