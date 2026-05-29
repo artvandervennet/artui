@@ -20,13 +20,25 @@ From the root of your app:
 npx artui@latest init
 ```
 
+Or, if you prefer to install the CLI once for all projects:
+
+```bash
+npm install -g @artui/cli
+artui init
+```
+
 This writes a `components.json` that pins the registry URL and a version. The
 version pin guarantees `artui add ...` will install the same source today as
 six months from now.
+
 ## 2. Add a component
 
 ```bash
+# via npx
 npx artui@latest add accordion
+
+# or globally installed CLI
+artui add accordion
 ```
 
 The CLI copies the component's `.tsx` + `.css` and any shared lib files into
@@ -53,6 +65,35 @@ import { Accordion } from '@/components/accordion';
 If you forget `headingLevel`, leave a trigger empty, or pass a placeholder
 string like `"image"`, TypeScript will refuse to compile. That is the point of
 artui: the accessible path is the only path that builds.
+
+## 4. Lint your components
+
+`artui lint` runs [eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y)
+recommended rules against your components directory. It catches runtime-level
+accessibility issues that TypeScript alone can't prevent — incorrect ARIA
+attribute usage, interactive elements without an accessible name derived from
+dynamic content, and similar violations.
+
+First, install the peer dependencies in your project:
+
+```bash
+pnpm add -D eslint eslint-plugin-jsx-a11y
+```
+
+Then run the linter:
+
+```bash
+# via npx
+npx artui@latest lint
+
+# or globally installed CLI
+artui lint
+```
+
+Options:
+
+- `--fix` — auto-fix violations where possible
+- `--path <dir>` — override the directory to lint (defaults to the `paths.components` value from `components.json`)
 
 ## Next
 
