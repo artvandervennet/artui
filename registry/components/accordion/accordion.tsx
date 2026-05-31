@@ -470,6 +470,11 @@ function AccordionItem({
           aria-controls={panelId}
           aria-expanded={isOpen}
           aria-disabled={disabled ? "true" : undefined}
+          // Disabled summaries are removed from the natural tab order so neither
+          // Tab nor Shift+Tab can land on them. Arrow/Home/End already skip them
+          // via :not([aria-disabled='true']). tabIndex={0} is the implicit
+          // default for <summary>; we must be explicit here.
+          tabIndex={disabled ? -1 : 0}
           className="artui-accordion-summary"
           onPointerDown={handlePointerDown}
           onKeyDown={handleSummaryKeyDown}

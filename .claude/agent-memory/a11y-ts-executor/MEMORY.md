@@ -11,3 +11,7 @@
 - [label-registry-state-vs-ref](label-registry-state-vs-ref.md) — useState not useRef for child label registries so sibling Tags re-renders when labels arrive
 - [tag-label-test-query](tag-label-test-query.md) — always-mounted content duplicates text; query tag labels via CSS class not getByText
 - [aria-hidden-decorative-display](aria-hidden-decorative-display.md) — Visual text mirroring aria-valuenow/text must be aria-hidden; gate CSS with data-show-values attribute
+- [disabled-summary-tabindex](disabled-summary-tabindex.md) — disabled <summary> needs tabIndex=-1 explicitly; aria-disabled alone does not remove it from tab order; omitting it causes AT to announce wrong item
+- [dom-order-tab-order-pattern](dom-order-tab-order-pattern.md) — DOM order governs tab order; CSS `order` governs visual paint — reorder DOM for focus correctness, use CSS order to restore visual layout
+- [live-region-just-opened-guard](live-region-just-opened-guard.md) — Two effects writing the same live region: use a ref flag in the open effect to suppress the second effect on the first commit
+- [dialog-trigger-subcomponent-pattern](dialog-trigger-subcomponent-pattern.md) — Controlled panel trigger pattern: required open+controls props, Omit blocked ARIA attrs, forwardRef for returnFocusRef, mount-only dev guard via console.error

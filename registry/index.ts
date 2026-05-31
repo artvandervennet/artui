@@ -11,8 +11,8 @@ export type { ImageProps } from './components/image/image';
 export { Datepicker } from './components/datepicker/datepicker';
 export type { DatepickerProps } from './components/datepicker/datepicker';
 
-export { Dialog } from './components/dialog/dialog';
-export type { DialogProps } from './components/dialog/dialog';
+export { Dialog, DialogTrigger } from './components/dialog/dialog';
+export type { DialogProps, DialogTriggerProps } from './components/dialog/dialog';
 
 export { DropdownMenu } from './components/dropdown-menu/dropdown-menu';
 

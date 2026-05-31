@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { flushSync } from "react-dom";
 
 import { type AccessibleText } from "../../lib/a11y-types";
 import { withErrorOverlay } from "../../lib/dev-overlay";
@@ -118,10 +119,16 @@ function getDateFormat(locale: string): string {
   return "DD/MM/YYYY";
 }
 
-/** Parse a user-typed string according to the locale format. Returns Date or null. */
-function parseInputValue(raw: string, locale: string): Date | null {
+// Discriminated result so callers can surface specific error messages (WCAG 3.3.1).
+type ParseOk = { ok: true; date: Date };
+type ParseFail = { ok: false; reason: "empty" | "incomplete" | "bad-month" | "day-overflow" | "invalid"; month?: number; day?: number };
+type ParseResult = ParseOk | ParseFail;
+
+/** Parse a user-typed string according to the locale format.
+ *  Returns a discriminated result so the caller can build a specific error message. */
+function parseInputValue(raw: string, locale: string): ParseResult {
   const trimmed = raw.trim();
-  if (!trimmed) return null;
+  if (!trimmed) return { ok: false, reason: "empty" };
 
   const fmt = getDateFormat(locale);
   let year: number, month: number, day: number;
@@ -143,17 +150,39 @@ function parseInputValue(raw: string, locale: string): Date | null {
   }
 
   if (!year || !month || !day || isNaN(year) || isNaN(month) || isNaN(day))
-    return null;
-  if (month < 1 || month > 12) return null;
+    return { ok: false, reason: "incomplete" };
+  if (month < 1 || month > 12) return { ok: false, reason: "bad-month" };
+
   const date = new Date(year, month - 1, day);
   if (
     date.getFullYear() !== year ||
     date.getMonth() !== month - 1 ||
     date.getDate() !== day
   )
-    return null;
+    // The day does not exist in the given month (e.g. Feb 30).
+    return { ok: false, reason: "day-overflow", month, day };
 
-  return date;
+  return { ok: true, date };
+}
+
+/** Build a human-readable error message from a failed parse result (WCAG 3.3.1). */
+function buildParseError(fail: ParseFail, fmt: string, locale: string): string {
+  switch (fail.reason) {
+    case "bad-month":
+      return `Month must be 1–12. Enter a valid date in ${fmt} format.`;
+    case "day-overflow": {
+      // Name the month using Intl so the message matches the user's locale.
+      const monthName =
+        fail.month !== undefined
+          ? new Intl.DateTimeFormat(locale, { month: "long" }).format(
+              new Date(2000, fail.month - 1, 1),
+            )
+          : "that month";
+      return `${fail.day} ${monthName} isn't a valid date. Enter a valid date in ${fmt} format.`;
+    }
+    default:
+      return `Enter a valid date in ${fmt} format.`;
+  }
 }
 
 /** Format a Date for display in the text input. */
@@ -286,7 +315,11 @@ export function Datepicker(props: DatepickerProps): ReactElement {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const prevMonthBtnRef = useRef<HTMLButtonElement>(null);
   const pendingCursor = useRef<number | null>(null);
+  // True for the render cycle immediately after the calendar opens so the month-change
+  // effect doesn't clobber the open-announcement with the current month heading.
+  const justOpenedRef = useRef(false);
 
   // State
   const [isOpen, setIsOpen] = useState(false);
@@ -458,20 +491,37 @@ export function Datepicker(props: DatepickerProps): ReactElement {
     };
   }, [isOpen]);
 
-  // Move focus to the active day cell when the calendar opens or the focused date changes.
+  // On open: move keyboard focus to the "previous month" button (WCAG 2.4.3) and
+  // announce the currently selected date via the live region so screen reader users
+  // immediately know what is selected before navigating the grid.
   useEffect(() => {
-    if (isOpen) {
-      dialogRef.current
-        ?.querySelector<HTMLElement>('[data-focused-day="true"]')
-        ?.focus();
+    if (!isOpen) return;
+    prevMonthBtnRef.current?.focus();
+    // Mark that we just opened so the month-change effect below doesn't immediately
+    // overwrite the selection announcement with the current heading text.
+    justOpenedRef.current = true;
+    if (value) {
+      const announced = new Intl.DateTimeFormat(resolvedLocale, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(value);
+      setLiveText(`${announced} selected`);
+    } else {
+      setLiveText("No date selected");
     }
-  }, [isOpen, focusedDate]);
+  }, [isOpen, value, resolvedLocale]);
 
-  // Update live region on month change
+  // Announce the heading when the user navigates to a different month.
+  // Skipped on the render immediately after open so the selection announcement
+  // (set above) isn't overwritten by the current heading text.
   useEffect(() => {
-    if (isOpen) {
-      setLiveText(headingText);
+    if (!isOpen) return;
+    if (justOpenedRef.current) {
+      justOpenedRef.current = false;
+      return;
     }
+    setLiveText(headingText);
   }, [headingText, isOpen]);
 
   // ---------------------------------------------------------------------------
@@ -514,13 +564,13 @@ export function Datepicker(props: DatepickerProps): ReactElement {
     }
 
     if (newDigits.length === 8) {
-      const parsed = parseInputValue(masked, resolvedLocale);
-      if (parsed) {
+      const result = parseInputValue(masked, resolvedLocale);
+      if (result.ok) {
         setInputError(null);
-        onChange(parsed);
-        setDisplayMonth(startOfMonth(parsed));
+        onChange(result.date);
+        setDisplayMonth(startOfMonth(result.date));
       } else {
-        setInputError(`Enter a valid date in ${fmt} format.`);
+        setInputError(buildParseError(result, fmt, resolvedLocale));
       }
     } else {
       setInputError(null);
@@ -625,8 +675,17 @@ export function Datepicker(props: DatepickerProps): ReactElement {
       newMonth = startOfMonth(next);
     }
 
-    setDisplayMonth(newMonth);
-    setFocusedDate(next);
+    // flushSync forces React to commit the state update synchronously so the DOM
+    // button for `next` exists before we imperatively focus it. Without this the
+    // focus call races the re-render and the moving day appears to lag (WCAG 2.1.1 / 2.4.7).
+    flushSync(() => {
+      setDisplayMonth(newMonth);
+      setFocusedDate(next);
+    });
+
+    dialogRef.current
+      ?.querySelector<HTMLElement>('[data-focused-day="true"]')
+      ?.focus();
   }
 
   // Tab is handled natively by showModal()'s built-in focus trap; we only intercept Escape.
@@ -749,16 +808,6 @@ export function Datepicker(props: DatepickerProps): ReactElement {
         {activeError ?? ""}
       </span>
 
-      {/* Always-present live region for screen reader month announcements */}
-      <div
-        id={liveRegionId}
-        aria-live="polite"
-        aria-atomic="true"
-        className="artui-dp-sr-only"
-      >
-        {liveText}
-      </div>
-
       {isOpen && (
         <dialog
           ref={dialogRef}
@@ -768,8 +817,22 @@ export function Datepicker(props: DatepickerProps): ReactElement {
           onKeyDown={handleDialogKeyDown}
           onCancel={(e) => e.preventDefault()}
         >
+          {/* Live region for the selected-date (on open) and month-change
+              announcements. It must live INSIDE the dialog: aria-modal="true"
+              makes assistive tech ignore everything outside the modal, so a
+              region rendered in the page body would never be spoken. */}
+          <div
+            id={liveRegionId}
+            aria-live="polite"
+            aria-atomic="true"
+            className="artui-dp-sr-only"
+          >
+            {liveText}
+          </div>
+
           <div className="artui-dp-dialog-header">
             <button
+              ref={prevMonthBtnRef}
               type="button"
               className="artui-dp-nav-btn"
               aria-label={prevMonthLabel}
@@ -813,13 +876,14 @@ export function Datepicker(props: DatepickerProps): ReactElement {
             <thead>
               <tr role="row">
                 {weekdayHeaders.map((h) => (
-                  <th
-                    key={h.long}
-                    role="columnheader"
-                    abbr={h.long}
-                    scope="col"
-                  >
-                    {h.short}
+                  <th key={h.long} role="columnheader" scope="col">
+                    {/* Show the abbreviation visually but expose the full day
+                        name as the column header's accessible name so screen
+                        readers announce "Monday", not "Mon". The `abbr`
+                        attribute is unreliably announced and is the wrong
+                        direction (it provides a shorter form). */}
+                    <span aria-hidden="true">{h.short}</span>
+                    <span className="artui-dp-sr-only">{h.long}</span>
                   </th>
                 ))}
               </tr>
@@ -834,41 +898,45 @@ export function Datepicker(props: DatepickerProps): ReactElement {
                     const isFocused = isSameDay(date, focusedDate);
 
                     return (
+                      // The gridcell itself is the focusable, roving-tabindex
+                      // element (no nested button). This flat structure matches
+                      // the APG Date Picker Dialog pattern and is what lets
+                      // VoiceOver treat the calendar as an interactive grid and
+                      // forward arrow keys to handleGridKeyDown instead of using
+                      // them for its own table browse-mode cursor.
                       <td
                         key={di}
                         role="gridcell"
                         className="artui-dp-day-cell"
-                        aria-selected={isSelected ? "true" : undefined}
+                        tabIndex={isFocused ? 0 : -1}
+                        data-focused-day={isFocused ? "true" : undefined}
+                        aria-selected={isSelected ? "true" : "false"}
+                        aria-current={isToday ? "date" : undefined}
+                        aria-disabled={isDisabled ? "true" : undefined}
+                        aria-label={new Intl.DateTimeFormat(resolvedLocale, {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        }).format(date)}
+                        onKeyDown={handleGridKeyDown}
+                        onClick={() => {
+                          if (!isDisabled) {
+                            onChange(date);
+                            const clickFormatted = formatDateForInput(date, resolvedLocale);
+                            setInputValue(clickFormatted);
+                            setDigitStr(toDigits(clickFormatted));
+                            setInputError(null);
+                            if (overflow) setDisplayMonth(startOfMonth(date));
+                            close();
+                          }
+                        }}
+                        onFocus={() => setFocusedDate(date)}
                       >
-                        <button
-                          type="button"
-                          className={`artui-dp-day-btn${overflow ? " artui-dp-day-btn--overflow" : ""}`}
-                          tabIndex={isFocused ? 0 : -1}
-                          data-focused-day={isFocused ? "true" : undefined}
-                          aria-current={isToday ? "date" : undefined}
-                          aria-disabled={isDisabled ? "true" : undefined}
-                          aria-label={new Intl.DateTimeFormat(resolvedLocale, {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          }).format(date)}
-                          disabled={isDisabled}
-                          onKeyDown={handleGridKeyDown}
-                          onClick={() => {
-                            if (!isDisabled) {
-                              onChange(date);
-                              const clickFormatted = formatDateForInput(date, resolvedLocale);
-                              setInputValue(clickFormatted);
-                              setDigitStr(toDigits(clickFormatted));
-                              setInputError(null);
-                              if (overflow) setDisplayMonth(startOfMonth(date));
-                              close();
-                            }
-                          }}
-                          onFocus={() => setFocusedDate(date)}
+                        <span
+                          className={`artui-dp-day${overflow ? " artui-dp-day--overflow" : ""}`}
                         >
                           {date.getDate()}
-                        </button>
+                        </span>
                       </td>
                     );
                   })}

@@ -154,88 +154,88 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 
 describe("4.1.3: live regions", () => {
-  it("renders polite region on provider mount before any toast is shown", () => {
+  it("renders the polite live region on provider mount before any toast is shown", () => {
     render(<Wrapper />);
     flush();
-    expect(document.getElementById("artui-toast-region-polite")).toBeInTheDocument();
+    const polite = document.querySelector('[aria-live="polite"]');
+    expect(polite).toBeInTheDocument();
   });
 
-  it("renders assertive region on provider mount before any toast is shown", () => {
+  it("renders the assertive live region on provider mount before any toast is shown", () => {
     render(<Wrapper />);
     flush();
-    expect(document.getElementById("artui-toast-region-assertive")).toBeInTheDocument();
+    const assertive = document.querySelector('[aria-live="assertive"]');
+    expect(assertive).toBeInTheDocument();
   });
 
-  it("calls showPopover on both regions once on mount when API is supported", () => {
-    // supportsPopover is computed at module load time from HTMLElement.prototype.
-    // jsdom does not implement it, so we test the conditional branch indirectly:
-    // assert that both regions have the expected popover attribute set when the
-    // component decides the API is available. Since jsdom reports false, we
-    // instead verify the regions exist and have the correct role/aria-live attrs
-    // which is the observable contract regardless of the popover branch taken.
+  it("exposes the polite live region with role=status", () => {
     render(<Wrapper />);
     flush();
-    const polite = document.getElementById("artui-toast-region-polite")!;
-    const assertive = document.getElementById("artui-toast-region-assertive")!;
-    expect(polite).toHaveAttribute("aria-live", "polite");
-    expect(assertive).toHaveAttribute("aria-live", "assertive");
+    expect(document.querySelector('[aria-live="polite"]')).toHaveAttribute("role", "status");
   });
 
-  it("does not call showPopover when popover API is unsupported (fallback class applied)", () => {
-    // jsdom does not support popover by default: the region is still rendered.
+  it("exposes the assertive live region with role=alert", () => {
     render(<Wrapper />);
     flush();
-    expect(document.getElementById("artui-toast-region-polite")).toBeInTheDocument();
+    expect(document.querySelector('[aria-live="assertive"]')).toHaveAttribute("role", "alert");
   });
 
-  it("appends info toasts into polite region", () => {
+  it("applies the fallback container class when the popover API is unsupported", () => {
+    // jsdom does not implement the popover API, so the provider takes the
+    // fallback branch and tags the container for non-popover positioning.
+    render(<Wrapper />);
+    flush();
+    expect(document.querySelector(".artui-toast-container--fallback")).toBeInTheDocument();
+  });
+
+  it("announces info toasts through the polite live region", () => {
     render(<Wrapper><TypeButton type="info" /></Wrapper>);
     flush();
     click(screen.getByRole("button", { name: "Show info" }));
     flush();
-    expect(
-      document.getElementById("artui-toast-region-polite")!.querySelector("[data-artui-toast-id]"),
-    ).toBeInTheDocument();
+    expect(document.querySelector('[aria-live="polite"]')?.textContent).toContain(
+      "Test notification",
+    );
   });
 
-  it("appends success toasts into polite region", () => {
+  it("announces success toasts through the polite live region", () => {
     render(<Wrapper><TypeButton type="success" /></Wrapper>);
     flush();
     click(screen.getByRole("button", { name: "Show success" }));
     flush();
-    expect(
-      document.getElementById("artui-toast-region-polite")!.querySelector("[data-artui-toast-id]"),
-    ).toBeInTheDocument();
+    expect(document.querySelector('[aria-live="polite"]')?.textContent).toContain(
+      "Test notification",
+    );
   });
 
-  it("appends warning toasts into assertive region", () => {
+  it("announces warning toasts through the assertive live region", () => {
     render(<Wrapper><TypeButton type="warning" /></Wrapper>);
     flush();
     click(screen.getByRole("button", { name: "Show warning" }));
     flush();
-    expect(
-      document.getElementById("artui-toast-region-assertive")!.querySelector("[data-artui-toast-id]"),
-    ).toBeInTheDocument();
+    expect(document.querySelector('[aria-live="assertive"]')?.textContent).toContain(
+      "Test notification",
+    );
   });
 
-  it("appends error toasts into assertive region", () => {
+  it("announces error toasts through the assertive live region", () => {
     render(<Wrapper><TypeButton type="error" /></Wrapper>);
     flush();
     click(screen.getByRole("button", { name: "Show error" }));
     flush();
-    expect(
-      document.getElementById("artui-toast-region-assertive")!.querySelector("[data-artui-toast-id]"),
-    ).toBeInTheDocument();
+    expect(document.querySelector('[aria-live="assertive"]')?.textContent).toContain(
+      "Test notification",
+    );
   });
 
-  it("keeps aria-live containers in DOM after a toast dismissed", () => {
+  it("keeps the live-region container in the DOM after a toast is dismissed", () => {
     render(<Wrapper><ToastButton /></Wrapper>);
     flush();
     click(screen.getByRole("button", { name: "Show" }));
     flush();
     click(screen.getByRole("button", { name: "Dismiss notification" }));
     flush();
-    expect(document.getElementById("artui-toast-region-polite")).toBeInTheDocument();
+    expect(document.querySelector('[aria-live="polite"]')).toBeInTheDocument();
   });
 
   it("throws clear error when useToast called outside ToastProvider", () => {
@@ -606,9 +606,9 @@ describe("1.4.1: use of color", () => {
     flush();
     click(screen.getByRole("button", { name: "Show success" }));
     act(() => { vi.advanceTimersByTime(16); });
-    expect(document.querySelector(".artui-visually-hidden")?.textContent).toBe(
-      "Success: ",
-    );
+    expect(
+      document.querySelector(".artui-toast__title .artui-visually-hidden")?.textContent,
+    ).toBe("Success: ");
   });
 
   it("prefixes title with 'Error: ' visually-hidden for error", () => {
@@ -616,9 +616,9 @@ describe("1.4.1: use of color", () => {
     flush();
     click(screen.getByRole("button", { name: "Show error" }));
     act(() => { vi.advanceTimersByTime(16); });
-    expect(document.querySelector(".artui-visually-hidden")?.textContent).toBe(
-      "Error: ",
-    );
+    expect(
+      document.querySelector(".artui-toast__title .artui-visually-hidden")?.textContent,
+    ).toBe("Error: ");
   });
 
   it("prefixes title with 'Warning: ' visually-hidden for warning", () => {
@@ -626,9 +626,9 @@ describe("1.4.1: use of color", () => {
     flush();
     click(screen.getByRole("button", { name: "Show warning" }));
     act(() => { vi.advanceTimersByTime(16); });
-    expect(document.querySelector(".artui-visually-hidden")?.textContent).toBe(
-      "Warning: ",
-    );
+    expect(
+      document.querySelector(".artui-toast__title .artui-visually-hidden")?.textContent,
+    ).toBe("Warning: ");
   });
 
   it("prefixes title with 'Information: ' visually-hidden for info", () => {
@@ -636,9 +636,9 @@ describe("1.4.1: use of color", () => {
     flush();
     click(screen.getByRole("button", { name: "Show info" }));
     act(() => { vi.advanceTimersByTime(16); });
-    expect(document.querySelector(".artui-visually-hidden")?.textContent).toBe(
-      "Information: ",
-    );
+    expect(
+      document.querySelector(".artui-toast__title .artui-visually-hidden")?.textContent,
+    ).toBe("Information: ");
   });
 
   it("renders type icon with aria-hidden=true", () => {

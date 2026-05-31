@@ -37,8 +37,13 @@ export function WcagTable({ rows }: { rows: WcagTableRow[] }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
-            <tr key={row.criterion} className="border-t border-fd-border align-top">
+          {rows.map((row, index) => (
+            // Rows come from static, fixed-order component metadata, and one
+            // component can list the same criterion twice (e.g. Dialog covers
+            // 4.1.2 on both the dialog and its trigger), so the criterion is not
+            // unique and the stable array index is the correct key.
+            // biome-ignore lint/suspicious/noArrayIndexKey: static, order-stable rows
+            <tr key={index} className="border-t border-fd-border align-top">
               <td className="px-4 py-3">
                 <a
                   href={toUnderstandingUrl(row.criterion)}

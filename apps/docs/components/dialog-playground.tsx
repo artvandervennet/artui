@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog } from '@artui/registry';
+import { Dialog, DialogTrigger } from '@artui/registry';
 import { useRef, useState } from 'react';
 
 import { Playground, PlaygroundToggle } from '@/components/playground';
@@ -22,6 +22,7 @@ const DESCRIPTION_TEXT: Record<DescriptionOption, string | undefined> = {
 };
 
 const LABEL_HEADING_ID = 'dialog-playground-heading';
+const DIALOG_ID = 'dialog-playground';
 
 export function DialogPlayground() {
   const [open, setOpen] = useState(false);
@@ -41,24 +42,28 @@ export function DialogPlayground() {
   const usesTriggerRef = returnFocus === 'trigger';
 
   const codeLines: string[] = [];
+  codeLines.push('const triggerRef = useRef<HTMLButtonElement>(null);');
   if (usesCancelRef) {
     codeLines.push('const cancelRef = useRef<HTMLButtonElement>(null);');
   }
-  if (usesTriggerRef) {
-    codeLines.push('const triggerRef = useRef<HTMLButtonElement>(null);');
-  }
-  if (codeLines.length > 0) {
-    codeLines.push('');
-  }
-  if (usesTriggerRef) {
-    codeLines.push('<button ref={triggerRef} onClick={() => setOpen(true)}>Open dialog</button>');
-    codeLines.push('');
-  }
+  codeLines.push('');
   if (labelMode === 'aria-labelledby') {
     codeLines.push(`<h2 id="${LABEL_HEADING_ID}">Delete account</h2>`);
     codeLines.push('');
   }
+  // DialogTrigger wires aria-haspopup, aria-expanded, and aria-controls so the
+  // open/closed state is exposed to assistive technology.
+  codeLines.push('<DialogTrigger');
+  codeLines.push('  ref={triggerRef}');
+  codeLines.push(`  controls="${DIALOG_ID}"`);
+  codeLines.push('  open={open}');
+  codeLines.push('  onClick={() => setOpen(true)}');
+  codeLines.push('>');
+  codeLines.push('  Open dialog');
+  codeLines.push('</DialogTrigger>');
+  codeLines.push('');
   codeLines.push('<Dialog');
+  codeLines.push(`  id="${DIALOG_ID}"`);
   codeLines.push('  open={open}');
   codeLines.push('  onClose={() => setOpen(false)}');
   if (labelMode === 'title') {
@@ -99,14 +104,15 @@ export function DialogPlayground() {
               Delete account
             </h2>
           )}
-          <button
+          <DialogTrigger
             ref={triggerRef}
-            type="button"
+            controls={DIALOG_ID}
+            open={open}
             onClick={() => setOpen(true)}
             className="px-4 py-2 rounded-md bg-fd-primary text-fd-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
           >
             Open dialog
-          </button>
+          </DialogTrigger>
           <p className="text-xs text-fd-muted-foreground">
             Try <kbd className="font-mono">Esc</kbd>, <kbd className="font-mono">Tab</kbd>, and
             clicking the backdrop.
@@ -117,6 +123,7 @@ export function DialogPlayground() {
           </p>
           <Dialog
             {...dialogProps}
+            id={DIALOG_ID}
             open={open}
             onClose={() => setOpen(false)}
             description={descriptionValue}

@@ -159,17 +159,52 @@
     }
   }
 
+  /* The <td> is the focusable, roving-tabindex gridcell. Its focus ring is drawn
+     on the inner .artui-dp-day visual so it tracks the rounded day shape. */
   & .artui-dp-day-cell {
     padding: 2px;
     text-align: center;
+    cursor: pointer;
+    outline: none;
 
-    &[aria-selected="true"] .artui-dp-day-btn {
+    /* Focus ring must stay visible while arrow keys move focus between days,
+       INCLUDING when the focused day is also the selected day (which has an accent
+       background). The inner background-coloured box-shadow ring separates the cell
+       from the accent outline so the indicator never blends into the accent fill.
+       Driven by :focus as well as :focus-visible because arrow navigation moves
+       focus programmatically (.focus()), and :focus always matches that whereas
+       :focus-visible can be skipped (WCAG 2.4.7). */
+    &:focus .artui-dp-day,
+    &:focus-visible .artui-dp-day {
+      outline: var(--artui-focus-ring);
+      outline-offset: 3px;
+      box-shadow: 0 0 0 2px var(--artui-bg);
+    }
+
+    &[aria-selected="true"] .artui-dp-day {
       background: var(--artui-accent);
       color: var(--artui-accent-fg);
     }
+
+    &[aria-current="date"] .artui-dp-day {
+      box-shadow: var(--artui-dp-today-shadow);
+    }
+
+    &:hover:not([aria-disabled="true"]) .artui-dp-day {
+      background: color-mix(in srgb, currentColor 8%, transparent);
+    }
+
+    &[aria-disabled="true"] {
+      cursor: not-allowed;
+      pointer-events: none;
+
+      & .artui-dp-day {
+        opacity: var(--artui-disabled-opacity);
+      }
+    }
   }
 
-  & .artui-dp-day-btn {
+  & .artui-dp-day {
     inline-size: var(--artui-dp-cell-size);
     block-size: var(--artui-dp-cell-size);
     display: inline-flex;
@@ -177,42 +212,20 @@
     justify-content: center;
     background: transparent;
     color: inherit;
-    border: none;
     border-radius: 50%;
-    cursor: pointer;
     font-family: inherit;
     font-size: 0.875em;
     transition: background var(--artui-dp-transition-duration)
       var(--artui-dp-transition-easing);
-
-    &:focus {
-      outline: var(--artui-focus-ring);
-      outline-offset: 2px;
-    }
-
-    &:hover:not(:disabled) {
-      background: color-mix(in srgb, currentColor 8%, transparent);
-    }
-
-    &[aria-current="date"] {
-      box-shadow: var(--artui-dp-today-shadow);
-    }
-
-    &:disabled,
-    &[aria-disabled="true"] {
-      opacity: var(--artui-disabled-opacity);
-      cursor: not-allowed;
-      pointer-events: none;
-    }
   }
 
-  & .artui-dp-day-btn--overflow {
+  & .artui-dp-day--overflow {
     opacity: 0.35;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .artui-dp-day-btn {
+  .artui-dp-day {
     transition: none;
   }
 

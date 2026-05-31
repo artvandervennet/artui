@@ -3,7 +3,7 @@ import type { ComponentMeta } from "../../lib/meta-types";
 export const meta: ComponentMeta = {
   name: "Dialog",
   description:
-    "Accessible modal dialog using native <dialog> with showModal(). Browser-managed focus trap, top layer, and Escape handling. Follows WAI-ARIA APG Dialog Modal pattern.",
+    "Accessible modal dialog using native <dialog> with showModal(). Browser-managed focus trap, top layer, and Escape handling. Follows WAI-ARIA APG Dialog Modal pattern. Includes DialogTrigger subcomponent that automatically wires aria-haspopup, aria-expanded, and aria-controls to expose open/closed state to assistive technology.",
   status: "stable",
   files: ["dialog.tsx", "dialog.css"],
   registryDependencies: ["lib/a11y-types.ts", "lib/dev-overlay.tsx"],
@@ -75,6 +75,13 @@ export const meta: ComponentMeta = {
       required: false,
       description: "Additional CSS class applied to the <dialog> element.",
     },
+    {
+      name: "id",
+      type: "string",
+      required: false,
+      description:
+        "Applied to the <dialog> element. Pass the same value to DialogTrigger's controls prop so aria-controls resolves correctly.",
+    },
   ],
   accessibility: [
     {
@@ -107,8 +114,39 @@ export const meta: ComponentMeta = {
       description:
         'The <dialog> element has role="dialog" natively, aria-modal="true", and aria-labelledby pointing at either the auto-generated title <h2> or a caller-supplied element. A dev overlay fires when aria-labelledby does not resolve to a DOM element.',
     },
+    {
+      wcag: "4.1.2",
+      description:
+        'DialogTrigger hard-wires aria-haspopup="dialog", aria-expanded (driven by the required open prop), and aria-controls (pointing at the Dialog\'s id). A dev console.error fires when controls does not resolve to a DOM element.',
+    },
   ],
   examples: [
+    {
+      name: "With DialogTrigger",
+      description:
+        "Use DialogTrigger to automatically expose aria-haspopup, aria-expanded, and aria-controls. Pass the ref as returnFocusRef so focus returns to the trigger after close.",
+      code: `const [open, setOpen] = useState(false);
+const triggerRef = useRef<HTMLButtonElement>(null);
+<DialogTrigger
+  ref={triggerRef}
+  controls="confirm-dialog"
+  open={open}
+  onClick={() => setOpen(true)}
+>
+  Delete item
+</DialogTrigger>
+<Dialog
+  id="confirm-dialog"
+  open={open}
+  onClose={() => setOpen(false)}
+  title="Confirm deletion"
+  returnFocusRef={triggerRef}
+>
+  <p>This action cannot be undone.</p>
+  <button onClick={() => setOpen(false)}>Cancel</button>
+  <button onClick={handleConfirm}>Delete</button>
+</Dialog>`,
+    },
     {
       name: "Basic with title",
       description: "Standard controlled dialog with a visible heading.",

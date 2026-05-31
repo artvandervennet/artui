@@ -1,13 +1,15 @@
 import {
+  type ButtonHTMLAttributes,
   type ReactElement,
   type ReactNode,
   type RefObject,
+  forwardRef,
   useEffect,
   useId,
   useRef,
 } from "react";
 
-import { type AccessibleText } from "../../lib/a11y-types";
+import { type AccessibleNameProps, type AccessibleText } from "../../lib/a11y-types";
 import { withErrorOverlay } from "../../lib/dev-overlay";
 
 import "./dialog.css";
@@ -33,6 +35,11 @@ type DialogBaseProps = {
   /** Whether clicking the backdrop calls onClose. Defaults to true. */
   closeOnBackdropClick?: boolean;
   className?: string;
+  /**
+   * Applied to the <dialog> element so DialogTrigger can reference it via
+   * aria-controls. Pass the same value to DialogTrigger's controls prop.
+   */
+  id?: string;
 };
 
 export type DialogProps = DialogBaseProps & DialogLabelProps;
@@ -68,6 +75,7 @@ export function Dialog(props: DialogProps): ReactElement {
     returnFocusRef,
     closeOnBackdropClick = true,
     className,
+    id,
     ...labelRest
   } = props;
 
@@ -211,6 +219,7 @@ export function Dialog(props: DialogProps): ReactElement {
   const element = (
     <dialog
       ref={dialogRef}
+      id={id}
       aria-modal="true"
       aria-labelledby={labelledBy}
       aria-describedby={description ? descId : undefined}
@@ -270,3 +279,92 @@ export function Dialog(props: DialogProps): ReactElement {
 
   return element;
 }
+
+// ---------------------------------------------------------------------------
+// DialogTrigger
+// ---------------------------------------------------------------------------
+
+// Block ARIA attrs we own and type to prevent form-submission accidents.
+type BlockedTriggerAttrs =
+  | "aria-haspopup"
+  | "aria-expanded"
+  | "aria-controls"
+  | "type";
+
+type DialogTriggerOwnProps = {
+  /**
+   * The id passed to the <Dialog id="..."> this trigger controls.
+   * Required so aria-controls resolves. A dev warning fires if the id
+   * does not match any element in the DOM at mount time.
+   */
+  controls: string;
+  /**
+   * Current open state of the dialog. Required — drives aria-expanded
+   * so the state is always exposed to assistive technology.
+   */
+  open: boolean;
+};
+
+/**
+ * Props for DialogTrigger.
+ *
+ * AccessibleNameProps enforces that children, aria-label, or aria-labelledby
+ * is present — the trigger itself always has an accessible name. The four
+ * ARIA attrs we hard-wire (aria-haspopup, aria-expanded, aria-controls, type)
+ * are omitted so consumers cannot accidentally override the contract.
+ */
+export type DialogTriggerProps = DialogTriggerOwnProps &
+  AccessibleNameProps &
+  Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    keyof DialogTriggerOwnProps | BlockedTriggerAttrs
+  >;
+
+/**
+ * Trigger button for a Dialog. Automatically wires aria-haspopup="dialog",
+ * aria-expanded, and aria-controls so the open/closed state is always exposed
+ * to assistive technology.
+ *
+ * Pass the same id to Dialog's id prop and to this component's controls prop:
+ *
+ *   <DialogTrigger controls="my-dialog" open={open} onClick={() => setOpen(true)}>
+ *     Open dialog
+ *   </DialogTrigger>
+ *   <Dialog id="my-dialog" open={open} onClose={() => setOpen(false)} title="…">
+ *     …
+ *   </Dialog>
+ *
+ * Forward the ref to DialogTrigger and pass it as Dialog's returnFocusRef so
+ * focus reliably returns to the trigger after the dialog closes.
+ */
+export const DialogTrigger = forwardRef<HTMLButtonElement, DialogTriggerProps>(
+  function DialogTrigger(props, ref) {
+    const { controls, open, className, ...rest } = props;
+
+    // Dev guard: aria-controls pointing at a non-existent element is worse
+    // than no aria-controls — some AT will announce the broken reference.
+    // Check after mount so the Dialog (always mounted) has committed its DOM.
+    useEffect(() => {
+      if (!isDev) return;
+      if (!document.getElementById(controls)) {
+        console.error(
+          `[artui] <DialogTrigger> [WCAG 4.1.2]: controls="${controls}" does not resolve to any element in the DOM. Pass the same id to the Dialog's id prop so aria-controls is meaningful.`,
+        );
+      }
+    // Only run once at mount — the controls id is expected to be stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return (
+      <button
+        ref={ref}
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls={controls}
+        className={className}
+        {...rest}
+      />
+    );
+  },
+);

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { __resetDevOverlayCache } from "../../lib/dev-overlay";
 
-import { Dialog } from "./dialog";
+import { Dialog, DialogTrigger } from "./dialog";
 
 describe("Dialog", () => {
   let errorSpy: ReturnType<typeof vi.spyOn>;
@@ -331,5 +331,235 @@ describe("Dialog", () => {
       </Dialog>,
     );
     expect(screen.getByRole("dialog")).toHaveClass("artui-dialog");
+  });
+
+  it("applies the provided id to the <dialog> element", () => {
+    render(
+      <Dialog open onClose={() => {}} title="Id test" id="my-dialog">
+        <p>Content</p>
+      </Dialog>,
+    );
+    expect(screen.getByRole("dialog")).toHaveAttribute("id", "my-dialog");
+  });
+});
+
+describe("DialogTrigger", () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    __resetDevOverlayCache();
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    errorSpy.mockRestore();
+    vi.restoreAllMocks();
+  });
+
+  // -------------------------------------------------------------------------
+  // ARIA attributes
+  // -------------------------------------------------------------------------
+
+  it('has aria-haspopup="dialog"', () => {
+    render(
+      <DialogTrigger controls="my-dialog" open={false} onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toHaveAttribute(
+      "aria-haspopup",
+      "dialog",
+    );
+  });
+
+  it("sets aria-controls to the provided controls id", () => {
+    render(
+      <DialogTrigger controls="my-dialog" open={false} onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toHaveAttribute(
+      "aria-controls",
+      "my-dialog",
+    );
+  });
+
+  it('has aria-expanded="false" when open is false', () => {
+    render(
+      <DialogTrigger controls="my-dialog" open={false} onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+  });
+
+  it('has aria-expanded="true" when open is true', () => {
+    render(
+      <DialogTrigger controls="my-dialog" open onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+  });
+
+  it("updates aria-expanded when open prop toggles from false to true", () => {
+    const { rerender } = render(
+      <DialogTrigger controls="my-dialog" open={false} onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    rerender(
+      <DialogTrigger controls="my-dialog" open onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+  });
+
+  it("updates aria-expanded when open prop toggles from true to false", () => {
+    const { rerender } = render(
+      <DialogTrigger controls="my-dialog" open onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    rerender(
+      <DialogTrigger controls="my-dialog" open={false} onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Native button behavior
+  // -------------------------------------------------------------------------
+
+  it('has type="button" to prevent accidental form submission', () => {
+    render(
+      <DialogTrigger controls="my-dialog" open={false} onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toHaveAttribute(
+      "type",
+      "button",
+    );
+  });
+
+  it("fires onClick when clicked", async () => {
+    const user = userEvent.setup();
+    const handleClick = vi.fn();
+    render(
+      <DialogTrigger controls="my-dialog" open={false} onClick={handleClick}>
+        Open
+      </DialogTrigger>,
+    );
+    await user.click(screen.getByRole("button", { name: "Open" }));
+    expect(handleClick).toHaveBeenCalledOnce();
+  });
+
+  // -------------------------------------------------------------------------
+  // aria-controls + dialog id wiring
+  // -------------------------------------------------------------------------
+
+  it("aria-controls matches the id on the Dialog element", () => {
+    render(
+      <>
+        <DialogTrigger controls="wired-dialog" open={false} onClick={() => {}}>
+          Open
+        </DialogTrigger>
+        <Dialog open={false} onClose={() => {}} title="Wired" id="wired-dialog">
+          <button type="button">Action</button>
+        </Dialog>
+      </>,
+    );
+    const trigger = screen.getByRole("button", { name: "Open" });
+    const controlsId = trigger.getAttribute("aria-controls");
+    expect(document.getElementById(controlsId!)).not.toBeNull();
+  });
+
+  // -------------------------------------------------------------------------
+  // className passthrough
+  // -------------------------------------------------------------------------
+
+  it("applies className to the button element", () => {
+    render(
+      <DialogTrigger
+        controls="my-dialog"
+        open={false}
+        onClick={() => {}}
+        className="custom-trigger"
+      >
+        Open
+      </DialogTrigger>,
+    );
+    expect(screen.getByRole("button", { name: "Open" })).toHaveClass(
+      "custom-trigger",
+    );
+  });
+
+  // -------------------------------------------------------------------------
+  // Ref forwarding
+  // -------------------------------------------------------------------------
+
+  it("forwards ref to the underlying button element", () => {
+    const ref = { current: null as HTMLButtonElement | null };
+    render(
+      <DialogTrigger
+        ref={ref}
+        controls="my-dialog"
+        open={false}
+        onClick={() => {}}
+      >
+        Open
+      </DialogTrigger>,
+    );
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  // -------------------------------------------------------------------------
+  // Dev guard — controls not resolving
+  // -------------------------------------------------------------------------
+
+  it("logs a WCAG 4.1.2 console.error when controls does not resolve to a DOM element", () => {
+    render(
+      <DialogTrigger controls="does-not-exist" open={false} onClick={() => {}}>
+        Open
+      </DialogTrigger>,
+    );
+    const hit = errorSpy.mock.calls.find((call: unknown[]) =>
+      String(call[0]).includes("4.1.2"),
+    );
+    expect(hit).toBeDefined();
+  });
+
+  it("does not log a console.error when controls resolves to the Dialog element", () => {
+    render(
+      <>
+        <DialogTrigger controls="resolves-dialog" open={false} onClick={() => {}}>
+          Open
+        </DialogTrigger>
+        <Dialog open={false} onClose={() => {}} title="Resolves" id="resolves-dialog">
+          <button type="button">Action</button>
+        </Dialog>
+      </>,
+    );
+    const hit = errorSpy.mock.calls.find((call: unknown[]) =>
+      String(call[0]).includes("DialogTrigger") &&
+      String(call[0]).includes("4.1.2"),
+    );
+    expect(hit).toBeUndefined();
   });
 });

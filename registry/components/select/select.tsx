@@ -442,6 +442,15 @@ function Control({
           ? { "aria-labelledby": labelId }
           : {};
 
+  // Build the static description text so AT reads current selection when focus
+  // lands on the trigger (WCAG 1.3.1). Kept separate from the polite live
+  // region so AT reads it on focus rather than interrupting the user mid-task.
+  const selectionDescId = `${triggerId}-desc`;
+  const selectionDescText =
+    selected.length === 0
+      ? "None selected"
+      : `${selected.length} selected: ${selected.map((v) => optionLabels[v] ?? v).join(", ")}`;
+
   return (
     <div
       className={["artui-select-control", className].filter(Boolean).join(" ")}
@@ -449,10 +458,81 @@ function Control({
       data-open={open ? "true" : undefined}
       onPointerDown={handleFieldPointerDown}
     >
-      {/* Field: chips + label/placeholder. Grows and wraps; the actions region
-          stays pinned so the clear button and caret never move as chips wrap. */}
+      {/* Actions — DOM-first so the trigger is the FIRST tab stop inside the
+          control. CSS order pushes it visually to the right of the field
+          (CSS order does not affect focus/tab order per HTML spec). */}
+      <div className="artui-select-actions">
+        {/* Clear all — opt-in, only rendered when selection is non-empty. */}
+        {showClearAll && selected.length > 0 && (
+          <button
+            type="button"
+            aria-label={clearAllLabel}
+            className="artui-select-clear-all"
+            disabled={disabled}
+            onClick={handleClearAll}
+          >
+            {/* Decorative clear-all icon (circled X) — distinct from the per-chip
+                remove icon; screen readers use aria-label on the button. */}
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              width="15"
+              height="15"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="8" cy="8" r="6.25" />
+              <path d="M10 6l-4 4M6 6l4 4" />
+            </svg>
+          </button>
+        )}
+
+        {/* Trigger — first interactive element in DOM order so Tab lands here
+            before chip remove buttons (WCAG 2.1.1 / 2.4.3). */}
+        <button
+          ref={triggerRef}
+          id={triggerId}
+          type="button"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-controls={listboxId}
+          aria-describedby={selectionDescId}
+          disabled={disabled}
+          className="artui-select-trigger"
+          onClick={handleTriggerClick}
+          onKeyDown={handleTriggerKeyDown}
+          {...triggerNameProps}
+        >
+          {/* Caret — same chevron path as the single-mode native <select>. */}
+          <span aria-hidden="true" className="artui-select-caret">
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              width="12"
+              height="12"
+              viewBox="0 0 12 12"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M2 4l4 4 4-4" />
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      {/* Field — chips + label/placeholder. Grows and wraps; the actions region
+          stays pinned to the right via CSS order so the visual layout is
+          unchanged even though actions come first in DOM order. */}
       <div className="artui-select-field">
-        {/* Chips: DOM order is source order, so Tab visits remove buttons first. */}
+        {/* Chips — Tab reaches remove buttons AFTER the trigger because actions
+            precede the field in DOM order (WCAG 2.1.1 / 2.4.3). */}
         {selected.map((value) => {
           const label = optionLabels[value] ?? value;
           const removeBtnLabel = getRemoveLabel(label);
@@ -499,71 +579,12 @@ function Control({
         )}
       </div>
 
-      {/* Actions: pinned to the right, never wrap. Clear-all precedes the trigger
-          in the DOM so Tab reaches it before the open/close control. */}
-      <div className="artui-select-actions">
-        {/* Clear all: opt-in, only rendered when selection is non-empty. */}
-        {showClearAll && selected.length > 0 && (
-          <button
-            type="button"
-            aria-label={clearAllLabel}
-            className="artui-select-clear-all"
-            disabled={disabled}
-            onClick={handleClearAll}
-          >
-            {/* Decorative clear-all icon (circled X): distinct from the per-chip
-                remove icon; screen readers use aria-label on the button. */}
-            <svg
-              aria-hidden="true"
-              focusable="false"
-              width="15"
-              height="15"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="8" cy="8" r="6.25" />
-              <path d="M10 6l-4 4M6 6l4 4" />
-            </svg>
-          </button>
-        )}
-
-        {/* Trigger: the open/close control. Holds the decorative caret. */}
-        <button
-          ref={triggerRef}
-          id={triggerId}
-          type="button"
-          aria-haspopup="listbox"
-          aria-expanded={open}
-          aria-controls={listboxId}
-          disabled={disabled}
-          className="artui-select-trigger"
-          onClick={handleTriggerClick}
-          onKeyDown={handleTriggerKeyDown}
-          {...triggerNameProps}
-        >
-          {/* Caret: same chevron path as the single-mode native <select>. */}
-          <span aria-hidden="true" className="artui-select-caret">
-            <svg
-              aria-hidden="true"
-              focusable="false"
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M2 4l4 4 4-4" />
-            </svg>
-          </span>
-        </button>
-      </div>
+      {/* Visually-hidden static description — read by AT when trigger gains focus.
+          Kept separate from the polite live region so it's a persistent description,
+          not an interrupting announcement (WCAG 1.3.1). */}
+      <span id={selectionDescId} className="artui-select-sr-only">
+        {selectionDescText}
+      </span>
     </div>
   );
 }

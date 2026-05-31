@@ -1222,4 +1222,54 @@ describe("Select", () => {
     expect(selectedValues).toContain("be");
     expect(selectedValues).toContain("nl");
   });
+
+  // -------------------------------------------------------------------------
+  // Bug fix: trigger is first tab stop (WCAG 2.1.1 / 2.4.3)
+  // -------------------------------------------------------------------------
+
+  it("trigger receives focus before chip remove buttons in tab order (DOM order)", () => {
+    const { container } = render(<BasicSelect defaultValue={["be", "nl"]} />);
+    // DOM order determines tab order. The trigger must appear before any chip
+    // remove button in the document tree so Tab lands on the trigger first.
+    const trigger = container.querySelector(".artui-select-trigger") as HTMLElement;
+    const firstRemoveButton = container.querySelector(".artui-select-tag-remove") as HTMLElement;
+    expect(trigger).not.toBeNull();
+    expect(firstRemoveButton).not.toBeNull();
+    // Node.compareDocumentPosition: DOCUMENT_POSITION_FOLLOWING = 4 means
+    // firstRemoveButton comes after trigger in DOM order.
+    expect(trigger.compareDocumentPosition(firstRemoveButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  // -------------------------------------------------------------------------
+  // Bug fix: trigger aria-describedby announces selection summary (WCAG 1.3.1)
+  // -------------------------------------------------------------------------
+
+  it("trigger aria-describedby resolves to text listing selected option labels", () => {
+    render(<BasicSelect defaultValue={["be", "nl"]} />);
+    const trigger = screen.getByRole("button", { name: "Countries" });
+    const descId = trigger.getAttribute("aria-describedby");
+    expect(descId).toBeTruthy();
+    const descEl = document.getElementById(descId!);
+    expect(descEl?.textContent).toMatch(/Belgium/);
+    expect(descEl?.textContent).toMatch(/Netherlands/);
+  });
+
+  it("trigger aria-describedby description says none selected when empty", () => {
+    render(<BasicSelect />);
+    const trigger = screen.getByRole("button", { name: "Countries" });
+    const descId = trigger.getAttribute("aria-describedby");
+    const descEl = document.getElementById(descId!);
+    expect(descEl?.textContent).toMatch(/None selected/i);
+  });
+
+  it("trigger aria-describedby description updates when selection changes", async () => {
+    const user = userEvent.setup();
+    render(<BasicSelect />);
+    const trigger = screen.getByRole("button", { name: "Countries" });
+    const descId = trigger.getAttribute("aria-describedby")!;
+    await user.click(trigger);
+    await user.click(screen.getByRole("option", { name: /Belgium/ }));
+    const descEl = document.getElementById(descId);
+    expect(descEl?.textContent).toMatch(/Belgium/);
+  });
 });

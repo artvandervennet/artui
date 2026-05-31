@@ -94,7 +94,7 @@ export const meta: ComponentMeta = {
     {
       wcag: "2.1.1",
       description:
-        "All controls are native <button> elements. Arrow keys navigate the day grid. Tab cycles only among prev/next/close buttons inside the dialog.",
+        'Day cells are focusable role="gridcell" elements with a roving tabindex (APG Date Picker Dialog pattern); arrow keys are forwarded to the grid to move focus between days. Prev/next/close are native <button> elements. Tab cycles only among those three buttons inside the dialog.',
     },
     {
       wcag: "2.1.2",
@@ -124,7 +124,7 @@ export const meta: ComponentMeta = {
     {
       wcag: "4.1.2",
       description:
-        'Selected day has aria-selected="true". Today has aria-current="date". Nav buttons have aria-label with the target month name. aria-haspopup="dialog" and aria-expanded on the trigger.',
+        'Each day gridcell has an aria-label with the full date; the selected day has aria-selected="true", today has aria-current="date", and disabled days have aria-disabled="true". Nav buttons have aria-label with the target month name. aria-haspopup="dialog" and aria-expanded on the trigger.',
     },
     {
       wcag: "4.1.3",

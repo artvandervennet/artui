@@ -648,4 +648,77 @@ describe("Accordion", () => {
     expect(panelId).toBeTruthy();
     expect(document.getElementById(panelId!)).not.toBeNull();
   });
+
+  // -------------------------------------------------------------------------
+  // 31. Bug 1 regression: disabled summary is removed from the tab order
+  // A disabled <summary> must have tabIndex=-1 so Tab/Shift+Tab cannot
+  // land on it. Without this fix, a disabled summary kept its native
+  // tabIndex=0 and Tab could reach it, causing AT to announce the wrong
+  // item (the previously-focused enabled item) as context.
+  // -------------------------------------------------------------------------
+
+  it("disabled summary has tabIndex=-1 so Tab skips it", () => {
+    render(<ThreeItemAccordion middleDisabled />);
+    const summaries = getSummaries();
+    // summaries[1] is the disabled item (value="b")
+    expect(summaries[1]!.tabIndex).toBe(-1);
+  });
+
+  // -------------------------------------------------------------------------
+  // 32. Bug 1 regression: disabled summary has its own accessible name
+  // The disabled item's aria-controls must point at its own panel, not
+  // the previous item's panel. This verifies the id/aria-controls wiring
+  // is per-item (not shared), so AT reads the correct, disabled item.
+  // -------------------------------------------------------------------------
+
+  it("disabled summary aria-controls points at its own panel", () => {
+    render(<ThreeItemAccordion middleDisabled />);
+    const summaries = getSummaries();
+    const disabledSummary = summaries[1]!;
+
+    expect(disabledSummary).toHaveAttribute("aria-disabled", "true");
+
+    const panelId = disabledSummary.getAttribute("aria-controls");
+    expect(panelId).toBeTruthy();
+
+    const panel = document.getElementById(panelId!);
+    expect(panel).not.toBeNull();
+    // The panel's aria-labelledby must point back at the disabled summary's id
+    // so AT resolves the disabled item's own name — not the previous item's.
+    expect(panel!.getAttribute("aria-labelledby")).toBe(disabledSummary.id);
+  });
+
+  // -------------------------------------------------------------------------
+  // 33. Bug 2 regression: enabled summaries remain in the tab order
+  // Counterpart to test 31 — the fix for disabled items must not
+  // accidentally remove enabled summaries from the tab order.
+  // -------------------------------------------------------------------------
+
+  it("enabled summaries have tabIndex=0 and remain in the tab order", () => {
+    render(<ThreeItemAccordion middleDisabled />);
+    const summaries = getSummaries();
+    // summaries[0] (value="a") and summaries[2] (value="c") are enabled
+    expect(summaries[0]!.tabIndex).toBe(0);
+    expect(summaries[2]!.tabIndex).toBe(0);
+  });
+
+  // -------------------------------------------------------------------------
+  // 34. Bug 2 regression: Tab skips disabled summary and reaches the next
+  // enabled summary. With tabIndex=-1 on the disabled summary, the natural
+  // Tab order is: [0] enabled → [2] enabled (skipping [1] disabled).
+  // -------------------------------------------------------------------------
+
+  it("Tab skips the disabled summary and moves to the next enabled summary", async () => {
+    const user = userEvent.setup();
+    render(<ThreeItemAccordion middleDisabled />);
+    const summaries = getSummaries();
+
+    // Focus the first enabled summary, then Tab once.
+    summaries[0]!.focus();
+    await user.tab();
+
+    // The disabled middle summary (index 1) must be skipped; Tab should land
+    // on the third summary (index 2) which is enabled.
+    expect(document.activeElement).toBe(summaries[2]);
+  });
 });

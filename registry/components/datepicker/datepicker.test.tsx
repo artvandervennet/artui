@@ -140,11 +140,8 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const selected = screen.getByRole("button", { name: "May 15, 2026" });
-    expect(selected.closest('[role="gridcell"]')).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
+    const selected = screen.getByRole("gridcell", { name: "May 15, 2026" });
+    expect(selected).toHaveAttribute("aria-selected", "true");
   });
 
   it('non-selected days have aria-selected="false"', async () => {
@@ -158,10 +155,8 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const dayFourteen = screen.getByRole("button", { name: "May 14, 2026" });
-    expect(dayFourteen.closest('[role="gridcell"]')).not.toHaveAttribute(
-      "aria-selected",
-    );
+    const dayFourteen = screen.getByRole("gridcell", { name: "May 14, 2026" });
+    expect(dayFourteen).toHaveAttribute("aria-selected", "false");
   });
 
   it('disabled days have aria-disabled="true" and disabled attribute', async () => {
@@ -177,9 +172,30 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const dayOne = screen.getByRole("button", { name: "May 1, 2026" });
+    const dayOne = screen.getByRole("gridcell", { name: "May 1, 2026" });
     expect(dayOne).toHaveAttribute("aria-disabled", "true");
-    expect(dayOne).toBeDisabled();
+  });
+
+  // -------------------------------------------------------------------------
+  // Weekday column headers
+  // -------------------------------------------------------------------------
+
+  it("exposes the full weekday name as the column header accessible name", async () => {
+    const user = userEvent.setup();
+    render(
+      <Datepicker
+        label="Date"
+        value={MAY_15}
+        onChange={() => {}}
+        locale="en-US"
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /open date picker/i }));
+    // The visible "Sun" is aria-hidden; the column header's accessible name is
+    // the full day name so screen readers announce "Sunday", not "Sun".
+    expect(
+      screen.getByRole("columnheader", { name: "Sunday" }),
+    ).toBeInTheDocument();
   });
 
   // -------------------------------------------------------------------------
@@ -198,7 +214,7 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    await user.click(screen.getByRole("button", { name: "May 15, 2026" }));
+    await user.click(screen.getByRole("gridcell", { name: "May 15, 2026" }));
     expect(handleChange).toHaveBeenCalledWith(new Date(2026, 4, 15));
   });
 
@@ -216,7 +232,7 @@ describe("Datepicker", () => {
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
     const disabled = document.querySelector<HTMLElement>(
-      'button[aria-disabled="true"]',
+      '[role="gridcell"][aria-disabled="true"]',
     );
     // fireEvent bypasses pointer-events:none; the handler still guards with isDisabled check
     fireEvent.click(disabled!);
@@ -238,11 +254,30 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const focused = screen.getByRole("button", { name: "May 15, 2026" });
+    const focused = screen.getByRole("gridcell", { name: "May 15, 2026" });
     focused.focus();
     await user.keyboard("{ArrowRight}");
-    const nextDay = screen.getByRole("button", { name: "May 16, 2026" });
+    const nextDay = screen.getByRole("gridcell", { name: "May 16, 2026" });
     expect(document.activeElement).toBe(nextDay);
+  });
+
+  it("moves the data-focused-day marker onto the newly focused day so the focus ring follows", async () => {
+    const user = userEvent.setup();
+    render(
+      <Datepicker
+        label="Date"
+        value={MAY_15}
+        onChange={() => {}}
+        locale="en-US"
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /open date picker/i }));
+    const focused = screen.getByRole("gridcell", { name: "May 15, 2026" });
+    focused.focus();
+    await user.keyboard("{ArrowRight}");
+    const nextDay = screen.getByRole("gridcell", { name: "May 16, 2026" });
+    expect(nextDay).toHaveAttribute("data-focused-day", "true");
+    expect(focused).not.toHaveAttribute("data-focused-day");
   });
 
   it("ArrowDown moves focus to the same weekday next week", async () => {
@@ -256,11 +291,47 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const focused = screen.getByRole("button", { name: "May 15, 2026" });
+    const focused = screen.getByRole("gridcell", { name: "May 15, 2026" });
     focused.focus();
     await user.keyboard("{ArrowDown}");
-    const nextWeek = screen.getByRole("button", { name: "May 22, 2026" });
+    const nextWeek = screen.getByRole("gridcell", { name: "May 22, 2026" });
     expect(document.activeElement).toBe(nextWeek);
+  });
+
+  it("ArrowLeft moves focus to the previous day", async () => {
+    const user = userEvent.setup();
+    render(
+      <Datepicker
+        label="Date"
+        value={MAY_15}
+        onChange={() => {}}
+        locale="en-US"
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /open date picker/i }));
+    const focused = screen.getByRole("gridcell", { name: "May 15, 2026" });
+    focused.focus();
+    await user.keyboard("{ArrowLeft}");
+    const prevDay = screen.getByRole("gridcell", { name: "May 14, 2026" });
+    expect(document.activeElement).toBe(prevDay);
+  });
+
+  it("ArrowUp moves focus to the same weekday previous week", async () => {
+    const user = userEvent.setup();
+    render(
+      <Datepicker
+        label="Date"
+        value={MAY_15}
+        onChange={() => {}}
+        locale="en-US"
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: /open date picker/i }));
+    const focused = screen.getByRole("gridcell", { name: "May 15, 2026" });
+    focused.focus();
+    await user.keyboard("{ArrowUp}");
+    const prevWeek = screen.getByRole("gridcell", { name: "May 8, 2026" });
+    expect(document.activeElement).toBe(prevWeek);
   });
 
   it("Enter on a focused day selects it, calls onChange, and closes dialog", async () => {
@@ -275,7 +346,7 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const dayBtn = screen.getByRole("button", { name: "May 16, 2026" });
+    const dayBtn = screen.getByRole("gridcell", { name: "May 16, 2026" });
     dayBtn.focus();
     await user.keyboard("{Enter}");
     expect(handleChange).toHaveBeenCalledWith(new Date(2026, 4, 16));
@@ -293,10 +364,10 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const dayBtn = screen.getByRole("button", { name: "May 15, 2026" });
+    const dayBtn = screen.getByRole("gridcell", { name: "May 15, 2026" });
     dayBtn.focus();
     await user.keyboard("{Home}");
-    const firstDay = screen.getByRole("button", { name: "May 1, 2026" });
+    const firstDay = screen.getByRole("gridcell", { name: "May 1, 2026" });
     expect(document.activeElement).toBe(firstDay);
   });
 
@@ -311,10 +382,10 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const dayBtn = screen.getByRole("button", { name: "May 15, 2026" });
+    const dayBtn = screen.getByRole("gridcell", { name: "May 15, 2026" });
     dayBtn.focus();
     await user.keyboard("{End}");
-    const lastDay = screen.getByRole("button", { name: "May 31, 2026" });
+    const lastDay = screen.getByRole("gridcell", { name: "May 31, 2026" });
     expect(document.activeElement).toBe(lastDay);
   });
 
@@ -329,7 +400,7 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const dayBtn = screen.getByRole("button", { name: "May 15, 2026" });
+    const dayBtn = screen.getByRole("gridcell", { name: "May 15, 2026" });
     dayBtn.focus();
     await user.keyboard("{PageDown}");
     const heading = document.querySelector(".artui-dp-heading");
@@ -347,7 +418,7 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    const dayBtn = screen.getByRole("button", { name: "May 15, 2026" });
+    const dayBtn = screen.getByRole("gridcell", { name: "May 15, 2026" });
     dayBtn.focus();
     await user.keyboard("{PageUp}");
     const heading = document.querySelector(".artui-dp-heading");
@@ -436,7 +507,9 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    expect(screen.getByRole("button", { name: "May 14, 2026" })).toBeDisabled();
+    expect(
+      screen.getByRole("gridcell", { name: "May 14, 2026" }),
+    ).toHaveAttribute("aria-disabled", "true");
   });
 
   it("days after max are disabled", async () => {
@@ -451,7 +524,9 @@ describe("Datepicker", () => {
       />,
     );
     await user.click(screen.getByRole("button", { name: /open date picker/i }));
-    expect(screen.getByRole("button", { name: "May 16, 2026" })).toBeDisabled();
+    expect(
+      screen.getByRole("gridcell", { name: "May 16, 2026" }),
+    ).toHaveAttribute("aria-disabled", "true");
   });
 
   // -------------------------------------------------------------------------
@@ -476,10 +551,12 @@ describe("Datepicker", () => {
   // Live region
   // -------------------------------------------------------------------------
 
-  it("aria-live region exists in the DOM when calendar is closed", () => {
+  it("aria-live region lives inside the dialog so aria-modal does not hide its announcements", async () => {
+    const user = userEvent.setup();
     render(<Datepicker label="Date" value={null} onChange={() => {}} />);
-    const live = document.querySelector('[aria-live="polite"]');
-    expect(live).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /open date picker/i }));
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.querySelector('[aria-live="polite"]')).toBeInTheDocument();
   });
 
   it("aria-live region text updates when navigating months", async () => {
@@ -497,5 +574,95 @@ describe("Datepicker", () => {
     const initialText = live?.textContent;
     await user.click(screen.getByRole("button", { name: /next month/i }));
     expect(live?.textContent).not.toBe(initialText);
+  });
+
+  // -------------------------------------------------------------------------
+  // Focus order on open (WCAG 2.4.3)
+  // -------------------------------------------------------------------------
+
+  it("focuses the previous-month button when calendar opens", async () => {
+    const user = userEvent.setup();
+    render(
+      <Datepicker label="Date" value={MAY_15} onChange={() => {}} locale="en-US" />,
+    );
+    await user.click(screen.getByRole("button", { name: /open date picker/i }));
+    const prevBtn = screen.getByRole("button", { name: /previous month/i });
+    expect(document.activeElement).toBe(prevBtn);
+  });
+
+  it("announces the selected date in the live region when calendar opens", async () => {
+    const user = userEvent.setup();
+    render(
+      <Datepicker label="Date" value={MAY_15} onChange={() => {}} locale="en-US" />,
+    );
+    await user.click(screen.getByRole("button", { name: /open date picker/i }));
+    const live = document.querySelector('[aria-live="polite"]');
+    expect(live?.textContent).toMatch(/May 15, 2026/i);
+    expect(live?.textContent).toMatch(/selected/i);
+  });
+
+  it('announces "No date selected" in the live region when no value is set on open', async () => {
+    const user = userEvent.setup();
+    render(<Datepicker label="Date" value={null} onChange={() => {}} locale="en-US" />);
+    await user.click(screen.getByRole("button", { name: /open date picker/i }));
+    const live = document.querySelector('[aria-live="polite"]');
+    expect(live?.textContent).toMatch(/no date selected/i);
+  });
+
+  // -------------------------------------------------------------------------
+  // Specific validation error messages (WCAG 3.3.1)
+  // -------------------------------------------------------------------------
+
+  it("shows a month-range error when the month part is out of 1-12", () => {
+    render(
+      <Datepicker label="Date" value={null} onChange={() => {}} locale="en-US" />,
+    );
+    const input = screen.getByRole("textbox");
+    // MM/DD/YYYY — month 99 is invalid
+    fireEvent.change(input, { target: { value: "99/15/2026" } });
+    const errorEl = document.getElementById(
+      input.getAttribute("aria-describedby")!,
+    );
+    expect(errorEl?.textContent).toMatch(/month must be 1/i);
+  });
+
+  it("shows a day-overflow error naming the day and month when the day does not exist", () => {
+    render(
+      <Datepicker label="Date" value={null} onChange={() => {}} locale="en-US" />,
+    );
+    const input = screen.getByRole("textbox");
+    // MM/DD/YYYY — February 30 doesn't exist
+    fireEvent.change(input, { target: { value: "02/30/2026" } });
+    const errorEl = document.getElementById(
+      input.getAttribute("aria-describedby")!,
+    );
+    expect(errorEl?.textContent).toMatch(/30 February isn't a valid date/i);
+  });
+
+  it("shows a day-overflow error for DD/MM/YYYY locale when day does not exist in month", () => {
+    render(
+      <Datepicker label="Date" value={null} onChange={() => {}} locale="nl-BE" />,
+    );
+    const input = screen.getByRole("textbox");
+    // DD/MM/YYYY — 30 February doesn't exist
+    fireEvent.change(input, { target: { value: "30/02/2026" } });
+    const errorEl = document.getElementById(
+      input.getAttribute("aria-describedby")!,
+    );
+    expect(errorEl?.textContent).toMatch(/30/);
+    expect(errorEl?.textContent).toMatch(/februari|february/i);
+  });
+
+  it("shows a generic invalid-date error for an otherwise malformed 8-digit input", () => {
+    render(
+      <Datepicker label="Date" value={null} onChange={() => {}} locale="en-US" />,
+    );
+    const input = screen.getByRole("textbox");
+    // Month 13 triggers bad-month
+    fireEvent.change(input, { target: { value: "13/15/2026" } });
+    const errorEl = document.getElementById(
+      input.getAttribute("aria-describedby")!,
+    );
+    expect(errorEl?.textContent).toMatch(/valid date/i);
   });
 });
