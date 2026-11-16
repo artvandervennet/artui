@@ -1,10 +1,26 @@
+/* The docs site is painted with Gesso (https://github.com/artvandervennet/gesso) on top of
+   Fumadocs. Fumadocs keeps the structure: sidebar, search, table of contents. Gesso supplies
+   the colours (the "Lagoon" theme, light and dark), the typefaces, and the landing page's layout.
+
+   Cascade order. Gesso's tokens come first, so Tailwind's own theme wins where the two use the
+   same variable name (--leading-tight, --font-mono). Gesso's layout classes come after
+   Tailwind's base and before its utilities, so a utility always beats them. The layout
+   stylesheet gets a layer name of its own for that: a "gesso.layout" layer would sort together
+   with "gesso.tokens", before Tailwind's base, whose reset would then undo it. */
+@layer gesso.tokens, theme, base, gesso-layout, components, utilities;
+
 @import "tailwindcss";
 @import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 @import "../../../registry/styles/artui-tokens.css";
+@import "@vandervennet/gesso/fonts.css";
+@import "@vandervennet/gesso/core.css" layer(gesso.tokens);
+@import "../gesso-theme.css" layer(gesso.tokens);
+@import "@vandervennet/gesso/layout.css" layer(gesso-layout);
 
 @source "../node_modules/fumadocs-ui/dist/**/*.js";
 
+/* Artui's own teal. The component demos and the focus ring keep using it, unchanged. */
 :root {
   --brand-50: oklch(0.97 0.02 200);
   --brand-200: oklch(0.88 0.07 200);
@@ -25,10 +41,59 @@
   --artui-accent-fg: hsl(0 0% 9%);
 }
 
-/* Light mode: clean white base with clear background hierarchy and WCAG AA contrast.
-   muted-foreground at hsl(0 0% 40%) gives ~5.4:1 on white, well above AA.
-   Solid border (no alpha) prevents bleed on coloured backgrounds. */
+/* Typefaces: Gesso's. Young Serif for headings (--font-display, from Gesso's core). */
 @theme {
+  --font-sans: "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, Menlo, monospace;
+}
+
+/* Fumadocs' colours, pointed at Gesso's roles. The roles change with the scheme (Fumadocs puts
+   .dark on <html>, which Gesso answers to), so one mapping covers light and dark. It is stated
+   for .dark as well because Fumadocs ships its own dark values that would otherwise win, and
+   for painted bands and the header's switch, where the roles have other values than on the page. */
+:root,
+.light,
+.dark,
+[data-paint],
+.header-switch {
+  --color-fd-background: var(--surface);
+  --color-fd-foreground: var(--ink);
+  --color-fd-card: var(--surface-raised);
+  --color-fd-card-foreground: var(--ink);
+  --color-fd-popover: var(--surface-raised);
+  --color-fd-popover-foreground: var(--ink);
+  --color-fd-muted: var(--surface-sunken);
+  --color-fd-muted-foreground: var(--ink-muted);
+  --color-fd-border: var(--rule);
+  --color-fd-secondary: var(--surface-sunken);
+  --color-fd-secondary-foreground: var(--ink);
+  --color-fd-accent: var(--accent-wash);
+  --color-fd-accent-foreground: var(--ink);
+  --color-fd-primary: var(--accent);
+  --color-fd-primary-foreground: var(--on-accent);
+  --color-fd-ring: var(--focus);
+  --color-fd-info: var(--info);
+  --color-fd-warning: var(--warning);
+  --color-fd-error: var(--danger);
+  --color-fd-success: var(--success);
+  --color-fd-idea: var(--warning);
+}
+
+/* ── The component demos keep the look they had ─────────────────────────────────────────────
+   The demos render the real components in the page, not in a frame, and the components inherit
+   fonts and colours from whatever surrounds them. So the stage they stand on, and the place
+   toasts are mounted, are pinned to the values the site had before it was repainted. Artui
+   ships components, not a look: the demos must show them as a fresh install would. */
+.demo-stage,
+#artui-toast-container {
+  --font-sans:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  --default-font-family: var(--font-sans);
+  --default-mono-font-family: var(--font-mono);
   --color-fd-background: hsl(0 0% 100%);
   --color-fd-foreground: hsl(0 0% 3.9%);
   --color-fd-card: hsl(0 0% 99%);
@@ -42,44 +107,42 @@
   --color-fd-secondary-foreground: hsl(0 0% 9%);
   --color-fd-accent: hsl(0 0% 93%);
   --color-fd-accent-foreground: hsl(0 0% 9%);
-}
-
-:root,
-.light {
   --color-fd-primary: var(--brand-600);
+  --color-fd-primary-foreground: hsl(0 0% 98%);
   --color-fd-ring: var(--brand-500);
-}
-
-.dark {
-  --color-fd-primary: var(--brand-400);
-  --color-fd-ring: var(--brand-400);
-}
-
-#nd-toc a[data-active="true"],
-#nd-tocnav a[data-active="true"] {
-  color: var(--color-fd-primary);
-}
-
-.prose a:not(.not-prose a, [data-card]) {
-  color: var(--color-fd-primary);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  text-decoration-color: color-mix(in oklch, var(--color-fd-primary) 40%, transparent);
-  transition: text-decoration-color 150ms ease;
-}
-
-.prose a:not(.not-prose a, [data-card]):hover {
-  text-decoration-color: var(--color-fd-primary);
-}
-
-/* Minimalist component tones: strip elevation and desaturate callout accents */
-:root {
   --color-fd-info: oklch(0.55 0.03 240);
   --color-fd-warning: oklch(0.55 0.03 60);
   --color-fd-error: oklch(0.55 0.03 20);
   --color-fd-success: oklch(0.55 0.03 150);
   --color-fd-idea: oklch(0.55 0.03 60);
+  font-family: var(--font-sans);
+  /* the text colour the docs' prose had: the foreground at 90% */
+  color: color-mix(in oklab, var(--color-fd-foreground) 90%, transparent);
+}
+
+.dark .demo-stage,
+.dark #artui-toast-container {
+  --color-fd-background: hsl(0, 0%, 7.04%);
+  --color-fd-foreground: hsl(0, 0%, 92%);
+  --color-fd-card: hsl(0, 0%, 9.8%);
+  --color-fd-card-foreground: hsl(0, 0%, 98%);
+  --color-fd-popover: hsl(0, 0%, 11.6%);
+  --color-fd-popover-foreground: hsl(0, 0%, 86.9%);
+  --color-fd-muted: hsl(0, 0%, 12.9%);
+  --color-fd-muted-foreground: hsla(0, 0%, 70%, 0.8);
+  --color-fd-border: hsla(0, 0%, 40%, 20%);
+  --color-fd-secondary: hsl(0, 0%, 12.9%);
+  --color-fd-secondary-foreground: hsl(0, 0%, 92%);
+  --color-fd-accent: hsla(0, 0%, 40.9%, 30%);
+  --color-fd-accent-foreground: hsl(0, 0%, 90%);
+  --color-fd-primary: var(--brand-400);
+  --color-fd-primary-foreground: hsl(0 0% 9%);
+  --color-fd-ring: var(--brand-400);
+}
+
+/* Toasts are mounted on <body>, outside the prose, where the text colour was the plain foreground. */
+#artui-toast-container {
+  color: var(--color-fd-foreground);
 }
 
 @layer utilities {
@@ -92,8 +155,217 @@
   }
 }
 
-*:focus-visible {
+/* Gesso's buttons and header draw their own focus ring. :where() keeps this rule as weak as it was. */
+*:focus-visible:where(:not(art-button > *, art-header > *)) {
   outline: 2px dotted var(--color-fd-ring);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ── Landing page ───────────────────────────────────────────────────────────────────────────
+   Built on Gesso's page anatomy (layout.css): a sticky header, painted bands, a hero, two-column
+   sections, cards. What is here is the text styling Gesso's base stylesheet would give a plain
+   page; that stylesheet isn't loaded, because Fumadocs and Tailwind have their own. */
+.landing {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+}
+
+/* A link to a section lands its top edge right under the sticky header. */
+html:has(.landing) {
+  scroll-padding-block-start: var(--art-header-height, 3.5rem);
+}
+
+/* Until the header's script has loaded, it is a plain row of links. */
+.landing art-header:not(:defined) {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-6);
+  padding: var(--space-3) var(--gutter);
+}
+
+.landing :focus-visible:where(:not(art-button > *, art-header > *)) {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.landing :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-weight: var(--weight-regular);
+  text-wrap: balance;
+}
+
+/* Gesso's hero is sized for a name. This one holds a sentence. */
+.landing .hero h1 {
+  font-size: clamp(2.5rem, 1rem + 6.4vw, 6.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  max-inline-size: 14ch;
+}
+
+.landing h2 {
+  font-size: var(--step-4);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.landing h3 {
+  font-size: var(--step-2);
+  line-height: 1.25;
+}
+
+.landing p,
+.landing li {
+  max-inline-size: var(--measure);
+  text-wrap: pretty;
+}
+
+.landing :is(p, li) > a {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.22em;
+}
+
+.landing :is(p, li) > a:hover {
+  text-decoration-thickness: 0.18em;
+}
+
+.landing code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-sunken);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-chip);
+}
+
+.landing .eyebrow {
+  font-size: var(--step--1);
+  font-weight: var(--weight-medium);
+  color: var(--ink-muted);
+  margin-block-end: var(--space-6);
+}
+
+/* the one number the whole library exists for */
+.landing .statement {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  line-height: 1.25;
+  max-inline-size: 26ch;
+  text-wrap: balance;
+  margin-block-end: var(--space-6);
+}
+
+.landing .statement + p {
+  font-size: var(--step-1);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.landing .card {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+}
+
+.landing .card p,
+.landing .limits p {
+  color: var(--ink-muted);
+}
+
+.landing .limits {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.landing .limits strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: var(--weight-regular);
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+/* The docs' own light/dark switch, standing in the header: it takes the header's inks, and is
+   as tall as any other target. */
+.header-switch {
+  --color-fd-border: color-mix(in oklch, var(--ink) 40%, transparent);
+  display: inline-flex;
+}
+
+.header-switch button {
+  min-block-size: 2.75rem;
+  padding-inline: var(--space-2);
+  cursor: pointer;
+}
+
+/* the footer is a different paint from the section above it, so it needs room at the top */
+.landing .page-footer .inner {
+  padding-block-start: var(--space-12);
+}
+
+.landing .page-footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-6);
+}
+
+.landing .page-footer li > a {
+  display: inline-block;
+  padding-block: var(--space-3);
+}
+
+/* ── Docs pages ─────────────────────────────────────────────────────────────────────────── */
+
+/* The sidebar is a band of its own: the second paint, beside the page's first. Stated for
+   .dark too, because Fumadocs gives the dark sidebar greys of its own. */
+#nd-sidebar,
+.dark #nd-sidebar {
+  --color-fd-background: var(--paint-2);
+  --color-fd-card: var(--paint-2);
+  --color-fd-muted: var(--paint-2-sunken);
+  --color-fd-muted-foreground: var(--ink-muted);
+  --color-fd-secondary: var(--paint-2-sunken);
+  --color-fd-accent: var(--paint-2-sunken);
+  --color-fd-border: var(--paint-2-rule);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: var(--weight-regular);
+  line-height: 1;
+}
+
+/* Headings in Young Serif, as everywhere in Gesso. Not inside a demo. */
+#nd-page h1,
+.prose :where(h1, h2, h3, h4):not(:where(.not-prose, .not-prose *)) {
+  font-family: var(--font-display);
+  font-weight: var(--weight-regular);
+  letter-spacing: -0.01em;
+}
+
+#nd-toc a[data-active="true"],
+#nd-tocnav a[data-active="true"] {
+  color: var(--color-fd-primary);
+}
+
+.prose a:not(.not-prose a, [data-card]) {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.22em;
+}
+
+.prose a:not(.not-prose a, [data-card]):hover {
+  text-decoration-thickness: 0.18em;
 }

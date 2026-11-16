@@ -1,0 +1,8 @@
+{
+  "id": "lagoon",
+  "label": "Lagoon",
+  "description": "Artui's teal with warm sand and coral.",
+  "brand": { "name": "Lagoon teal", "code": "PG50", "oklch": [42, 0.08, 200] },
+  "partner": { "name": "Warm sand", "code": "PY42", "oklch": [87, 0.075, 82] },
+  "complement": { "name": "Coral", "code": "PO73", "oklch": [63, 0.16, 32] }
+}

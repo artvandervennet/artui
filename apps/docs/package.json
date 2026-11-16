@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "copy-registry": "node scripts/copy-registry.mjs",
+    "theme": "gesso-theme theme.json --out gesso-theme.css",
     "prebuild": "pnpm copy-registry",
     "build": "next build",
     "start": "next start",
@@ -16,6 +17,7 @@
   "dependencies": {
     "@artui/registry": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@vandervennet/gesso": "github:artvandervennet/gesso#v1.2.3",
     "fumadocs-core": "^16.8.11",
     "fumadocs-mdx": "^15.0.4",
     "fumadocs-ui": "^16.8.11",

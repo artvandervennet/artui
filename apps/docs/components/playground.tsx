@@ -232,7 +232,8 @@ export function Playground({ preview, code, controls, previewClass, codeNote }: 
         {/* Preview: always visible, grows to fill its half.
          * Stacked (mobile) → top corners; side-by-side (desktop) → left corners. */}
         <div
-          className={`rounded-t-xl md:rounded-t-none md:rounded-l-xl md:flex-1 ${previewClass ?? 'bg-fd-card p-8 min-h-[200px] flex items-center justify-center'}`}
+          // demo-stage: the docs site is repainted, the components are not. See global.css.
+          className={`demo-stage rounded-t-xl md:rounded-t-none md:rounded-l-xl md:flex-1 ${previewClass ?? 'bg-fd-card p-8 min-h-[200px] flex items-center justify-center'}`}
         >
           {preview}
         </div>
