@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="artui-logo-title">
+  <title id="artui-logo-title">Artui</title>
+  <!-- Artui: the A of Artui as an element that has keyboard focus. The tile is the docs' Lagoon
+       teal, the letter is its warm sand, and the ring is the teal Artui's own focus ring uses. -->
+  <rect width="512" height="512" rx="116" fill="#005a5e"/>
+  <!-- The focus ring, set off from the letter the way outline-offset sets it off from an element -->
+  <rect x="61" y="61" width="390" height="390" rx="74" fill="none" stroke="#3aced6" stroke-width="26"/>
+  <!-- The A: a flat top, two legs, a crossbar -->
+  <path fill="#edd09c" fill-rule="evenodd" d="M225 148H287L386 364H320L305.3 332H206.7L192 364H126ZM256 224.4L283.3 284H228.7Z"/>
+</svg>
