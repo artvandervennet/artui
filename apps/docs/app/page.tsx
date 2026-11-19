@@ -14,11 +14,7 @@ export default function HomePage() {
       <GessoElements />
       {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: art-header is a custom element with no role of its own; it is the page's banner */}
       <art-header role="banner" label="On this page" data-paint="deep">
-        {/* The logo stands before the name, inside the same link. The name names the link, so
-            the picture has an empty alt. Gesso's layout.css sizes it. */}
         <a slot="wordmark" href="#top">
-          {/* biome-ignore lint/performance/noImgElement: an 800-byte SVG, which next/image has nothing to optimise; art-header copies this element as it stands */}
-          <img src="/logo.svg" alt="" width={28} height={28} />
           artui
         </a>
         <a href="#contract">The contract</a>

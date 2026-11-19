@@ -346,15 +346,6 @@ html:has(.landing) {
   line-height: 1;
 }
 
-/* The logo before the name in the docs' sidebar, at the size Gesso gives it in <art-header>. */
-.wordmark img {
-  display: inline-block;
-  block-size: 1.5em;
-  inline-size: auto;
-  vertical-align: -0.375em;
-  margin-inline-end: 0.4em;
-}
-
 /* Headings in Young Serif, as everywhere in Gesso. Not inside a demo. */
 #nd-page h1,
 .prose :where(h1, h2, h3, h4):not(:where(.not-prose, .not-prose *)) {
