@@ -221,6 +221,14 @@ export default function HomePage() {
                 </li>
               </ul>
             </nav>
+            {/* Gesso's footer note: the same words on every site, with this site's repo. */}
+            <p className="footer-note">
+              Something not quite right, or something missing?{' '}
+              <a href={`${GITHUB_URL}/issues/new/choose`} target="_blank" rel="noreferrer">
+                Open an issue on GitHub
+              </a>
+              .
+            </p>
           </div>
           <art-signature year="2026" animate>
             Art Van der Vennet
