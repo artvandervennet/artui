@@ -17,7 +17,7 @@
   "dependencies": {
     "@artui/registry": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@vandervennet/gesso": "github:artvandervennet/gesso#v1.6.1",
+    "@vandervennet/gesso": "github:artvandervennet/gesso#v1.6.2",
     "fumadocs-core": "^16.8.11",
     "fumadocs-mdx": "^15.0.4",
     "fumadocs-ui": "^16.8.11",
