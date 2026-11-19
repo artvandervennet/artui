@@ -9,7 +9,7 @@ const program = new Command();
 
 program
   .name('artui')
-  .description('Install accessible artui components into your project.')
+  .description('Install accessible Artui components into your project.')
   .version('0.0.0');
 
 registerInit(program);

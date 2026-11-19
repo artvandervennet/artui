@@ -3,7 +3,7 @@
  *
  * These types make missing or placeholder accessibility data a TypeScript
  * error, not a silent runtime mistake. They are the §1.4.2 "fouten onmogelijk
- * maken via TypeScript" layer of the artui enforcement model.
+ * maken via TypeScript" layer of the Artui enforcement model.
  */
 
 /**

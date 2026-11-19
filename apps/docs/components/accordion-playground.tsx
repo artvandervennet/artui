@@ -28,7 +28,7 @@ const ITEMS = [
     value: 'native',
     label: 'Built on native <details>',
     content:
-      'The trigger-to-panel relationship, hidden-when-closed behaviour, and Enter/Space toggle are all provided by the browser for free. artui adds the coordination and keyboard patterns on top.',
+      'The trigger-to-panel relationship, hidden-when-closed behaviour, and Enter/Space toggle are all provided by the browser for free. Artui adds the coordination and keyboard patterns on top.',
   },
 ];
 

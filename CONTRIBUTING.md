@@ -1,4 +1,4 @@
-# Contributing to artui
+# Contributing to Artui
 
 Thanks for considering a contribution. The whole point of this library is
 that accessibility violations should never reach production — and the

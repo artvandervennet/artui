@@ -3,7 +3,7 @@ title: FAQ
 description: Common questions about distribution, versioning, and scope.
 ---
 
-## Is artui a runtime package?
+## Is Artui a runtime package?
 
 No. There is no `npm install artui`. The `artui` CLI is a one-off installer
 that copies component source into your repo. After that the components are
@@ -20,7 +20,7 @@ not pin to a minor version.
 - **Radix** ships runtime primitives. It is exhaustive, headless, and you
   receive its components as compiled dependencies.
 - **shadcn/ui** copies styled components into your repo on top of Radix.
-- **artui** copies *unstyled* accessibility-first primitives, built on
+- **Artui** copies *unstyled* accessibility-first primitives, built on
   native elements where possible (`<details>`, `<dialog>`, `<input
   type="date">`) and falling back to ARIA only when the platform genuinely
   lacks a primitive. The compile-time and dev-overlay enforcement is the
@@ -44,7 +44,7 @@ The registry has its own semver. `components.json` pins a version, and the
 docs banner on every component page tells you which version those docs
 describe. Major bumps are accompanied by a migration note in the changelog.
 
-## Does artui handle internationalisation?
+## Does Artui handle internationalisation?
 
 Not directly. Components do not ship strings. Where a string would be
 required (e.g. a default close-button label), the component requires the

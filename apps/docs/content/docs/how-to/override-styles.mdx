@@ -1,9 +1,9 @@
 ---
 title: Override component styles
-description: Safely restyle copied artui components by editing the CSS files the CLI installed into your repo, without breaking keyboard or screen-reader behaviour.
+description: Safely restyle copied Artui components by editing the CSS files the CLI installed into your repo, without breaking keyboard or screen-reader behaviour.
 ---
 
-Because artui distributes source (shadcn-style), the component `.tsx` and `.css` files the CLI copied into your project are yours to edit directly. There is no runtime package to patch and no theming API to work around.
+Because Artui distributes source (shadcn-style), the component `.tsx` and `.css` files the CLI copied into your project are yours to edit directly. There is no runtime package to patch and no theming API to work around.
 
 ## How styles are structured
 
@@ -147,7 +147,7 @@ Screen readers use `aria-expanded` to announce collapsed and expanded state. Rem
 /* never */
 <summary
   onKeyDown={(e) => {
-    // intercepting all keys to suppress artui behaviour
+    // intercepting all keys to suppress Artui behaviour
     e.preventDefault();
   }}
 >

@@ -1,4 +1,4 @@
-# artui
+# Artui
 
 [![CI](https://github.com/artvandervennet/artui/actions/workflows/ci.yml/badge.svg)](https://github.com/artvandervennet/artui/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -13,7 +13,7 @@ WCAG violations on 95.9% of the top one million homepages. Same six categories
 every year: contrast, alt text, form labels, empty links, empty buttons, missing
 language. The tooling keeps missing them.
 
-artui moves that catch to earlier in the pipeline:
+Artui moves that catch to earlier in the pipeline:
 
 - **Compile time** — missing alt text, placeholder alt values, unlabelled
   buttons are TypeScript errors. The code doesn't build.
@@ -48,7 +48,7 @@ edit them freely.
 claude mcp add --transport http artui https://artui.vandervennet.art/api/mcp
 ```
 
-Then ask your assistant: _"how do I add an accessible image with artui?"_
+Then ask your assistant: _"how do I add an accessible image with Artui?"_
 
 ## Packages
 

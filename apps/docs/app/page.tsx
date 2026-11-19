@@ -15,7 +15,7 @@ export default function HomePage() {
       {/* biome-ignore lint/a11y/noInteractiveElementToNoninteractiveRole: art-header is a custom element with no role of its own; it is the page's banner */}
       <art-header role="banner" label="On this page" data-paint="deep">
         <a slot="wordmark" href="#top">
-          artui
+          Artui
         </a>
         <a href="#contract">The contract</a>
         <a href="#distribution">Distribution</a>
@@ -87,7 +87,7 @@ export default function HomePage() {
               <h2 id="contract-h" className="section-title">
                 The contract
               </h2>
-              <p className="intro">Every artui component promises one or both of:</p>
+              <p className="intro">Every Artui component promises one or both of:</p>
             </div>
             <div className="section-body">
               <div className="card-grid">
@@ -124,7 +124,7 @@ export default function HomePage() {
                 Why shadcn-style distribution
               </h2>
               <p className="intro">
-                artui has no runtime package. The CLI copies component source into your repo.
+                Artui has no runtime package. The CLI copies component source into your repo.
               </p>
             </div>
             <div className="section-body">
@@ -159,7 +159,7 @@ export default function HomePage() {
           <div className="inner">
             <div className="section-head">
               <h2 id="limits-h" className="section-title">
-                What artui is not
+                What Artui is not
               </h2>
             </div>
             <div className="section-body">

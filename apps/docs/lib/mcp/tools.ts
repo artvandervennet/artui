@@ -23,7 +23,7 @@ export function registerTools(server: McpServer): void {
   server.registerTool(
     'list_components',
     {
-      description: 'List every artui component with a one-line summary and stability status.',
+      description: 'List every Artui component with a one-line summary and stability status.',
       inputSchema: {},
     },
     async () => {
@@ -43,7 +43,7 @@ export function registerTools(server: McpServer): void {
     'get_component_docs',
     {
       description:
-        "Full reference for one component: props (types, defaults, required), do/don'ts, related components. Use before suggesting any artui code.",
+        "Full reference for one component: props (types, defaults, required), do/don'ts, related components. Use before suggesting any Artui code.",
       inputSchema: {
         name: z.string().describe('Component name, e.g. "Image" or "Modal".'),
       },

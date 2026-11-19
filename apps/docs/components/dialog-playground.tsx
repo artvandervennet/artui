@@ -118,7 +118,7 @@ export function DialogPlayground() {
             clicking the backdrop.
           </p>
           <p className="text-xs text-fd-muted-foreground">
-            The dialog now uses the shared artui tokens: a neutral surface, solid border, and the
+            The dialog now uses the shared Artui tokens: a neutral surface, solid border, and the
             lighter <code className="font-mono">--artui-shadow-lg</code> elevation.
           </p>
           <Dialog

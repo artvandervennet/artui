@@ -1,4 +1,4 @@
-# artui
+# Artui
 
 Accessibility-first React component library. Components in `registry/` are the source of truth and are copied verbatim into consumer projects by the CLI (shadcn-style distribution) — there is no published runtime package.
 

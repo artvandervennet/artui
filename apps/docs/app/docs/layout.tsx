@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   return (
     <DocsLayout
       tree={source.pageTree}
-      nav={{ title: <span className="wordmark">artui</span>, url: '/' }}
+      nav={{ title: <span className="wordmark">Artui</span>, url: '/' }}
       sidebar={{ defaultOpenLevel: 1 }}
       githubUrl="https://github.com/artvandervennet/artui"
     >

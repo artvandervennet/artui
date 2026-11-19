@@ -1,9 +1,9 @@
 ---
 title: Enforcement hierarchy
-description: How artui makes accessibility violations impossible, then a compile-time error, then a visible dev overlay, in that order of preference.
+description: How Artui makes accessibility violations impossible, then a compile-time error, then a visible dev overlay, in that order of preference.
 ---
 
-artui uses three tiers of enforcement. Every component walks the list and stops at the first tier that applies. The point is to catch violations as early as possible, because an error you see in your editor is cheaper than one you find in production.
+Artui uses three tiers of enforcement. Every component walks the list and stops at the first tier that applies. The point is to catch violations as early as possible, because an error you see in your editor is cheaper than one you find in production.
 
 ## Tier 1: eliminate the failure mode via API shape
 
@@ -18,7 +18,7 @@ The bad state is not representable in TypeScript. No prop combination lets you a
 <Image decorative src="/hero-pattern.svg" />
 
 // Branch B: meaningful alt, the alt prop is required and must describe the image
-<Image src="/team-photo.jpg" alt="The artui core team at the 2025 offsite" />
+<Image src="/team-photo.jpg" alt="The Artui core team at the 2025 offsite" />
 ```
 
 There is no branch that renders a meaningful image without `alt`, and you cannot pass `decorative` and `alt` together, because `alt` is typed `never` on the decorative branch.

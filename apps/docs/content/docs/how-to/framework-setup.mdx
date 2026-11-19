@@ -1,9 +1,9 @@
 ---
 title: Framework setup
-description: Wire artui into Next.js App Router, Vite, or Remix, from initialisation through importing styles and handling React Server Components.
+description: Wire Artui into Next.js App Router, Vite, or Remix, from initialisation through importing styles and handling React Server Components.
 ---
 
-artui works in any project that understands TSX. The CLI copies component source into your repo, so there is no runtime package to install and no peer-dependency conflict to manage.
+Artui works in any project that understands TSX. The CLI copies component source into your repo, so there is no runtime package to install and no peer-dependency conflict to manage.
 
 ## Step 1: initialise
 
@@ -25,7 +25,7 @@ Components land in the directory you configured (default: `components/`). Each o
 
 ## Step 3: import the styles
 
-artui ships its design tokens in a standalone CSS file. Import it once in your global stylesheet, before any of your own rules:
+Artui ships its design tokens in a standalone CSS file. Import it once in your global stylesheet, before any of your own rules:
 
 ```css
 /* globals.css or app/global.css */
@@ -36,7 +36,7 @@ Each component's CSS is pulled in by the component file itself through a side-ef
 
 ## Next.js App Router
 
-artui components use React hooks (`useState`, `useEffect`, `useRef`), so they cannot run as React Server Components. The CLI does **not** add `"use client"` to the copied files. Add it yourself at the top of any copied component you intend to use in the App Router:
+Artui components use React hooks (`useState`, `useEffect`, `useRef`), so they cannot run as React Server Components. The CLI does **not** add `"use client"` to the copied files. Add it yourself at the top of any copied component you intend to use in the App Router:
 
 ```tsx
 'use client';
@@ -127,7 +127,7 @@ export const links: LinksFunction = () => [
 ];
 ```
 
-Interactive components have to render inside a client boundary. In Remix every route component runs on both the server and the client by default, which is fine for artui components as long as you do not import anything browser-only at the module level. If you call `useEffect` directly in a route module and hit hydration errors, move the artui component into a separate file and lazy-load it with `React.lazy` or Remix's `ClientOnly` helper.
+Interactive components have to render inside a client boundary. In Remix every route component runs on both the server and the client by default, which is fine for Artui components as long as you do not import anything browser-only at the module level. If you call `useEffect` directly in a route module and hit hydration errors, move the Artui component into a separate file and lazy-load it with `React.lazy` or Remix's `ClientOnly` helper.
 
 ## Do
 
@@ -152,12 +152,12 @@ import { type ReactElement, useState, useEffect } from 'react';
 /* rest of dialog.tsx */
 ```
 
-artui components use hooks. Without `'use client'`, Next.js throws a build error when it encounters a hook in a Server Component tree.
+Artui components use hooks. Without `'use client'`, Next.js throws a build error when it encounters a hook in a Server Component tree.
 </Do>
 
 ## Don't
 
-<Dont title="Install artui as a runtime npm dependency">
+<Dont title="Install Artui as a runtime npm dependency">
 ```bash
 npm install artui  # this is the CLI, not a component library
 ```

@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import './global.css';
 
 export const metadata = {
-  title: 'artui: accessibility-first React components',
+  title: 'Artui: accessibility-first React components',
   description: 'React components that treat inaccessibility as a compile-time error.',
 };
 
