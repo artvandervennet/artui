@@ -203,12 +203,15 @@ html:has(.landing) {
   text-wrap: balance;
 }
 
-/* Gesso's hero is sized for a name. This one holds a sentence. */
-.landing .hero h1 {
-  font-size: clamp(2.5rem, 1rem + 6.4vw, 6.5rem);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  max-inline-size: 14ch;
+/* The hero's title is the name, at the size Gesso gives it. The sentence under it is the
+   claim, a step below. */
+.landing .hero .tagline {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1rem + 2.5vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  max-inline-size: 18ch;
+  margin-block-start: var(--space-6);
 }
 
 .landing h2 {
@@ -245,13 +248,6 @@ html:has(.landing) {
   background: var(--surface-sunken);
   padding: 0.1em 0.35em;
   border-radius: var(--radius-chip);
-}
-
-.landing .eyebrow {
-  font-size: var(--step--1);
-  font-weight: var(--weight-medium);
-  color: var(--ink-muted);
-  margin-block-end: var(--space-6);
 }
 
 /* the one number the whole library exists for */

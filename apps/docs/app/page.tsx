@@ -31,17 +31,19 @@ export default function HomePage() {
       <main>
         <div id="top" className="band hero" data-paint="deep">
           <div className="inner">
-            <p className="eyebrow">Accessibility-first React components</p>
-            <h1>
+            {/* The site's name, and the wordmark: <art-header> flies it up into its place as you
+                scroll. */}
+            <h1 data-wordmark="">Artui</h1>
+            <p className="tagline">
               Inaccessibility is a{' '}
               <art-stroke pigment="stroke" seed="artui" animate>
                 compile&nbsp;error
               </art-stroke>
               .
-            </h1>
+            </p>
             <p className="lead">
-              Components that refuse to render inaccessibly. Copied into your repo, not installed
-              from npm.
+              Accessibility-first React components that refuse to render inaccessibly. Copied into
+              your repo, not installed from npm.
             </p>
             <div className="actions">
               <art-button size="l">
